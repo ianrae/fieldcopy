@@ -241,12 +241,23 @@ public class ValueTests {
 //	}
 	public static class ListValue<T> extends BaseValue {
 		private Class<T> elementClass;
+		private ValueFactory factory;
+		
 		public ListValue(Class<T> elementClass) {
 			this.elementClass = elementClass;
 			this.rawObject = new ArrayList<>();
 		}
+		public void setValueFactory(ValueFactory factory) {
+			this.factory = factory;
+		}
+		private void initValueFactoryIfNeeded() {
+			if (factory == null) {
+				factory = new DefaultValueFactory();
+			}
+		}
 		
-		public Value createEmptyElement(ValueFactory factory) {
+		public Value createEmptyElement() {
+			initValueFactoryIfNeeded();
 			if (elementClass.isEnum()) {
 				return factory.createEnumValue((Class<? extends Enum<?>>) elementClass);
 			} else {
@@ -256,17 +267,20 @@ public class ValueTests {
 		
 		@SuppressWarnings("unchecked")
 		public T get(int index) {
+			initValueFactoryIfNeeded();
 			List<Value> list = getValueList();
 			Value val = list.get(index);
 			return (T) val.getRawObject();
 		}
 		public void add(T obj) {
+			initValueFactoryIfNeeded();
 			List<Value> list = getValueList();
-			Value val = new StringValue();
+			Value val = createEmptyElement();
 			val.setRawObject(obj);
 			list.add(val);
 		}
 		public List<T> getList() {
+			initValueFactoryIfNeeded();
 			List<Value> list = getValueList();
 			List<T> outlist = new ArrayList<>();
 			for(Value val: list) {
@@ -852,7 +866,7 @@ public class ValueTests {
 
 				List<Value> newlist = new ArrayList<>();
 				for(Value val: list1.getValueList()) {
-					Value val2 = list2.createEmptyElement(factory);
+					Value val2 = list2.createEmptyElement();
 					ctx.copier.copy(val, val2);
 					newlist.add(val2);
 				}
