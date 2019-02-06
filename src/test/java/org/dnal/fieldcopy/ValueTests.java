@@ -217,53 +217,31 @@ public class ValueTests {
 			return FieldTypes.ENUM;
 		}
 	}
-//	public static class ListValue extends BaseValue {
-//		private int elementFieldType;
+//	public static class ListValue<T extends Value> extends BaseValue {
+//		private Class<T> elementClass;
 //
-//		public ListValue(int elementFieldType) {
-//			this.elementFieldType = elementFieldType;
+//		public ListValue(Class<T> elementClass) {
+//			this.elementClass = elementClass;
 //		}
-//		public List<Value> get() {
+//		public List<T> get() {
 //			@SuppressWarnings("unchecked")
-//			List<Value> t = (List<Value>) rawObject;
+//			List<T> t = (List<T>) rawObject;
 //			return t;
 //		}
-//		public void set(List<Value> val) {
+//		public void set(List<T> val) {
 //			rawObject = val;
 //		}
-//		public int getElementFieldType() {
-//			return elementFieldType;
+//		public Class<T> getElementClass() {
+//			return elementClass;
 //		}
 //		@Override
 //		public int getFieldType() {
 //			return FieldTypes.LIST;
 //		}
 //	}
-	public static class ListValue<T extends Value> extends BaseValue {
+	public static class ListValue<T> extends BaseValue {
 		private Class<T> elementClass;
-
 		public ListValue(Class<T> elementClass) {
-			this.elementClass = elementClass;
-		}
-		public List<T> get() {
-			@SuppressWarnings("unchecked")
-			List<T> t = (List<T>) rawObject;
-			return t;
-		}
-		public void set(List<T> val) {
-			rawObject = val;
-		}
-		public Class<T> getElementClass() {
-			return elementClass;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.LIST;
-		}
-	}
-	public static class YListValue<T> extends BaseValue {
-		private Class<T> elementClass;
-		public YListValue(Class<T> elementClass) {
 			this.elementClass = elementClass;
 			this.rawObject = new ArrayList<>();
 		}
@@ -297,6 +275,11 @@ public class ValueTests {
 			}
 			return outlist;
 		}
+//		public void setList(List<T> list) {
+//			for(T obj: list) {
+//				
+//			}
+//		}
 		public List<Value> getValueList() {
 			@SuppressWarnings("unchecked")
 			List<Value> list = (List<Value>) rawObject;
@@ -311,62 +294,53 @@ public class ValueTests {
 		}
 	}
 	
-	public static class StringListValue extends ListValue<StringValue> {
+	public static class StringListValue extends ListValue<String> {
 		public StringListValue() {
-			super(StringValue.class);
+			super(String.class);
 		}
-		public List<String> getList() {
-			@SuppressWarnings("unchecked")
-			List<StringValue> t = (List<StringValue>) rawObject;
-			List<String> list = new ArrayList<>();
-			for(StringValue val: t) {
-				list.add(val.get());
-			}
-			return list;
-		}
-		public void setList(List<String> list) {
-			List<StringValue> vallist = new ArrayList<>();
-			for(String s: list) {
-				StringValue sval = new StringValue();
-				sval.set(s);
-				vallist.add(sval);
-			}
-			rawObject = vallist;
-		}
+//		public void setList(List<String> list) {
+//			List<StringValue> vallist = new ArrayList<>();
+//			for(String s: list) {
+//				StringValue sval = new StringValue();
+//				sval.set(s);
+//				vallist.add(sval);
+//			}
+//			rawObject = vallist;
+//		}
 	}
 	//TODO define bool, int, etc list
 	
-	public static class EnumListValue<T extends Enum<T>> extends ListValue<EnumValue> {
-		private Class<T> enumClass;
-		
-		public EnumListValue(Class<T> enumClass) {
-			super(EnumValue.class);
-			this.enumClass = enumClass;
-		}
-		public List<T> getList() {
-			@SuppressWarnings("unchecked")
-			List<EnumValue<T>> vallist = (List<EnumValue<T>>) rawObject;
-			List<T> list = new ArrayList<>();
-			for(Value val: vallist) {
-				@SuppressWarnings("unchecked")
-				T obj = (T) val.getRawObject();
-				list.add(obj);
-			}
-			return list;
-		}
-		public void setList(List<T> list) {
-			List<Value> vallist = new ArrayList<>();
-			for(T s: list) {
-				EnumValue<T> sval = new EnumValue<>(enumClass);
-				sval.set(s);
-				vallist.add(sval);
-			}
-			rawObject = vallist;
-		}
-		public Class<T> getEnumClass() {
-			return enumClass;
-		}
-	}
+//	public static class EnumListValue<T extends Enum<T>> extends ListValue<EnumValue> {
+//		private Class<T> enumClass;
+//		
+//		public EnumListValue(Class<T> enumClass) {
+//			super(EnumValue.class);
+//			this.enumClass = enumClass;
+//		}
+//		public List<T> getList() {
+//			@SuppressWarnings("unchecked")
+//			List<EnumValue<T>> vallist = (List<EnumValue<T>>) rawObject;
+//			List<T> list = new ArrayList<>();
+//			for(Value val: vallist) {
+//				@SuppressWarnings("unchecked")
+//				T obj = (T) val.getRawObject();
+//				list.add(obj);
+//			}
+//			return list;
+//		}
+//		public void setList(List<T> list) {
+//			List<Value> vallist = new ArrayList<>();
+//			for(T s: list) {
+//				EnumValue<T> sval = new EnumValue<>(enumClass);
+//				sval.set(s);
+//				vallist.add(sval);
+//			}
+//			rawObject = vallist;
+//		}
+//		public Class<T> getEnumClass() {
+//			return enumClass;
+//		}
+//	}
 	
 	public static class StructValue<T> extends BaseValue {
 		private Class<T> structClass;
@@ -865,9 +839,9 @@ public class ValueTests {
 		}
 		@Override
 		public void copyTo(Value src, Value dest,  CopyHandlerContext ctx) {
-			if (YListValue.class.isAssignableFrom(dest.getClass())) {
-				YListValue<?> list1 = (YListValue<?>) src;
-				YListValue<?> list2 = (YListValue<?>) dest;
+			if (ListValue.class.isAssignableFrom(dest.getClass())) {
+				ListValue<?> list1 = (ListValue<?>) src;
+				ListValue<?> list2 = (ListValue<?>) dest;
 			
 				if (list1.getElementClass().equals(list2.getElementClass())) {
 					//TODO: not copying the list may cause problems in app logic. fix
@@ -883,26 +857,6 @@ public class ValueTests {
 					newlist.add(val2);
 				}
 				list2.setRawObject(newlist);
-			} else if (ListValue.class.isAssignableFrom(dest.getClass())) {
-				ListValue<?> list1 = (ListValue<?>) src;
-				@SuppressWarnings("unchecked")
-				ListValue<? extends Value> list2 = (ListValue<? extends Value>) dest;
-			
-				if (list1.getElementClass().equals(list2.getElementClass())) {
-					//TODO: not copying the list may cause problems in app logic. fix
-					@SuppressWarnings("unchecked")
-					List<Value> shallowCopy = new ArrayList<>(list1.get());
-					dest.setRawObject(shallowCopy);
-					return;
-				}
-
-				List newlist = new ArrayList<>();
-				for(Value val: list1.get()) {
-					Value val2 = createXValue(list2, list2.getElementClass());
-					ctx.copier.copy(val, val2);
-					newlist.add(val2);
-				}
-				list2.set(newlist);
 			} else {
 				throwError(src, dest.getFieldType(), ctx);
 			}
@@ -911,25 +865,6 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			throwError(src, fieldType, ctx);
 			return null;
-		}
-
-//		private Value createValue(ListValue list, int fieldType) {
-//			//only way to support enum value creation is to use EnumListValue
-//			if (list instanceof EnumListValue<?>) {
-//				EnumListValue<?> evlist = (EnumListValue<?>) list;
-//				return factory.createEnumValue(fieldType, evlist.getEnumClass());
-//			}
-//			
-//			return factory.createValue(fieldType); 
-//		}
-		private Value createXValue(ListValue<?> list, Class<? extends Value> elementClass) {
-			//only way to support enum value creation is to use EnumListValue
-			if (elementClass.equals(EnumValue.class)) {
-				EnumListValue listxx = (EnumListValue) list;
-				return factory.createEnumValue(listxx.getEnumClass());
-			}
-			
-			return factory.createXValue(elementClass); 
 		}
 	}
 	
@@ -1299,17 +1234,17 @@ public class ValueTests {
 		public final LongValue SIZE = new LongValue();
 		public final EnumValue<Enum1> RANK = new EnumValue<>(Enum1.class);
 		public final EnumValue<Enum2> RANK2 = new EnumValue<>(Enum2.class);
-		public final ListValue<StringValue> ROLES = new ListValue<>(StringValue.class);
-		public final ListValue<IntegerValue> PERMS = new ListValue<>(IntegerValue.class);
+		public final ListValue<String> ROLES = new ListValue<>(String.class);
+		public final ListValue<Integer> PERMS = new ListValue<>(Integer.class);
 		
 		public final StringListValue SROLES = new StringListValue();
-		public final EnumListValue<Enum1> EROLES = new EnumListValue<>(Enum1.class);
+		public final ListValue<Enum1> EROLES = new ListValue<>(Enum1.class);
 		
 		public final StructValue<Person> PERSON = new StructValue<>(Person.class);
 		public final StructValue<Customer> CUSTOMER = new StructValue<>(Customer.class);
 		
-		public final YListValue<Integer> XIROLES = new YListValue(Integer.class);
-		public final YListValue<String> XSROLES = new YListValue(String.class);
+		public final ListValue<Integer> XIROLES = new ListValue(Integer.class);
+		public final ListValue<String> XSROLES = new ListValue(String.class);
 	}
 	
 	public static class Person {
@@ -1785,13 +1720,9 @@ public class ValueTests {
 	public void testObjCopierList1() throws Exception {
 		SampleClass1 obj = new SampleClass1();
 		List<String> strlist = Arrays.asList("abc", "def");
-		List<StringValue> list = new ArrayList<>();
 		for(String s: strlist) {
-			StringValue sv = new StringValue();
-			sv.set(s);
-			list.add(sv);
+			obj.ROLES.add(s);
 		}
-		obj.ROLES.set(list);
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1799,9 +1730,9 @@ public class ValueTests {
 		FieldCopyBuilder builder = createFieldCopierBuilder(reg); 
 		builder.copy(obj, obj2).copyField(obj.ROLES, obj2.ROLES).execute();
 		
-		List<StringValue> outlist = obj2.ROLES.get();
+		List<String> outlist = obj2.ROLES.getList();
 		assertEquals(2, outlist.size());
-		assertEquals("abc", outlist.get(0).getRawObject().toString());
+		assertEquals("abc", outlist.get(0));
 	}
 	
 	@Test
@@ -1810,11 +1741,8 @@ public class ValueTests {
 		List<Integer> strlist = Arrays.asList(33, 44);
 		List<IntegerValue> list = new ArrayList<>();
 		for(Integer n: strlist) {
-			IntegerValue sv = new IntegerValue();
-			sv.set(n);
-			list.add(sv);
+			obj.PERMS.add(n);
 		}
-		obj.PERMS.set(list);
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1822,17 +1750,19 @@ public class ValueTests {
 		FieldCopyBuilder builder = createFieldCopierBuilder(reg); 
 		builder.copy(obj, obj2).copyField(obj.PERMS, obj2.ROLES).execute();
 		
-		List<StringValue> outlist = obj2.ROLES.get();
+		List<String> outlist = obj2.ROLES.getList();
 		assertEquals(2, outlist.size());
-		StringValue vv = (StringValue) outlist.get(0);
-		assertEquals("33", vv.get());
+		String vv = outlist.get(0);
+		assertEquals("33", vv);
 	}
 	
 	@Test
 	public void testObjCopierList3() throws Exception {
 		SampleClass1 obj = new SampleClass1();
 		List<String> strlist = Arrays.asList("abc", "def");
-		obj.SROLES.setList(strlist);
+		for(String s: strlist) {
+			obj.SROLES.add(s);
+		}
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1886,7 +1816,9 @@ public class ValueTests {
 	public void testObjCopierList4() throws Exception {
 		SampleClass1 obj = new SampleClass1();
 		List<Enum1> strlist = Arrays.asList(Enum1.ALPHA, Enum1.BETA);
-		obj.EROLES.setList(strlist);
+		for(Enum1 en: strlist) {
+			obj.EROLES.add(en);
+		}
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1903,7 +1835,9 @@ public class ValueTests {
 	public void testObjCopierList5() throws Exception {
 		SampleClass1 obj = new SampleClass1();
 		List<Enum1> strlist = Arrays.asList(Enum1.ALPHA, Enum1.BETA);
-		obj.EROLES.setList(strlist);
+		for(Enum1 en: strlist) {
+			obj.EROLES.add(en);
+		}
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1911,16 +1845,18 @@ public class ValueTests {
 		FieldCopyBuilder builder = createFieldCopierBuilder(reg); 
 		builder.copy(obj, obj2).copyField(obj.EROLES, obj2.ROLES).execute();
 		
-		List<StringValue> outlist = obj2.ROLES.get();
+		List<String> outlist = obj2.ROLES.getList();
 		assertEquals(2, outlist.size());
-		StringValue val = outlist.get(0);
-		assertEquals("ALPHA", val.get());
+		String val = outlist.get(0);
+		assertEquals("ALPHA", val);
 	}
 	@Test
 	public void testObjCopierList5a() throws Exception {
 		SampleClass1 obj = new SampleClass1();
 		List<String> strlist = Arrays.asList("ALPHA", "BETA");
-		obj.SROLES.setList(strlist);
+		for(String s: strlist) {
+			obj.SROLES.add(s);
+		}
 
 		FieldRegistry reg = initReg(obj);
 		SampleClass1 obj2 = new SampleClass1();
@@ -1928,10 +1864,10 @@ public class ValueTests {
 		FieldCopyBuilder builder = createFieldCopierBuilder(reg); 
 		builder.copy(obj, obj2).copyField(obj.SROLES, obj2.EROLES).execute();
 		
-		List<EnumValue> outlist = obj2.EROLES.get();
+		List<Enum1> outlist = obj2.EROLES.getList();
 		assertEquals(2, outlist.size());
-		EnumValue<Enum1> val = outlist.get(0);
-		assertEquals(Enum1.ALPHA, val.get());
+		Enum1 val = outlist.get(0);
+		assertEquals(Enum1.ALPHA, val);
 	}
 	@Test
 	public void testObjCopierStruct6() throws Exception {
