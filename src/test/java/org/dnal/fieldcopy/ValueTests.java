@@ -217,28 +217,6 @@ public class ValueTests {
 			return FieldTypes.ENUM;
 		}
 	}
-//	public static class ListValue<T extends Value> extends BaseValue {
-//		private Class<T> elementClass;
-//
-//		public ListValue(Class<T> elementClass) {
-//			this.elementClass = elementClass;
-//		}
-//		public List<T> get() {
-//			@SuppressWarnings("unchecked")
-//			List<T> t = (List<T>) rawObject;
-//			return t;
-//		}
-//		public void set(List<T> val) {
-//			rawObject = val;
-//		}
-//		public Class<T> getElementClass() {
-//			return elementClass;
-//		}
-//		@Override
-//		public int getFieldType() {
-//			return FieldTypes.LIST;
-//		}
-//	}
 	public static class ListValue<T> extends BaseValue {
 		private Class<T> elementClass;
 		private ValueFactory factory;
@@ -289,11 +267,14 @@ public class ValueTests {
 			}
 			return outlist;
 		}
-//		public void setList(List<T> list) {
-//			for(T obj: list) {
-//				
-//			}
-//		}
+		public void setList(List<T> list) {
+			List<Value> vlist = getValueList();
+			for(T obj: list) {
+				Value val = createEmptyElement();
+				val.setRawObject(obj);
+				vlist.add(val);
+			}
+		}
 		public List<Value> getValueList() {
 			@SuppressWarnings("unchecked")
 			List<Value> list = (List<Value>) rawObject;
@@ -312,49 +293,9 @@ public class ValueTests {
 		public StringListValue() {
 			super(String.class);
 		}
-//		public void setList(List<String> list) {
-//			List<StringValue> vallist = new ArrayList<>();
-//			for(String s: list) {
-//				StringValue sval = new StringValue();
-//				sval.set(s);
-//				vallist.add(sval);
-//			}
-//			rawObject = vallist;
-//		}
 	}
 	//TODO define bool, int, etc list
 	
-//	public static class EnumListValue<T extends Enum<T>> extends ListValue<EnumValue> {
-//		private Class<T> enumClass;
-//		
-//		public EnumListValue(Class<T> enumClass) {
-//			super(EnumValue.class);
-//			this.enumClass = enumClass;
-//		}
-//		public List<T> getList() {
-//			@SuppressWarnings("unchecked")
-//			List<EnumValue<T>> vallist = (List<EnumValue<T>>) rawObject;
-//			List<T> list = new ArrayList<>();
-//			for(Value val: vallist) {
-//				@SuppressWarnings("unchecked")
-//				T obj = (T) val.getRawObject();
-//				list.add(obj);
-//			}
-//			return list;
-//		}
-//		public void setList(List<T> list) {
-//			List<Value> vallist = new ArrayList<>();
-//			for(T s: list) {
-//				EnumValue<T> sval = new EnumValue<>(enumClass);
-//				sval.set(s);
-//				vallist.add(sval);
-//			}
-//			rawObject = vallist;
-//		}
-//		public Class<T> getEnumClass() {
-//			return enumClass;
-//		}
-//	}
 	
 	public static class StructValue<T> extends BaseValue {
 		private Class<T> structClass;
@@ -1211,7 +1152,6 @@ public class ValueTests {
 		
 		FieldCopier createFieldCopier() {
 			registry.options.logEachCopy = true;
-			//ValueCopier copier = new ValueCopier(logger, registry);
 			FieldCopier fieldCopier = new FieldCopier(registry, copier, registry.logger);
 			return fieldCopier;
 		}
