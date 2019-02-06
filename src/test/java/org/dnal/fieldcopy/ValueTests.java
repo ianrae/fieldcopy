@@ -22,171 +22,6 @@ import org.junit.Test;
 public class ValueTests {
 
 
-	/**
-	 * Not using enum so that field types are extensbile.
-	 * @author ian
-	 *
-	 */
-	public static class FieldTypes {
-		public static final int BOOLEAN = 1;
-		public static final int INTEGER = 2;
-		public static final int LONG = 3;
-		public static final int DOUBLE = 4;
-		public static final int STRING = 5;
-		public static final int DATE = 6;
-		public static final int ENUM = 7;
-		public static final int LIST = 8;
-		public static final int STRUCT = 9;
-	}
-
-	/*
-	xINTEGER,
-	xLONG,
-	xNUMBER,
-	xBOOLEAN,
-	xSTRING,
-	xDATE,
-	xLIST,
-	MAP,
-	STRUCT,
-	xENUM,
-	ANY
-	 * 
-	 */
-
-	public interface Value {
-		int getFieldType();
-		String name();
-		void setNameInternal(String name);
-		Object getRawObject();
-		void setRawObject(Object val);
-		boolean isNull();
-	}
-	public abstract static class BaseValue implements Value {
-		protected String name;
-		protected Object rawObject;
-
-		@Override
-		public String name() {
-			return name;
-		}
-		@Override
-		public void setNameInternal(String name) {
-			this.name = name;
-		}
-
-		@Override
-		public Object getRawObject() {
-			return rawObject;
-		}
-
-		@Override
-		public void setRawObject(Object val) {
-			rawObject = val;
-		}
-
-		@Override
-		public boolean isNull() {
-			return rawObject == null;
-		}
-		@Override
-		public String toString() {
-			return rawObject.toString();
-		}
-	}
-	public static class IntegerValue extends BaseValue {
-		public Integer get() {
-			Integer n = (Integer) rawObject;
-			return n;
-		}
-		public void set(Integer val) {
-			rawObject = val;
-		}
-		
-		public int getInt() {
-			Integer n = (Integer) rawObject;
-			return n;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.INTEGER;
-		}
-	}
-	public static class LongValue extends BaseValue {
-		public Long get() {
-			Long n = (Long) rawObject;
-			return n;
-		}
-		public void set(Long val) {
-			rawObject = val;
-		}
-		
-		public long getLong() {
-			Long n = (Long) rawObject;
-			return n;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.LONG;
-		}
-	}
-	public static class DoubleValue extends BaseValue {
-		public Double get() {
-			Double n = (Double) rawObject;
-			return n;
-		}
-		public void set(Double val) {
-			rawObject = val;
-		}
-		
-		public double getDouble() {
-			Double n = (Double) rawObject;
-			return n;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.DOUBLE;
-		}
-	}
-	public static class BooleanValue extends BaseValue {
-		public Boolean get() {
-			Boolean n = (Boolean) rawObject;
-			return n;
-		}
-		public void set(Boolean val) {
-			rawObject = val;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.BOOLEAN;
-		}
-	}
-	public static class StringValue extends BaseValue {
-		public String get() {
-			return rawObject.toString();
-		}
-		public void set(String val) {
-			rawObject = val;
-		}
-		@Override
-		public int getFieldType() {
-			return FieldTypes.STRING;
-		}
-	}
-	public static class DateValue extends BaseValue {
-		public Date get() {
-			Date n = (Date) rawObject;
-			return n;
-		}
-		public void set(Date val) {
-			rawObject = val;
-		}
-		
-		@Override
-		public int getFieldType() {
-			return FieldTypes.DATE;
-		}
-	}
 	public static class EnumValue<T extends Enum<?>> extends BaseValue {
 		private Class<T> enumClass;
 
@@ -213,8 +48,8 @@ public class ValueTests {
 		}
 		
 		@Override
-		public int getFieldType() {
-			return FieldTypes.ENUM;
+		public int getValueType() {
+			return ValueTypes.ENUM;
 		}
 	}
 	public static class ListValue<T> extends BaseValue {
@@ -280,8 +115,8 @@ public class ValueTests {
 			return elementClass;
 		}
 		@Override
-		public int getFieldType() {
-			return FieldTypes.LIST;
+		public int getValueType() {
+			return ValueTypes.LIST;
 		}
 	}
 	
@@ -315,8 +150,8 @@ public class ValueTests {
 		}
 		
 		@Override
-		public int getFieldType() {
-			return FieldTypes.STRUCT;
+		public int getValueType() {
+			return ValueTypes.STRUCT;
 		}
 	}
 
@@ -527,7 +362,7 @@ public class ValueTests {
 				return;
 			}
 			
-			Object obj = copyToRawObject(src.getRawObject(), dest.getFieldType(), ctx);
+			Object obj = copyToRawObject(src.getRawObject(), dest.getValueType(), ctx);
 			dest.setRawObject(obj);
 		}		
 		protected abstract Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx);
@@ -538,7 +373,7 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			Boolean n = (Boolean) src;
 			switch(fieldType) {
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return n.toString();
 			default:
 				break;
@@ -552,11 +387,11 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			Integer n = (Integer) src;
 			switch(fieldType) {
-			case FieldTypes.LONG:
+			case ValueTypes.LONG:
 				return n.longValue();
-			case FieldTypes.DOUBLE:
+			case ValueTypes.DOUBLE:
 				return n.doubleValue();
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return n.toString();
 			default:
 				break;
@@ -570,17 +405,17 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			Long n = (Long) src;
 			switch(fieldType) {
-			case FieldTypes.INTEGER:
+			case ValueTypes.INTEGER:
 			{
 				if (n >= Integer.MIN_VALUE && n <= Integer.MAX_VALUE) {
 					return n.intValue();
 				}
 			}
-			case FieldTypes.DOUBLE:
+			case ValueTypes.DOUBLE:
 				return n.doubleValue();
-			case FieldTypes.DATE:
+			case ValueTypes.DATE:
 				return new Date(n);
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return n.toString();
 			default:
 				break;
@@ -594,7 +429,7 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			Double n = (Double) src;
 			switch(fieldType) {
-			case FieldTypes.INTEGER:
+			case ValueTypes.INTEGER:
 			{
 				long iPart = (long) n.doubleValue();
 				double fPart = n - iPart;
@@ -604,7 +439,7 @@ public class ValueTests {
 					}
 				}
 			}
-			case FieldTypes.LONG:
+			case ValueTypes.LONG:
 			{
 				long iPart = (long) n.doubleValue();
 				double fPart = n - iPart;
@@ -612,7 +447,7 @@ public class ValueTests {
 					return iPart;
 				}
 			}
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return n.toString();
 			default:
 				break;
@@ -626,9 +461,9 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			Date dt = (Date) src;
 			switch(fieldType) {
-			case FieldTypes.LONG:
+			case ValueTypes.LONG:
 				return dt.getTime();
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return dt.toString(); //TODO: add formatter
 			default:
 				break;
@@ -654,7 +489,7 @@ public class ValueTests {
 				Object value = FieldCopyUtils.createEnumObject(name, clazz);
 				dest.setRawObject(value);
 			} else {
-				Object obj = copyToRawObject(src.getRawObject(), dest.getFieldType(), ctx);
+				Object obj = copyToRawObject(src.getRawObject(), dest.getValueType(), ctx);
 				dest.setRawObject(obj);
 			}
 		}		
@@ -664,12 +499,12 @@ public class ValueTests {
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			String s = (String) src;
 			switch(fieldType) {
-			case FieldTypes.BOOLEAN:
+			case ValueTypes.BOOLEAN:
 				if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false")) {
 					return Boolean.parseBoolean(s);
 				}
 				break;
-			case FieldTypes.INTEGER:
+			case ValueTypes.INTEGER:
 			{
 				Integer n = 0;
 				try {
@@ -678,7 +513,7 @@ public class ValueTests {
 				}
 				return n;
 			}
-			case FieldTypes.LONG:
+			case ValueTypes.LONG:
 			{
 				Long n = 0L;
 				try {
@@ -687,7 +522,7 @@ public class ValueTests {
 				}
 				return n;
 			}
-			case FieldTypes.DOUBLE:
+			case ValueTypes.DOUBLE:
 			{
 				Double n = 0.0;
 				try {
@@ -722,7 +557,7 @@ public class ValueTests {
 				Object value = FieldCopyUtils.createEnumObject(name, clazz);
 				dest.setRawObject(value);
 			} else {
-				Object obj = copyToRawObject(src.getRawObject(), dest.getFieldType(), ctx);
+				Object obj = copyToRawObject(src.getRawObject(), dest.getValueType(), ctx);
 				dest.setRawObject(obj);
 			}
 		}		
@@ -731,7 +566,7 @@ public class ValueTests {
 		@Override
 		protected Object copyToRawObject(Object src, int fieldType,  CopyHandlerContext ctx) {
 			switch(fieldType) {
-			case FieldTypes.STRING:
+			case ValueTypes.STRING:
 				return src.toString();
 			default:
 				break;
@@ -765,7 +600,7 @@ public class ValueTests {
 				}
 				list2.setRawObject(newlist);
 			} else {
-				throwError(src, dest.getFieldType(), ctx);
+				throwError(src, dest.getValueType(), ctx);
 			}
 		}		
 		@Override
@@ -795,7 +630,7 @@ public class ValueTests {
 				}
 				builder.copy(obj1, obj2).autoCopy().execute();
 			} else {
-				throwError(src, dest.getFieldType(), ctx);
+				throwError(src, dest.getValueType(), ctx);
 			}
 		}		
 		private Object createObj(Class<?> structClass) {
@@ -829,26 +664,26 @@ public class ValueTests {
 		public ValueCopier(SimpleLogger logger, FieldRegistry registry, ValueFactory factory) {
 			this.logger = logger;
 			
-			handlerMap.put(FieldTypes.BOOLEAN, new BooleanCopyHandler());
-			handlerMap.put(FieldTypes.INTEGER, new IntegerCopyHandler());
-			handlerMap.put(FieldTypes.LONG, new LongCopyHandler());
-			handlerMap.put(FieldTypes.DOUBLE, new DoubleCopyHandler());
-			handlerMap.put(FieldTypes.STRING, new StringCopyHandler());
-			handlerMap.put(FieldTypes.DATE, new DateCopyHandler());
-			handlerMap.put(FieldTypes.ENUM, new EnumCopyHandler());
+			handlerMap.put(ValueTypes.BOOLEAN, new BooleanCopyHandler());
+			handlerMap.put(ValueTypes.INTEGER, new IntegerCopyHandler());
+			handlerMap.put(ValueTypes.LONG, new LongCopyHandler());
+			handlerMap.put(ValueTypes.DOUBLE, new DoubleCopyHandler());
+			handlerMap.put(ValueTypes.STRING, new StringCopyHandler());
+			handlerMap.put(ValueTypes.DATE, new DateCopyHandler());
+			handlerMap.put(ValueTypes.ENUM, new EnumCopyHandler());
 			
 			//list 
-			handlerMap.put(FieldTypes.LIST, new ListCopyHandler());
+			handlerMap.put(ValueTypes.LIST, new ListCopyHandler());
 			
 			//struct handler
 			FieldCopyBuilder builder = new FieldCopyBuilder(registry, this, logger);
-			handlerMap.put(FieldTypes.STRUCT, new StructCopyHandler(builder));
+			handlerMap.put(ValueTypes.STRUCT, new StructCopyHandler(builder));
 		}
 		public void copy(Value val1, Value val2) {
 			if (val1.isNull()) {
 				val2.setRawObject(null);
 			} else {
-				ObjectCopyHandler handler = handlerMap.get(val1.getFieldType());
+				ObjectCopyHandler handler = handlerMap.get(val1.getValueType());
 				if (handler == null) {
 					String error = String.format("Incompatible field copy: %s (no handler)", FieldCopyUtils.classNameForObj(val1));
 					throw new FieldCopyException(error);
