@@ -236,11 +236,7 @@ public class ValueTests {
 		
 		public Value createEmptyElement() {
 			initValueFactoryIfNeeded();
-			if (elementClass.isEnum()) {
-				return factory.createEnumValue((Class<? extends Enum<?>>) elementClass);
-			} else {
-				return factory.createYValue(elementClass);
-			}
+			return factory.createValue(elementClass);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -325,57 +321,16 @@ public class ValueTests {
 	}
 
 	public interface ValueFactory {
-		Value createValue(int fieldType);
-		Value createEnumValue(Class<? extends Enum<?>> enumClass);
-		Value createXValue(Class<?>clazz);
-		Value createYValue(Class<?>clazz);
+		Value createValue(Class<?>clazz);
 	}
 	
 	public static class DefaultValueFactory implements ValueFactory {
 		@Override
-		public Value createValue(int fieldType) {
-			switch(fieldType) {
-			case FieldTypes.BOOLEAN:
-				return new BooleanValue();
-			case FieldTypes.INTEGER:
-				return new IntegerValue();
-			case FieldTypes.LONG:
-				return new LongValue();
-			case FieldTypes.DOUBLE:
-				return new DoubleValue();
-			case FieldTypes.DATE:
-				return new DateValue();
-			case FieldTypes.STRING:
-				return new StringValue();
-			default:
-				throw new FieldCopyException(String.format("unknown fieldtype %d", fieldType));
-			}
-		}
-		@Override
-		public Value createEnumValue(Class<? extends Enum<?>> enumClass) {
-			return new EnumValue<>(enumClass); 
-		}
-		@Override
-		public Value createXValue(Class<?>clazz) {
-			if (clazz.equals(BooleanValue.class)) {
-				return new BooleanValue();
-			} else if (clazz.equals(IntegerValue.class)) {
-				return new IntegerValue();
-			} else if (clazz.equals(LongValue.class)) {
-				return new LongValue();
-			} else if (clazz.equals(DoubleValue.class)) {
-				return new DoubleValue();
-			} else if (clazz.equals(DateValue.class)) {
-				return new DateValue();
-			} else if (clazz.equals(StringValue.class)) {
-				return new StringValue();
-			} else {
-				throw new FieldCopyException(String.format("unknown class: %s", clazz.getName()));
-			}
-		}
-		@Override
-		public Value createYValue(Class<?>clazz) {
-			if (clazz.equals(Boolean.class)) {
+		public Value createValue(Class<?>clazz) {
+			if (clazz.isEnum()) {
+				Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) clazz;
+				return new EnumValue<>(enumClass); 
+			} else if (clazz.equals(Boolean.class)) {
 				return new BooleanValue();
 			} else if (clazz.equals(Integer.class)) {
 				return new IntegerValue();
@@ -786,11 +741,8 @@ public class ValueTests {
 		}
 	}
 	public static class ListCopyHandler extends BaseObjectCopyHandler {
-		
-		private ValueFactory factory;
 
-		public ListCopyHandler(ValueFactory factory) {
-			this.factory = factory;
+		public ListCopyHandler() {
 		}
 		@Override
 		public void copyTo(Value src, Value dest,  CopyHandlerContext ctx) {
@@ -886,7 +838,7 @@ public class ValueTests {
 			handlerMap.put(FieldTypes.ENUM, new EnumCopyHandler());
 			
 			//list 
-			handlerMap.put(FieldTypes.LIST, new ListCopyHandler(factory));
+			handlerMap.put(FieldTypes.LIST, new ListCopyHandler());
 			
 			//struct handler
 			FieldCopyBuilder builder = new FieldCopyBuilder(registry, this, logger);
