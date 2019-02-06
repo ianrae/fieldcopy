@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dnal.fieldcopy.factory.DefaultValueFactory;
+import org.dnal.fieldcopy.factory.ValueFactory;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -22,104 +24,6 @@ import org.junit.Test;
 public class ValueTests {
 
 
-	public static class EnumValue<T extends Enum<?>> extends BaseValue {
-		private Class<T> enumClass;
-
-		public EnumValue(Class<T> enumClass) {
-			this.enumClass = enumClass;
-			if (enumClass == null) {
-				throw new FieldCopyException("NULL passed to EnumValue constructor");
-			}
-			if (! enumClass.isEnum()) {
-				String error = String.format("'%s' is not an enum", enumClass.getName());
-				throw new FieldCopyException(error);
-			}
-		}
-		public T get() {
-			@SuppressWarnings("unchecked")
-			T t = (T) rawObject;
-			return t;
-		}
-		public void set(T val) {
-			rawObject = val;
-		}
-		public Class<T> getEnumClass() {
-			return enumClass;
-		}
-		
-		@Override
-		public int getValueType() {
-			return ValueTypes.ENUM;
-		}
-	}
-	public static class ListValue<T> extends BaseValue {
-		private Class<T> elementClass;
-		private ValueFactory factory;
-		
-		public ListValue(Class<T> elementClass) {
-			this.elementClass = elementClass;
-			this.rawObject = new ArrayList<>();
-		}
-		public void setValueFactory(ValueFactory factory) {
-			this.factory = factory;
-		}
-		private void initValueFactoryIfNeeded() {
-			if (factory == null) {
-				factory = new DefaultValueFactory();
-			}
-		}
-		
-		public Value createEmptyElement() {
-			initValueFactoryIfNeeded();
-			return factory.createValue(elementClass);
-		}
-		
-		@SuppressWarnings("unchecked")
-		public T get(int index) {
-			initValueFactoryIfNeeded();
-			List<Value> list = getValueList();
-			Value val = list.get(index);
-			return (T) val.getRawObject();
-		}
-		public void add(T obj) {
-			initValueFactoryIfNeeded();
-			List<Value> list = getValueList();
-			Value val = createEmptyElement();
-			val.setRawObject(obj);
-			list.add(val);
-		}
-		public List<T> getList() {
-			initValueFactoryIfNeeded();
-			List<Value> list = getValueList();
-			List<T> outlist = new ArrayList<>();
-			for(Value val: list) {
-				Object obj = val.getRawObject();
-				outlist.add((T) obj);
-			}
-			return outlist;
-		}
-		public void setList(List<T> list) {
-			List<Value> vlist = getValueList();
-			for(T obj: list) {
-				Value val = createEmptyElement();
-				val.setRawObject(obj);
-				vlist.add(val);
-			}
-		}
-		public List<Value> getValueList() {
-			@SuppressWarnings("unchecked")
-			List<Value> list = (List<Value>) rawObject;
-			return list;
-		}
-		public Class<T> getElementClass() {
-			return elementClass;
-		}
-		@Override
-		public int getValueType() {
-			return ValueTypes.LIST;
-		}
-	}
-	
 	public static class StringListValue extends ListValue<String> {
 		public StringListValue() {
 			super(String.class);
@@ -128,68 +32,6 @@ public class ValueTests {
 	//TODO define bool, int, etc list
 	
 	
-	public static class StructValue<T> extends BaseValue {
-		private Class<T> structClass;
-
-		public StructValue(Class<T> structClass) {
-			this.structClass = structClass;
-			if (structClass == null) {
-				throw new FieldCopyException("NULL passed to StructValue constructor");
-			}
-		}
-		public T get() {
-			@SuppressWarnings("unchecked")
-			T t = (T) rawObject;
-			return t;
-		}
-		public void set(T val) {
-			rawObject = val;
-		}
-		public Class<T> getStructClass() {
-			return structClass;
-		}
-		
-		@Override
-		public int getValueType() {
-			return ValueTypes.STRUCT;
-		}
-	}
-
-	public interface ValueFactory {
-		Value createValue(Class<?>clazz);
-	}
-	
-	public static class DefaultValueFactory implements ValueFactory {
-		@Override
-		public Value createValue(Class<?>clazz) {
-			if (clazz.isEnum()) {
-				Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) clazz;
-				return new EnumValue<>(enumClass); 
-			} else if (clazz.equals(Boolean.class)) {
-				return new BooleanValue();
-			} else if (clazz.equals(Integer.class)) {
-				return new IntegerValue();
-			} else if (clazz.equals(Long.class)) {
-				return new LongValue();
-			} else if (clazz.equals(Double.class)) {
-				return new DoubleValue();
-			} else if (clazz.equals(Date.class)) {
-				return new DateValue();
-			} else if (clazz.equals(String.class)) {
-				return new StringValue();
-			} else {
-				throw new FieldCopyException(String.format("unknown class: %s", clazz.getName()));
-			}
-		}
-	}
-	
-	public static class FieldCopyException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-
-		public FieldCopyException(String msg) {
-			super(msg);
-		}
-	}
 	public static class FieldOptions {
 		public boolean printStackTrace = false;
 		public boolean logEachCopy = false;
