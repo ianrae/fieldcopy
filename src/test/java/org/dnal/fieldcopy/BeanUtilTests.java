@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -17,6 +19,11 @@ public class BeanUtilTests {
 		public boolean printStackTrace = false;
 		public boolean logEachCopy = false;
 	}
+	
+	public static class FieldPair {
+		public PropertyDescriptor srcDesc;
+		public String destFieldName;
+	}
 
 	
 	public static class FieldCopier {
@@ -26,16 +33,51 @@ public class BeanUtilTests {
 			this.logger = logger;
 		}
 
-		public void copyFields(Object sourceObj, Object destObj)  {
+		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj)  {
+			PropertyUtilsBean propertyUtils =  new PropertyUtilsBean();
+            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+    		
+            List<FieldPair> fieldPairs = new ArrayList<>();
+            for (int i = 0; i < arSrc.length; i++) {
+            	PropertyDescriptor pd = arSrc[i];
+                if ("class".equals(pd.getName())) {
+                	continue; // No point in trying to set an object's class
+                }
+
+            	String targetFieldName = findMatchingField(arDest, pd.getName());
+            	
+            	FieldPair pair = new FieldPair();
+            	pair.srcDesc = pd;
+            	pair.destFieldName = targetFieldName;
+            	fieldPairs.add(pair);
+            }
+			
+            return fieldPairs;
+		}
+		
+		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs)  {
+			PropertyUtilsBean propertyUtils =  new PropertyUtilsBean();
 			try {
-				doCopyFields(sourceObj, destObj);
+				doCopyFields(sourceObj, destObj, fieldPairs);
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}
 		}
 		
 		
-		private void doCopyFields(Object sourceObj, Object destObj) throws IllegalAccessException, InvocationTargetException {
+		private String findMatchingField(PropertyDescriptor[] arDest, String name) {
+            for (int i = 0; i < arDest.length; i++) {
+            	
+            	PropertyDescriptor pd = arDest[i];
+            	if (pd.getName().equals(name)) {
+            		return pd.getName();
+            	}
+            }
+            return null;
+		}
+
+		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs) throws IllegalAccessException, InvocationTargetException {
 			if (sourceObj == null) {
 				String error = String.format("copyFields. NULL passed to sourceObj");
 				throw new FieldCopyException(error);
@@ -50,24 +92,23 @@ public class BeanUtilTests {
 			Object orig = sourceObj;
 			Object dest = destObj;
 			
-            final PropertyDescriptor[] origDescriptors =
-            		propertyUtils.getPropertyDescriptors(orig);
-                for (final PropertyDescriptor origDescriptor : origDescriptors) {
-                    final String name = origDescriptor.getName();
-                    if ("class".equals(name)) {
-                        continue; // No point in trying to set an object's class
-                    }
-                    if (propertyUtils.isReadable(orig, name) &&
-                    		propertyUtils.isWriteable(dest, name)) {
-                        try {
-                            final Object value =
-                            		propertyUtils.getSimpleProperty(orig, name);
-                            beanUtil.copyProperty(dest, name, value);
-                        } catch (final NoSuchMethodException e) {
-                            // Should not happen
-                        }
-                    }
+			for(FieldPair pair: fieldPairs) {
+                final PropertyDescriptor origDescriptor = pair.srcDesc;
+                final String name = origDescriptor.getName();
+                if ("class".equals(name)) {
+                	continue; // No point in trying to set an object's class
                 }
+                if (propertyUtils.isReadable(orig, name) &&
+                		propertyUtils.isWriteable(dest, name)) {
+                	try {
+                		final Object value =
+                				propertyUtils.getSimpleProperty(orig, name);
+                		beanUtil.copyProperty(dest, pair.destFieldName, value);
+                	} catch (final NoSuchMethodException e) {
+                		// Should not happen
+                	}
+                }
+			}
 		}
 		
 		public void dumpFields(Object sourceObj) {
@@ -163,7 +204,8 @@ public class BeanUtilTests {
 		SimpleLogger logger = new SimpleConsoleLogger();
 		FieldCopier copier = new FieldCopier(logger);
 		
-		copier.copyFields(src, dest);
+		List<FieldPair> fieldPairs = copier.buildAutoCopyPairs(src, dest);
+		copier.copyFields(src, dest, fieldPairs);
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 		
