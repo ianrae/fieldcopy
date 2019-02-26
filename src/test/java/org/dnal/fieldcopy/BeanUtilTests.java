@@ -222,6 +222,11 @@ public class BeanUtilTests {
 			destList.add(destField);
 		}
 		
+		public FCB2 copyField(String srcFieldName) {
+			srcList.add(srcFieldName);
+			destList.add(srcFieldName);
+			return this;
+		}
 		public FCB2 copyField(String srcFieldName, String destFieldName) {
 			srcList.add(srcFieldName);
 			destList.add(destFieldName);
@@ -229,36 +234,28 @@ public class BeanUtilTests {
 		}
 		
 		public void execute() {
-			FieldCopyService fieldCopier = root.createFieldCopier();
+			FieldCopyService fieldCopier = root.getCopyService();
 			fieldCopier.copyFieldsByName(root.sourceObj, root.destObj, srcList, destList);
 		}
 	}
 	public static class FCB1 {
-
 		private FieldCopier root;
-		private List<String> excludeList = new ArrayList<>();
+		private List<String> includeList;
+		private List<String> excludeList;
 		private boolean doAutoCopy;
 
 		public FCB1(FieldCopier fieldCopierBuilder) {
 			this.root = fieldCopierBuilder;
 		}
 		
+		public FCB1 include(String...fieldNames) {
+			this.includeList = Arrays.asList(fieldNames);
+			return this;
+		}
 		public FCB1 exclude(String...fieldNames) {
 			this.excludeList = Arrays.asList(fieldNames);
 			return this;
 		}
-		public FCB1 exclude(Value...fields) {
-
-			List<String> list = new ArrayList<>();
-			for(Value val: fields) {
-				list.add(val.name());
-			}
-			this.excludeList = list;
-			return this;
-		}
-		
-//		x.copy(s,t).autoCopy().execute();
-//		x.copy(s,t).include(...).execute();
 		
 		public FCB1 autoCopy() {
 			this.doAutoCopy = true;
@@ -269,53 +266,45 @@ public class BeanUtilTests {
 			if (this.doAutoCopy) {
 				List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
 				
-				List<FieldPair> fieldsToCopy = new ArrayList<>();
-				for(FieldPair pair: fieldPairs) {
-					if (excludeList.contains(pair.srcDesc.getName())) {
-						continue;
+				List<FieldPair> fieldsToCopy;
+				if (includeList == null && excludeList == null) {
+					fieldsToCopy = fieldPairs;
+				} else {
+					fieldsToCopy = new ArrayList<>();
+					for(FieldPair pair: fieldPairs) {
+						if (includeList != null && !includeList.contains(pair.srcDesc.getName())) {
+							continue;
+						}
+						if (excludeList != null && excludeList.contains(pair.srcDesc.getName())) {
+							continue;
+						}
+						
+						fieldsToCopy.add(pair);
 					}
-					
-					fieldsToCopy.add(pair);
 				}
 				
-				FieldCopyService fieldCopier = root.createFieldCopier();
-				fieldCopier.copyFields(root.sourceObj, root.destObj, fieldPairs);
+				FieldCopyService fieldCopier = root.getCopyService();
+				fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy);
 			}
 		}
 		
+		public FCB2 copyField(String srcFieldName) {
+			return new FCB2(root, srcFieldName, srcFieldName);
+		}
 		public FCB2 copyField(String srcFieldName, String destFieldName) {
 			return new FCB2(root, srcFieldName, destFieldName);
-		}
-		public FCB2 copyField(Value srcField, Value destField) {
-			return new FCB2(root, srcField.name(), destField.name());
 		}
 	}
 
 
 	public static class FieldCopier {
-		private static FieldCopier singleton;
 		
-		private SimpleLogger logger;
-		private FieldRegistry registry;
 		private FieldCopyService copier;
 		Object sourceObj;
 		Object destObj;
 
-		public FieldCopier(FieldRegistry registry, FieldCopyService copier, SimpleLogger logger) {
-			this.logger = logger;
-			this.registry = registry;
+		public FieldCopier(FieldCopyService copier) {
 			this.copier = copier;
-		}
-		
-		//TODO: make thread-safe
-		public static FieldCopier builder() {
-			if (singleton == null) {
-				SimpleLogger logger = new SimpleConsoleLogger();
-				FieldRegistry reg = new FieldRegistry();
-				FieldCopyService copier = new FieldCopyService(logger, reg);
-				singleton = new FieldCopier(reg, copier, logger);
-			}
-			return singleton;
 		}
 		
 		public FCB1 copy(Object sourceObj, Object destObj) {
@@ -324,7 +313,7 @@ public class BeanUtilTests {
 			return new FCB1(this);
 		}
 		
-		FieldCopyService createFieldCopier() {
+		FieldCopyService getCopyService() {
 			return copier;
 		}
 	}	
@@ -338,7 +327,7 @@ public class BeanUtilTests {
 	public static class DefaultCopyFactory implements CopyFactory {
 		private static DefaultCopyFactory theSingleton;
 		
-		public static CopyFactory Builder() {
+		public static CopyFactory Factory() {
 			if (theSingleton == null) {
 				theSingleton = new DefaultCopyFactory();
 			}
@@ -361,7 +350,7 @@ public class BeanUtilTests {
 		@Override
 		public FieldCopier createCopier() {
 			FieldCopyService copySvc = createCopyService();
-			FieldCopier builder = new FieldCopier(copySvc.getRegistry(), copySvc, copySvc.getLogger());
+			FieldCopier builder = new FieldCopier(copySvc);
 			return builder;
 		}
 	}
@@ -460,7 +449,7 @@ public class BeanUtilTests {
 		assertEquals(33, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).copyField("age", "age").copyField("name", "name").execute();
+		copier.copy(src, dest).copyField("age", "age").copyField("name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 	}
@@ -468,18 +457,20 @@ public class BeanUtilTests {
 	
 	//--
 	private FieldCopyService createCopyService() {
-		SimpleLogger logger = new SimpleConsoleLogger();
-		FieldRegistry registry = new FieldRegistry();
-		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-		return copySvc;
+		return DefaultCopyFactory.Factory().createCopyService();
+//		SimpleLogger logger = new SimpleConsoleLogger();
+//		FieldRegistry registry = new FieldRegistry();
+//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
+//		return copySvc;
 	}
 	
 	private FieldCopier createCopier() {
-		SimpleLogger logger = new SimpleConsoleLogger();
-		FieldRegistry registry = new FieldRegistry();
-		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-		FieldCopier builder = new FieldCopier(registry, copySvc, logger);
-		return builder;
+		return DefaultCopyFactory.Factory().createCopier();
+//		SimpleLogger logger = new SimpleConsoleLogger();
+//		FieldRegistry registry = new FieldRegistry();
+//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
+//		FieldCopier builder = new FieldCopier(registry, copySvc, logger);
+//		return builder;
 	}
 
 
