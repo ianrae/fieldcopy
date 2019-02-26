@@ -13,6 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.dnal.fieldcopy.BeanUtilTests.FCB1;
+import org.dnal.fieldcopy.BeanUtilTests.FieldCopyService;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -25,7 +27,7 @@ public class BeanUtilTests {
 	}
 	
 	public static class FieldPair {
-		public PropertyDescriptor srcDesc;
+		public PropertyDescriptor srcProp;
 		public String destFieldName;
 	}
 	
@@ -80,7 +82,7 @@ public class BeanUtilTests {
             	String targetFieldName = findMatchingField(arDest, pd.getName());
             	
             	FieldPair pair = new FieldPair();
-            	pair.srcDesc = pd;
+            	pair.srcProp = pd;
             	pair.destFieldName = targetFieldName;
             	fieldPairs.add(pair);
             }
@@ -123,7 +125,7 @@ public class BeanUtilTests {
 			Object dest = destObj;
 			
 			for(FieldPair pair: fieldPairs) {
-                final PropertyDescriptor origDescriptor = pair.srcDesc;
+                final PropertyDescriptor origDescriptor = pair.srcProp;
                 final String name = origDescriptor.getName();
                 if ("class".equals(name)) {
                 	continue; // No point in trying to set an object's class
@@ -172,7 +174,7 @@ public class BeanUtilTests {
             	PropertyDescriptor destProp = findField(arDest, destField);
             	
             	FieldPair pair = new FieldPair();
-            	pair.srcDesc = srcProp;
+            	pair.srcProp = srcProp;
             	pair.destFieldName = destProp.getName();
             	fieldPairs.add(pair);
             }
@@ -212,12 +214,12 @@ public class BeanUtilTests {
 	
 	//fluent api
 	public static class FCB2 {
-		private FieldCopier root;
+		private FCB1 fcb1;
 		private List<String> srcList = new ArrayList<>();
 		private List<String> destList = new ArrayList<>();
 
-		public FCB2(FieldCopier fieldCopierBuilder, String srcField, String destField) {
-			this.root = fieldCopierBuilder;
+		public FCB2(FCB1 fcb1, String srcField, String destField) {
+			this.fcb1 = fcb1;
 			srcList.add(srcField);
 			destList.add(destField);
 		}
@@ -234,8 +236,7 @@ public class BeanUtilTests {
 		}
 		
 		public void execute() {
-			FieldCopyService fieldCopier = root.getCopyService();
-			fieldCopier.copyFieldsByName(root.sourceObj, root.destObj, srcList, destList);
+			fcb1.doExecute(srcList, destList);
 		}
 	}
 	public static class FCB1 {
@@ -263,36 +264,71 @@ public class BeanUtilTests {
 		}
 		
 		public void execute() {
+			doExecute(null, null);
+		}
+		void doExecute(List<String> srcList, List<String> destList) {
+			List<FieldPair> fieldsToCopy;
+			List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj, root.destObj);
+			
 			if (this.doAutoCopy) {
-				List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
-				
-				List<FieldPair> fieldsToCopy;
 				if (includeList == null && excludeList == null) {
 					fieldsToCopy = fieldPairs;
 				} else {
 					fieldsToCopy = new ArrayList<>();
 					for(FieldPair pair: fieldPairs) {
-						if (includeList != null && !includeList.contains(pair.srcDesc.getName())) {
+						if (includeList != null && !includeList.contains(pair.srcProp.getName())) {
 							continue;
 						}
-						if (excludeList != null && excludeList.contains(pair.srcDesc.getName())) {
+						if (excludeList != null && excludeList.contains(pair.srcProp.getName())) {
 							continue;
+						}
+						
+						int indexInSrcLst = srcList.indexOf(pair.srcProp.getName());
+						if (srcList != null && indexInSrcLst >= 0) {
+							pair = new FieldPair();
+							pair.srcProp = pair.srcProp;
+							pair.destFieldName = destList.get(indexInSrcLst);
 						}
 						
 						fieldsToCopy.add(pair);
 					}
 				}
-				
-				FieldCopyService fieldCopier = root.getCopyService();
-				fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy);
+			} else {
+				fieldsToCopy = new ArrayList<>();
 			}
+			
+			//now do explicit fields
+			if (srcList != null && destList != null) {
+				for(int i = 0; i < srcList.size(); i++) {
+					String srcField = srcList.get(i);
+					String destField = destList.get(i);
+					
+					FieldPair pair = new FieldPair();
+					pair.srcProp = findInPairs(srcField, fieldPairs);
+					pair.destFieldName = destField;
+					
+					fieldsToCopy.add(pair);
+				}
+			}
+				
+			FieldCopyService fieldCopier = root.getCopyService();
+			fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy);
 		}
 		
+		private PropertyDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
+			for(FieldPair pair: fieldPairs) {
+				if (pair.srcProp.getName().equals(srcField)) {
+					return pair.srcProp;
+				}
+			}
+			return null;
+		}
+
 		public FCB2 copyField(String srcFieldName) {
-			return new FCB2(root, srcFieldName, srcFieldName);
+			return new FCB2(this, srcFieldName, srcFieldName);
 		}
 		public FCB2 copyField(String srcFieldName, String destFieldName) {
-			return new FCB2(root, srcFieldName, destFieldName);
+			return new FCB2(this, srcFieldName, destFieldName);
 		}
 	}
 
@@ -406,6 +442,51 @@ public class BeanUtilTests {
 			this.age = age;
 		}
 	}
+	public static class Dest2 {
+		private String name;
+		private int age;
+		private String name2;
+		private int age2;
+
+		public Dest2(String name, int age, String name2, int age2) {
+			this.name = name;
+			this.age = age;
+			this.name2 = name2;
+			this.age2 = age2;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public int getAge() {
+			return age;
+		}
+
+		public void setAge(int age) {
+			this.age = age;
+		}
+
+		public String getName2() {
+			return name2;
+		}
+
+		public void setName2(String name2) {
+			this.name2 = name2;
+		}
+
+		public int getAge2() {
+			return age2;
+		}
+
+		public void setAge2(int age2) {
+			this.age2 = age2;
+		}
+	}
 	
 	@Test
 	public void test() {
@@ -434,6 +515,17 @@ public class BeanUtilTests {
 	}
 	
 	@Test
+	public void testAutoCopy() {
+		Source src = new Source("bob", 33);
+		Dest dest = new Dest(null, -1);
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+		assertEquals("bob", dest.getName());
+		assertEquals(33, dest.getAge());
+	}
+	
+	@Test
 	public void testCopyByName() {
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);
@@ -454,6 +546,26 @@ public class BeanUtilTests {
 		assertEquals(33, dest.getAge());
 	}
 	
+	@Test
+	public void testCopyByName2() {
+		Source src = new Source("bob", 33);
+		Dest2 dest = new Dest2(null, -1, null, -1);
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).copyField("name", "name2").execute();
+		assertEquals("bob", dest.getName2());
+		assertEquals(-1, dest.getAge());
+		
+//		dest = new Dest(null, -1);
+//		copier.copy(src, dest).copyField("age", "age").execute();
+//		assertEquals(null, dest.getName());
+//		assertEquals(33, dest.getAge());
+//		
+//		dest = new Dest(null, -1);
+//		copier.copy(src, dest).copyField("age", "age").copyField("name").execute();
+//		assertEquals("bob", dest.getName());
+//		assertEquals(33, dest.getAge());
+	}
 	
 	//--
 	private FieldCopyService createCopyService() {
