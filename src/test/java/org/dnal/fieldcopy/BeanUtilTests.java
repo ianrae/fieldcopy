@@ -1,18 +1,20 @@
 package org.dnal.fieldcopy;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
+
 
 public class BeanUtilTests {
 	public static class FieldOptions {
@@ -24,17 +26,25 @@ public class BeanUtilTests {
 		public PropertyDescriptor srcDesc;
 		public String destFieldName;
 	}
-
 	
 	public static class FieldCopier {
 		private SimpleLogger logger;
-
+		private ConcurrentHashMap<String,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
+		private BeanUtilsBean beanUtil;
+		private PropertyUtilsBean propertyUtils;
+		
 		public FieldCopier(SimpleLogger logger) {
 			this.logger = logger;
+			this.beanUtil =  BeanUtilsBean.getInstance();
+			this.propertyUtils =  new PropertyUtilsBean();
 		}
 
 		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj)  {
-			PropertyUtilsBean propertyUtils =  new PropertyUtilsBean();
+			String classPairKey = buildClassPairKey(sourceObj.getClass(), destObj.getClass());
+			if (autocopyCache.containsKey(classPairKey)) {
+				return autocopyCache.get(classPairKey);
+			}
+			
             final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
             final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
     		
@@ -53,11 +63,15 @@ public class BeanUtilTests {
             	fieldPairs.add(pair);
             }
 			
+			autocopyCache.put(classPairKey, fieldPairs);
             return fieldPairs;
 		}
 		
+		private String buildClassPairKey(Class<?> class1, Class<?> class2) {
+			return String.format("%s--%s", class1.getName(), class2.getName());
+		}
+
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs)  {
-			PropertyUtilsBean propertyUtils =  new PropertyUtilsBean();
 			try {
 				doCopyFields(sourceObj, destObj, fieldPairs);
 			} catch (Exception e) {
@@ -87,8 +101,6 @@ public class BeanUtilTests {
 				throw new FieldCopyException(error);
 			}
 			
-			BeanUtilsBean beanUtil =  BeanUtilsBean.getInstance();
-			PropertyUtilsBean propertyUtils =  new PropertyUtilsBean();
 			Object orig = sourceObj;
 			Object dest = destObj;
 			
@@ -113,7 +125,6 @@ public class BeanUtilTests {
 		
 		public void dumpFields(Object sourceObj) {
 			try {
-				BeanUtilsBean beanUtil =  BeanUtilsBean.getInstance();
 				Map<String,String> map = beanUtil.describe(sourceObj);
 				for(String fieldName: map.keySet()) {
 					String val = map.get(fieldName);
@@ -195,7 +206,6 @@ public class BeanUtilTests {
 		}
 	}
 	
-
 	@Test
 	public void test() {
 		Source src = new Source("bob", 33);
@@ -210,6 +220,20 @@ public class BeanUtilTests {
 		assertEquals(33, dest.getAge());
 		
 		copier.dumpFields(src);
+	}
+	
+	@Test
+	public void testAutoCopyCache() {
+		Source src = new Source("bob", 33);
+		Dest dest = new Dest(null, -1);
+		
+		SimpleLogger logger = new SimpleConsoleLogger();
+		FieldCopier copier = new FieldCopier(logger);
+		
+		List<FieldPair> fieldPairs = copier.buildAutoCopyPairs(src, dest);
+		List<FieldPair> fieldPairs2 = copier.buildAutoCopyPairs(src, dest);
+		
+		assertSame(fieldPairs, fieldPairs2);
 	}
 
 }
