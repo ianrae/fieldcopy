@@ -227,12 +227,12 @@ public class BeanUtilTests {
 			destList.add(destField);
 		}
 		
-		public FCB2 copyField(String srcFieldName) {
+		public FCB2 field(String srcFieldName) {
 			srcList.add(srcFieldName);
 			destList.add(srcFieldName);
 			return this;
 		}
-		public FCB2 copyField(String srcFieldName, String destFieldName) {
+		public FCB2 field(String srcFieldName, String destFieldName) {
 			srcList.add(srcFieldName);
 			destList.add(destFieldName);
 			return this;
@@ -332,10 +332,10 @@ public class BeanUtilTests {
 			return null;
 		}
 
-		public FCB2 copyField(String srcFieldName) {
+		public FCB2 field(String srcFieldName) {
 			return new FCB2(this, srcFieldName, srcFieldName);
 		}
-		public FCB2 copyField(String srcFieldName, String destFieldName) {
+		public FCB2 field(String srcFieldName, String destFieldName) {
 			return new FCB2(this, srcFieldName, destFieldName);
 		}
 	}
@@ -543,17 +543,17 @@ public class BeanUtilTests {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopier copier = createCopier();
-		copier.copy(src, dest).copyField("name", "name").execute();
+		copier.copy(src, dest).field("name", "name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(-1, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).copyField("age", "age").execute();
+		copier.copy(src, dest).field("age", "age").execute();
 		assertEquals(null, dest.getName());
 		assertEquals(33, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).copyField("age", "age").copyField("name").execute();
+		copier.copy(src, dest).field("age", "age").field("name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 	}
@@ -565,17 +565,17 @@ public class BeanUtilTests {
 		
 		FieldCopier copier = createCopier();
 		copier.getOptions().logEachCopy = true;
-		copier.copy(src, dest).copyField("name", "name2").execute();
+		copier.copy(src, dest).field("name", "name2").execute();
 		assertEquals("bob", dest.getName2());
 		assertEquals(-1, dest.getAge());
 		
 		dest = new Dest2(null, -1, null, -1);
-		copier.copy(src, dest).copyField("age", "age2").execute();
+		copier.copy(src, dest).field("age", "age2").execute();
 		assertEquals(null, dest.getName());
 		assertEquals(33, dest.getAge2());
 		
 		dest = new Dest2(null, -1, null, -1);
-		copier.copy(src, dest).copyField("age", "age2").copyField("name").execute();
+		copier.copy(src, dest).field("age", "age2").field("name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge2());
 	}
