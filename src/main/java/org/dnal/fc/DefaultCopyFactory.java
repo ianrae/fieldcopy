@@ -9,6 +9,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
 
 public class DefaultCopyFactory implements CopyFactory {
 	private static DefaultCopyFactory theSingleton;
+	private static SimpleLogger theLogger;
 	
 	public static CopyFactory Factory() {
 		if (theSingleton == null) {
@@ -19,6 +20,9 @@ public class DefaultCopyFactory implements CopyFactory {
 
 	@Override
 	public SimpleLogger createLogger() {
+		if (theLogger != null) {
+			return theLogger;
+		}
 		return new SimpleConsoleLogger();
 	}
 
@@ -35,5 +39,9 @@ public class DefaultCopyFactory implements CopyFactory {
 		FieldCopyService copySvc = createCopyService();
 		FieldCopier builder = new FieldCopier(copySvc);
 		return builder;
+	}
+	
+	public static void setLogger(SimpleLogger logger) {
+		theLogger = logger;
 	}
 }

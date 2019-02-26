@@ -10,6 +10,7 @@ import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldPair;
+import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
@@ -200,6 +201,7 @@ public class BeanUtilTests {
 	}
 	
 	private FieldCopier createCopier() {
+		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		return DefaultCopyFactory.Factory().createCopier();
 //		SimpleLogger logger = new SimpleConsoleLogger();
 //		FieldRegistry registry = new FieldRegistry();
