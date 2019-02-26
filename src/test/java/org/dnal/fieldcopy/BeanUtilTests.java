@@ -3,14 +3,17 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.*;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -27,28 +30,48 @@ public class BeanUtilTests {
 		public String destFieldName;
 	}
 	
+	public static class FieldRegistry {
+		private ConcurrentHashMap<String,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
+		
+		public FieldRegistry() {
+		}
+		public List<FieldPair> findAutoCopyInfo(Class<?> clazz1, Class<?> clazz2) {
+			String key = buildClassPairKey(clazz1, clazz2);
+			return autocopyCache.get(key);
+		}
+		public void registerAutoCopyInfo(Class<?> clazz1, Class<?> clazz2, List<FieldPair> fieldPairs) {
+			String key = buildClassPairKey(clazz1, clazz2);
+			autocopyCache.put(key, fieldPairs);
+		}
+		private String buildClassPairKey(Class<?> class1, Class<?> class2) {
+			return String.format("%s--%s", class1.getName(), class2.getName());
+		}
+	}
+	
+	
 	public static class FieldCopier {
 		private SimpleLogger logger;
-		private ConcurrentHashMap<String,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
+		private FieldRegistry registry;
 		
-		public FieldCopier(SimpleLogger logger) {
+		public FieldCopier(SimpleLogger logger, FieldRegistry registry) {
 			this.logger = logger;
+			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
 			this.propertyUtils =  new PropertyUtilsBean();
 		}
 
 		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj)  {
-			String classPairKey = buildClassPairKey(sourceObj.getClass(), destObj.getClass());
-			if (autocopyCache.containsKey(classPairKey)) {
-				return autocopyCache.get(classPairKey);
+            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(sourceObj.getClass(), destObj.getClass());
+			if (fieldPairs != null) {
+				return fieldPairs;
 			}
 			
             final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
             final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
     		
-            List<FieldPair> fieldPairs = new ArrayList<>();
+            fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
                 if ("class".equals(pd.getName())) {
@@ -63,14 +86,10 @@ public class BeanUtilTests {
             	fieldPairs.add(pair);
             }
 			
-			autocopyCache.put(classPairKey, fieldPairs);
+			registry.registerAutoCopyInfo(sourceObj.getClass(), destObj.getClass(), fieldPairs);
             return fieldPairs;
 		}
 		
-		private String buildClassPairKey(Class<?> class1, Class<?> class2) {
-			return String.format("%s--%s", class1.getName(), class2.getName());
-		}
-
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs)  {
 			try {
 				doCopyFields(sourceObj, destObj, fieldPairs);
@@ -211,9 +230,7 @@ public class BeanUtilTests {
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);
 		
-		SimpleLogger logger = new SimpleConsoleLogger();
-		FieldCopier copier = new FieldCopier(logger);
-		
+		FieldCopier copier = buildCopier(); 
 		List<FieldPair> fieldPairs = copier.buildAutoCopyPairs(src, dest);
 		copier.copyFields(src, dest, fieldPairs);
 		assertEquals("bob", dest.getName());
@@ -227,13 +244,20 @@ public class BeanUtilTests {
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);
 		
-		SimpleLogger logger = new SimpleConsoleLogger();
-		FieldCopier copier = new FieldCopier(logger);
-		
+		FieldCopier copier = buildCopier(); 
 		List<FieldPair> fieldPairs = copier.buildAutoCopyPairs(src, dest);
 		List<FieldPair> fieldPairs2 = copier.buildAutoCopyPairs(src, dest);
 		
 		assertSame(fieldPairs, fieldPairs2);
 	}
+	
+	//--
+	private FieldCopier buildCopier() {
+		SimpleLogger logger = new SimpleConsoleLogger();
+		FieldRegistry registry = new FieldRegistry();
+		FieldCopier copier = new FieldCopier(logger, registry);
+		return copier;
+	}
+
 
 }
