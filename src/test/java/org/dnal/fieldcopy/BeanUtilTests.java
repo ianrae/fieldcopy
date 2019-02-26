@@ -1,19 +1,19 @@
 package org.dnal.fieldcopy;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
+import org.dnal.fieldcopy.factory.DefaultValueFactory;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -160,6 +160,35 @@ public class BeanUtilTests {
 				e.printStackTrace();
 			}
 		}
+
+		public void copyFieldsByName(Object sourceObj, Object destObj, List<String> srcList, List<String> destList) {
+            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+    		
+            List<FieldPair> fieldPairs = new ArrayList<>();
+            for(int i = 0; i < srcList.size(); i++) {
+            	String srcField = srcList.get(i);
+            	String destField = destList.get(i);
+            	PropertyDescriptor srcProp = findField(arSrc, srcField);
+            	PropertyDescriptor destProp = findField(arDest, destField);
+            	
+            	FieldPair pair = new FieldPair();
+            	pair.srcDesc = srcProp;
+            	pair.destFieldName = destProp.getName();
+            	fieldPairs.add(pair);
+            }
+            
+            copyFields(sourceObj, destObj, fieldPairs);
+		}
+
+		private PropertyDescriptor findField(PropertyDescriptor[] arSrc, String fieldName) {
+			for(PropertyDescriptor pd: arSrc) {
+				if (pd.getName().equals(fieldName)) {
+					return pd;
+				}
+			}
+			return null;
+		}
 		
 //		public Map<String,Object> convertToMap(Object sourceObj) {
 //			registry.prepareObj(sourceObj);
@@ -172,6 +201,127 @@ public class BeanUtilTests {
 //			return map;
 //		}
 	}
+	
+	
+	//fluent api
+	public static class FCB2 {
+		private FieldCopy root;
+		private List<String> srcList = new ArrayList<>();
+		private List<String> destList = new ArrayList<>();
+
+		public FCB2(FieldCopy fieldCopierBuilder, String srcField, String destField) {
+			this.root = fieldCopierBuilder;
+			srcList.add(srcField);
+			destList.add(destField);
+		}
+		
+		public FCB2 copyField(String srcFieldName, String destFieldName) {
+			srcList.add(srcFieldName);
+			destList.add(destFieldName);
+			return this;
+		}
+		
+		public void execute() {
+			FieldCopier fieldCopier = root.createFieldCopier();
+			fieldCopier.copyFieldsByName(root.sourceObj, root.destObj, srcList, destList);
+		}
+	}
+	public static class FCB1 {
+
+		private FieldCopy root;
+		private List<String> excludeList = new ArrayList<>();
+		private boolean doAutoCopy;
+
+		public FCB1(FieldCopy fieldCopierBuilder) {
+			this.root = fieldCopierBuilder;
+		}
+		
+		public FCB1 exclude(String...fieldNames) {
+			this.excludeList = Arrays.asList(fieldNames);
+			return this;
+		}
+		public FCB1 exclude(Value...fields) {
+
+			List<String> list = new ArrayList<>();
+			for(Value val: fields) {
+				list.add(val.name());
+			}
+			this.excludeList = list;
+			return this;
+		}
+		
+//		x.copy(s,t).autoCopy().execute();
+//		x.copy(s,t).include(...).execute();
+		
+		public FCB1 autoCopy() {
+			this.doAutoCopy = true;
+			return this;
+		}
+		
+		public void execute() {
+			if (this.doAutoCopy) {
+				List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
+				
+				List<FieldPair> fieldsToCopy = new ArrayList<>();
+				for(FieldPair pair: fieldPairs) {
+					if (excludeList.contains(pair.srcDesc.getName())) {
+						continue;
+					}
+					
+					fieldsToCopy.add(pair);
+				}
+				
+				FieldCopier fieldCopier = root.createFieldCopier();
+				fieldCopier.copyFields(root.sourceObj, root.destObj, fieldPairs);
+			}
+		}
+		
+		public FCB2 copyField(String srcFieldName, String destFieldName) {
+			return new FCB2(root, srcFieldName, destFieldName);
+		}
+		public FCB2 copyField(Value srcField, Value destField) {
+			return new FCB2(root, srcField.name(), destField.name());
+		}
+	}
+
+
+	public static class FieldCopy {
+		private static FieldCopy singleton;
+		
+		private SimpleLogger logger;
+		private FieldRegistry registry;
+		private FieldCopier copier;
+		Object sourceObj;
+		Object destObj;
+
+		public FieldCopy(FieldRegistry registry, FieldCopier copier, SimpleLogger logger) {
+			this.logger = logger;
+			this.registry = registry;
+			this.copier = copier;
+		}
+		
+		//TODO: make thread-safe
+		public static FieldCopy builder() {
+			if (singleton == null) {
+				SimpleLogger logger = new SimpleConsoleLogger();
+				FieldRegistry reg = new FieldRegistry();
+				FieldCopier copier = new FieldCopier(logger, reg);
+				singleton = new FieldCopy(reg, copier, logger);
+			}
+			return singleton;
+		}
+		
+		public FCB1 copy(Object sourceObj, Object destObj) {
+			this.sourceObj = sourceObj;
+			this.destObj = destObj;
+			return new FCB1(this);
+		}
+		
+		FieldCopier createFieldCopier() {
+			return copier;
+		}
+	}	
+	
 	
 	
 	public static class Source {
@@ -251,12 +401,38 @@ public class BeanUtilTests {
 		assertSame(fieldPairs, fieldPairs2);
 	}
 	
+	@Test
+	public void testCopyByName() {
+		Source src = new Source("bob", 33);
+		Dest dest = new Dest(null, -1);
+		
+		FieldCopy builder = createBuilder();
+		builder.copy(src, dest).copyField("name", "name").execute();
+		assertEquals("bob", dest.getName());
+		assertEquals(-1, dest.getAge());
+		
+		dest = new Dest(null, -1);
+		
+		builder.copy(src, dest).copyField("age", "age").execute();
+		assertEquals(null, dest.getName());
+		assertEquals(33, dest.getAge());
+	}
+	
+	
 	//--
 	private FieldCopier buildCopier() {
 		SimpleLogger logger = new SimpleConsoleLogger();
 		FieldRegistry registry = new FieldRegistry();
 		FieldCopier copier = new FieldCopier(logger, registry);
 		return copier;
+	}
+	
+	private FieldCopy createBuilder() {
+		SimpleLogger logger = new SimpleConsoleLogger();
+		FieldRegistry registry = new FieldRegistry();
+		FieldCopier copier = new FieldCopier(logger, registry);
+		FieldCopy builder = new FieldCopy(registry, copier, logger);
+		return builder;
 	}
 
 
