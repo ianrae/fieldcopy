@@ -13,8 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.dnal.fieldcopy.BeanUtilTests.FCB1;
-import org.dnal.fieldcopy.BeanUtilTests.FieldCopyService;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -49,20 +47,28 @@ public class BeanUtilTests {
 		}
 	}
 	
+	public interface FieldCopyService {
+		List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj);
+		void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs);
+		void dumpFields(Object sourceObj);
+		SimpleLogger getLogger();
+		FieldRegistry getRegistry();
+	}
 	
-	public static class FieldCopyService {
+	public static class BeanUtilFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 		private FieldRegistry registry;
 		
-		public FieldCopyService(SimpleLogger logger, FieldRegistry registry) {
+		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
 			this.propertyUtils =  new PropertyUtilsBean();
 		}
 
+		@Override
 		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj)  {
             List<FieldPair> fieldPairs = registry.findAutoCopyInfo(sourceObj.getClass(), destObj.getClass());
 			if (fieldPairs != null) {
@@ -91,6 +97,7 @@ public class BeanUtilTests {
             return fieldPairs;
 		}
 		
+		@Override
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs)  {
 			try {
 				doCopyFields(sourceObj, destObj, fieldPairs);
@@ -143,6 +150,7 @@ public class BeanUtilTests {
 			}
 		}
 		
+		@Override
 		public void dumpFields(Object sourceObj) {
 			try {
 				Map<String,String> map = beanUtil.describe(sourceObj);
@@ -162,39 +170,12 @@ public class BeanUtilTests {
 			}
 		}
 
-		public void copyFieldsByName(Object sourceObj, Object destObj, List<String> srcList, List<String> destList) {
-            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
-            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
-    		
-            List<FieldPair> fieldPairs = new ArrayList<>();
-            for(int i = 0; i < srcList.size(); i++) {
-            	String srcField = srcList.get(i);
-            	String destField = destList.get(i);
-            	PropertyDescriptor srcProp = findField(arSrc, srcField);
-            	PropertyDescriptor destProp = findField(arDest, destField);
-            	
-            	FieldPair pair = new FieldPair();
-            	pair.srcProp = srcProp;
-            	pair.destFieldName = destProp.getName();
-            	fieldPairs.add(pair);
-            }
-            
-            copyFields(sourceObj, destObj, fieldPairs);
-		}
-
-		private PropertyDescriptor findField(PropertyDescriptor[] arSrc, String fieldName) {
-			for(PropertyDescriptor pd: arSrc) {
-				if (pd.getName().equals(fieldName)) {
-					return pd;
-				}
-			}
-			return null;
-		}
-
+		@Override
 		public SimpleLogger getLogger() {
 			return logger;
 		}
 
+		@Override
 		public FieldRegistry getRegistry() {
 			return registry;
 		}
@@ -266,6 +247,18 @@ public class BeanUtilTests {
 		public void execute() {
 			doExecute(null, null);
 		}
+		
+		/**
+		 * if autocopy then copies matching fields
+		 *   -if excludeList non-empty then fields in it are not copied
+		 *   -if includeList non-empty then fields not in it are not copied
+		 *   -excludeList has priority over includeList
+		 *   
+		 * -if srList non-empty then those fields are copied
+		 * 
+		 * @param srcList
+		 * @param destList
+		 */
 		void doExecute(List<String> srcList, List<String> destList) {
 			List<FieldPair> fieldsToCopy;
 			List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj, root.destObj);
@@ -281,13 +274,6 @@ public class BeanUtilTests {
 						}
 						if (excludeList != null && excludeList.contains(pair.srcProp.getName())) {
 							continue;
-						}
-						
-						int indexInSrcLst = srcList.indexOf(pair.srcProp.getName());
-						if (srcList != null && indexInSrcLst >= 0) {
-							pair = new FieldPair();
-							pair.srcProp = pair.srcProp;
-							pair.destFieldName = destList.get(indexInSrcLst);
 						}
 						
 						fieldsToCopy.add(pair);
@@ -379,7 +365,7 @@ public class BeanUtilTests {
 		public FieldCopyService createCopyService() {
 			SimpleLogger logger = createLogger();
 			FieldRegistry registry = new FieldRegistry();
-			FieldCopyService copySvc = new FieldCopyService(logger, registry);
+			FieldCopyService copySvc = new BeanUtilFieldCopyService(logger, registry);
 			return copySvc;
 		}
 
