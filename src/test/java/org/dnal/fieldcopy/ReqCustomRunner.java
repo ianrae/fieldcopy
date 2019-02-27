@@ -8,28 +8,34 @@ import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
 //https://www.baeldung.com/junit-4-custom-runners
-public class ReqCustomRunner extends BlockJUnit4ClassRunner  {
+public class ReqCustomRunner extends Runner  {
+	
+	public static class ReqResult {
+		public String xx;
+	}
+	public static ReqResult reqResult = null;
 	 
     private Class<?> testClass;
     public ReqCustomRunner(Class<?> testClass) throws InitializationError {
-        super(testClass);
+        super();
         this.testClass = testClass;
     }
  
     @Override
     public Description getDescription() {
-        return Description
-          .createTestDescription(testClass, "My runner description");
+        return Description.createTestDescription(testClass, "My runner description");
     }
  
     @Override
     public void run(RunNotifier notifier) {
         System.out.println("running the tests from MyRunner: " + testClass);
     	Description descr = null; 
+    	reqResult = new ReqResult();
+    	reqResult.xx = "abc";
+    	
         try {
             Object testObject = testClass.newInstance();
             for (Method method : testClass.getMethods()) {
