@@ -29,10 +29,12 @@ public class RequirementsChecker {
 	public static class TestObservation {
 		public String name;
 		public String item;
+		public boolean pass;
 		
-		public TestObservation(String name, String item) {
+		public TestObservation(String name, String item, boolean pass) {
 			this.name = name;
 			this.item = item;
+			this.pass = pass;
 		}
 	}
 	
@@ -64,8 +66,8 @@ public class RequirementsChecker {
 			testRequirementL.add(treq);
 		}
 
-		public void observe(String testName, String item) {
-			TestObservation obs = new TestObservation(testName, item);
+		public void observe(String testName, String item, boolean pass) {
+			TestObservation obs = new TestObservation(testName, item, pass);
 			observationL.add(obs);
 		}
 
@@ -81,6 +83,7 @@ public class RequirementsChecker {
 					if (! findInObservations(obs)) {
 						treq.missingList.add(obs);
 						missingCount++;
+						System.out.println(String.format("miss or fail: %s: %s", obs.name, obs.item));
 					}
 				}
 			}
@@ -90,7 +93,7 @@ public class RequirementsChecker {
 		private boolean findInObservations(TestObservation target) {
 			for(TestObservation obs: observationL) {
 				if (obs.name.equals(target.name) && obs.item.equals(target.item)) {
-					return true;
+					return obs.pass;
 				}
 			}
 			return false;
@@ -98,21 +101,51 @@ public class RequirementsChecker {
 
 		private void buildScopeList(TestRequirement treq) {
 			String forAllScope = parseScope(treq.scope);
-			
-			Optional<ReqSpec> optSpec = this.reqL.stream().filter(x -> x.name.equals(forAllScope)).findFirst();
-			if (optSpec.isPresent()) {
-				for(ReqSpec inner: optSpec.get().children) {
-					TestObservation obs = new TestObservation(treq.name, inner.name);
-					treq.list.add(obs);
+			if (forAllScope != null) {
+				Optional<ReqSpec> optSpec = this.reqL.stream().filter(x -> x.name.equals(forAllScope)).findFirst();
+				if (optSpec.isPresent()) {
+					for(ReqSpec inner: optSpec.get().children) {
+						TestObservation obs = new TestObservation(treq.name, inner.name, true);
+						treq.list.add(obs);
+					}
+				}
+			} else {
+				String cpScope = parseCartesianProductScope(treq.scope);
+				if (cpScope != null) {
+					String itemA = cpScope.substring(1, cpScope.indexOf(':'));
+					String itemB = cpScope.substring(cpScope.indexOf(':') + 1, cpScope.length() - 1);
+					Optional<ReqSpec> optSpecA = this.reqL.stream().filter(x -> x.name.equals(itemA)).findFirst();
+					Optional<ReqSpec> optSpecB = this.reqL.stream().filter(x -> x.name.equals(itemB)).findFirst();
+					System.out.println("sdf");
+					for(ReqSpec innerA: optSpecA.get().children) {
+						for(ReqSpec innerB: optSpecB.get().children) {
+							String ss = String.format("%s:%s", innerA.name, innerB.name);
+							TestObservation obs = new TestObservation(treq.name, ss, true);
+							treq.list.add(obs);
+						}
+					}
 				}
 			}
 		}
 
 		private String parseScope(String scope) {
+			if (scope.contains(" X ")) {
+				return null;
+			}
+			
 			int pos = scope.indexOf(':');
 			int pos2 = scope.indexOf('}');
 			String s = scope.substring(pos + 1, pos2);
 			return s;
+		}
+		
+		private String parseCartesianProductScope(String scope) {
+			if (scope.contains(" X ")) {
+				String[] ar = scope.split(" ");
+				String s = String.format("%s:%s", ar[0], ar[2]);
+				return s;
+			}
+			return null;
 		}
 	}
 
@@ -125,7 +158,7 @@ public class RequirementsChecker {
 		ReqSpec req = checker.getList().get(0);
 		assertEquals(3, req.children.size());
 		
-		checker.observe("values", "A");
+		checker.observe("values", "A", true);
 		
 		int missingCount = checker.check();
 		assertEquals(2, missingCount);
@@ -140,12 +173,29 @@ public class RequirementsChecker {
 		ReqSpec req = checker.getList().get(0);
 		assertEquals(3, req.children.size());
 		
-		checker.observe("values", "A");
-		checker.observe("values", "B");
-		checker.observe("values", "C");
+		checker.observe("values", "A", true);
+		checker.observe("values", "B", true);
+		checker.observe("values", "C", true);
 		
 		int missingCount = checker.check();
 		assertEquals(0, missingCount);
+	}
+	
+	@Test
+	public void testFailingTest() {
+		ReqChecker checker = new ReqChecker();
+		checker.addSpec("Shape", "A", "B", "C");
+		checker.addTestRequirement("values", "{x:Shape}");
+		assertEquals(1, checker.size());
+		ReqSpec req = checker.getList().get(0);
+		assertEquals(3, req.children.size());
+		
+		checker.observe("values", "A", true);
+		checker.observe("values", "B", false);
+		checker.observe("values", "C", true);
+		
+		int missingCount = checker.check();
+		assertEquals(1, missingCount);
 	}
 	
 	@Test
@@ -158,13 +208,32 @@ public class RequirementsChecker {
 		ReqSpec req = checker.getList().get(0);
 		assertEquals(3, req.children.size());
 		
-		checker.observe("values", "A");
-		checker.observe("values", "B");
-		checker.observe("values", "C");
-		checker.observe("nulls", "C");
+		checker.observe("values", "A", true);
+		checker.observe("values", "B", true);
+		checker.observe("values", "C", true);
+		checker.observe("nulls", "C", true);
 		
 		int missingCount = checker.check();
 		assertEquals(2, missingCount);
 	}
+	
+	@Test
+	public void testCartesianProduct() {
+		ReqChecker checker = new ReqChecker();
+		checker.addSpec("Shape", "A", "B");
+		checker.addTestRequirement("values", "{Shape X Shape}");
+		assertEquals(1, checker.size());
+		ReqSpec req = checker.getList().get(0);
+		assertEquals(2, req.children.size());
+		
+		checker.observe("values", "A:A", true);
+		checker.observe("values", "A:B", true);
+		checker.observe("values", "B:A", true);
+		checker.observe("values", "B:B", true);
+		
+		int missingCount = checker.check();
+		assertEquals(0, missingCount);
+	}
+	
 
 }
