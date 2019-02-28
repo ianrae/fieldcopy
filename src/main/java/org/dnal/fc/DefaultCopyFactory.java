@@ -1,7 +1,9 @@
 package org.dnal.fc;
 
 import org.dnal.fc.beanutils.BeanUtilFieldCopyService;
+import org.dnal.fc.core.AutoCopyFieldFilter;
 import org.dnal.fc.core.CopyFactory;
+import org.dnal.fc.core.DefaultFieldFilter;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
@@ -30,7 +32,8 @@ public class DefaultCopyFactory implements CopyFactory {
 	public FieldCopyService createCopyService() {
 		SimpleLogger logger = createLogger();
 		FieldRegistry registry = new FieldRegistry();
-		FieldCopyService copySvc = new BeanUtilFieldCopyService(logger, registry);
+		AutoCopyFieldFilter fieldFilter = createAutoCopyFieldFilter();
+		FieldCopyService copySvc = new BeanUtilFieldCopyService(logger, registry, fieldFilter);
 		return copySvc;
 	}
 
@@ -43,5 +46,10 @@ public class DefaultCopyFactory implements CopyFactory {
 	
 	public static void setLogger(SimpleLogger logger) {
 		theLogger = logger;
+	}
+
+	@Override
+	public AutoCopyFieldFilter createAutoCopyFieldFilter() {
+		return new DefaultFieldFilter();
 	}
 }

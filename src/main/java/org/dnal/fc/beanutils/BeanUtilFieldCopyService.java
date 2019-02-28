@@ -9,12 +9,12 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.CopyOptions;
+import org.dnal.fc.core.AutoCopyFieldFilter;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.FieldCopyException;
-import org.dnal.fieldcopy.ValueTests;
 import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
@@ -23,12 +23,14 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 		private FieldRegistry registry;
+		private AutoCopyFieldFilter fieldFilter;
 		
-		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry) {
+		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry, AutoCopyFieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
 			this.propertyUtils =  new PropertyUtilsBean();
+			this.fieldFilter = fieldFilter;
 		}
 
 		@Override
@@ -44,8 +46,8 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
-                if ("class".equals(pd.getName())) {
-                	continue; // No point in trying to set an object's class
+            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
+            		continue; // No point in trying to set an object's class
                 }
 
             	String targetFieldName = findMatchingField(arDest, pd.getName());
