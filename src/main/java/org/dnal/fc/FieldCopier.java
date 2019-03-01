@@ -25,4 +25,9 @@ public class FieldCopier {
 	public CopyOptions getOptions() {
 		return options;
 	}
+	
+	public FieldCopyMapping createMapping(Class<?> srcClass, Class<?> destClass) {
+		FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass);
+		return mapping;
+	}
 }

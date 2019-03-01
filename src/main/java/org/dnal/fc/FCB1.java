@@ -13,6 +13,7 @@ public class FCB1 {
 	private List<String> includeList;
 	private List<String> excludeList;
 	private boolean doAutoCopy;
+	private List<FieldCopyMapping> mappingList;
 
 	public FCB1(FieldCopier fieldCopierBuilder) {
 		this.root = fieldCopierBuilder;
@@ -34,6 +35,14 @@ public class FCB1 {
 	
 	public void execute() {
 		doExecute(null, null);
+	}
+	
+	public FCB1 withMappings(FieldCopyMapping... mappings) {
+		if (this.mappingList == null) {
+			this.mappingList = new ArrayList<>();
+		}
+		this.mappingList.addAll(Arrays.asList(mappings));
+		return this;
 	}
 	
 	/**
@@ -86,7 +95,7 @@ public class FCB1 {
 		}
 			
 		FieldCopyService fieldCopier = root.getCopyService();
-		fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy, root.options);
+		fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy, mappingList, root.options);
 	}
 	
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {

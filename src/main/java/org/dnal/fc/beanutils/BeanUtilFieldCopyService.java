@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.CopyOptions;
+import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
@@ -63,7 +64,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		}
 		
 		@Override
-		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, CopyOptions options)  {
+		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs,  List<FieldCopyMapping> mappingL, CopyOptions options)  {
 			try {
 				doCopyFields(sourceObj, destObj, fieldPairs, options);
 			} catch (Exception e) {
