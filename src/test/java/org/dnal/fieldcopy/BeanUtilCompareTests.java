@@ -2,19 +2,12 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.beans.PropertyDescriptor;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.dnal.fc.CopyOptions;
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fc.beanutils.BeanUtilFieldCopyService;
 import org.dnal.fc.core.AutoCopyFieldFilter;
-import org.dnal.fc.core.CopyFactory;
 import org.dnal.fc.core.DefaultFieldFilter;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
@@ -52,8 +45,66 @@ public class BeanUtilCompareTests {
 		
 		@Override
 		public boolean compareFields(Object sourceObj, Object destObj) {
-			// TODO Auto-generated method stub
-			return false;
+            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+    		
+            for (int i = 0; i < arSrc.length; i++) {
+            	PropertyDescriptor pd = arSrc[i];
+            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
+            		continue; // No point in trying to set an object's class
+                }
+
+            	String name = pd.getName();
+            	
+                if (propertyUtils.isReadable(sourceObj, name) && propertyUtils.isReadable(destObj, name)) {
+                	try {
+						return doCompareFields(sourceObj, destObj);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+                }
+			}
+            
+			
+			return true;
+		}
+		
+		private boolean doCompareFields(Object sourceObj, Object destObj) throws Exception {
+            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+    		
+            for (int i = 0; i < arSrc.length; i++) {
+            	PropertyDescriptor pd = arSrc[i];
+            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
+            		continue; // No point in trying to set an object's class
+                }
+
+            	String targetFieldName = pd.getName();
+            	String name = pd.getName();
+            	
+                if (propertyUtils.isReadable(sourceObj, name) && propertyUtils.isReadable(destObj, name)) {
+                	try {
+                		final Object valueA = propertyUtils.getSimpleProperty(sourceObj, name);
+                		final Object valueB = propertyUtils.getSimpleProperty(destObj, name);
+                		
+                		if (valueA == null && valueB == null) {
+                		} else if (valueA == null) {
+                			return false; //B not null
+                		} else {
+                			boolean b = valueA.equals(valueB);
+                			if (! b) {
+                				return false;
+                			}
+                		}
+                		
+                	} catch (final NoSuchMethodException e) {
+                		// Should not happen
+                	}
+                }
+			}
+            
+			
+			return true;
 		}
 
 		@Override
@@ -207,10 +258,13 @@ public class BeanUtilCompareTests {
 	@Test
 	public void test() {
 		Source src = new Source("bob", 33);
-		Dest dest = new Dest(null, -1);
+		Source src2 = new Source("bobx", 33);
 		
 		FieldCompareService copySvc = createCompareService(); 
 		boolean b = copySvc.compareFields(src, src);
+		assertEquals(true, b);
+		
+		b = copySvc.compareFields(src, src2);
 		assertEquals(false, b);
 	}
 	
