@@ -4,10 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.dnal.fc.core.AutoCopyFieldFilter;
+import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.DefaultFieldFilter;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
@@ -23,14 +24,20 @@ public class BeanUtilCompareTests {
 		BOTH
 	}
 	
+	public static class FieldDifference {
+		public String fieldName;
+		public Object valA;
+		public Object valB;
+	}
+	
 	public interface FieldCompareService {
-		boolean compareFields(Object sourceObj, Object destObj, CompareMode mode);
+		boolean compareFields(Object sourceObj, Object destObj, CompareMode mode, List<FieldDifference> diffL);
 		SimpleLogger getLogger();
 	}	
 	
 	public interface CompareFactory {
 		SimpleLogger createLogger();
-		AutoCopyFieldFilter createAutoCopyFieldFilter();
+		FieldFilter createAutoCopyFieldFilter();
 		FieldCompareService createCompareService();
 //		FieldComparer createComparer();
 	}	
@@ -43,10 +50,10 @@ public class BeanUtilCompareTests {
 	public static class BeanUtilFieldCompareService implements FieldCompareService {
 
 		private SimpleLogger logger;
-		private AutoCopyFieldFilter fieldFilter;
+		private FieldFilter fieldFilter;
 		private PropertyUtilsBean propertyUtils;
 
-		public BeanUtilFieldCompareService(SimpleLogger logger, AutoCopyFieldFilter fieldFilter) {
+		public BeanUtilFieldCompareService(SimpleLogger logger, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.propertyUtils =  new PropertyUtilsBean();
 			this.fieldFilter = fieldFilter;
@@ -54,7 +61,7 @@ public class BeanUtilCompareTests {
 
 		
 		@Override
-		public boolean compareFields(Object objA, Object objB, CompareMode mode) {
+		public boolean compareFields(Object objA, Object objB, CompareMode mode, List<FieldDifference> diffL) {
             final PropertyDescriptor[] arA = propertyUtils.getPropertyDescriptors(objA);
             final PropertyDescriptor[] arB = propertyUtils.getPropertyDescriptors(objB);
     		
@@ -63,7 +70,7 @@ public class BeanUtilCompareTests {
                 for (int i = 0; i < arA.length; i++) {
                 	CompareFrame frame = buildFrame(arA[i], arB);
                 	String fieldName = frame.pdA.getName();
-                	b = doxx(objA, objB, fieldName, frame); 
+                	b = compareField(objA, objB, fieldName, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -72,7 +79,7 @@ public class BeanUtilCompareTests {
                 for (int i = 0; i < arB.length; i++) {
                 	CompareFrame frame = buildFrame(arB[i], arA);
                 	String fieldName = frame.pdB.getName();
-                	b = doxx(objA, objB, fieldName, frame); 
+                	b = compareField(objA, objB, fieldName, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -82,7 +89,7 @@ public class BeanUtilCompareTests {
                 for (int i = 0; i < arA.length; i++) {
                 	CompareFrame frame = buildFrame(arA[i], arB);
                 	String fieldName = frame.pdA.getName();
-                	b = doxx(objA, objB, fieldName, frame); 
+                	b = compareField(objA, objB, fieldName, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -96,7 +103,7 @@ public class BeanUtilCompareTests {
                 	}
                 	CompareFrame frame = buildFrame(arB[i], arA);
                 	String fieldName = frame.pdB.getName();
-                	b = doxx(objA, objB, fieldName, frame); 
+                	b = compareField(objA, objB, fieldName, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -107,21 +114,19 @@ public class BeanUtilCompareTests {
 			return true;
 		}
 		
-		private boolean doxx(Object objA, Object objB, String fieldName, CompareFrame frame) {
-        	if (! fieldFilter.shouldCopy(objA, fieldName)) {
+		private boolean compareField(Object objA, Object objB, String fieldName, CompareFrame frame, List<FieldDifference> diffL) {
+        	if (! fieldFilter.shouldProcess(objA, fieldName)) {
         		return true; // No point in trying to set an object's class
             }
-        	if (! fieldFilter.shouldCopy(objB, fieldName)) {
+        	if (! fieldFilter.shouldProcess(objB, fieldName)) {
         		return true; // No point in trying to set an object's class
             }
         	
-            if (propertyUtils.isReadable(objA, fieldName) && propertyUtils.isReadable(objB, fieldName)) {
-            	try {
-					return doCompareFields(objA, objB, frame.pdA, frame.pdB, fieldName);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-            }
+        	try {
+        		return doCompareField(objA, objB, frame.pdA, frame.pdB, fieldName, diffL);
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
             return false;
 		}
 
@@ -151,7 +156,7 @@ public class BeanUtilCompareTests {
 		}
 
 
-		private boolean doCompareFields(Object sourceObj, Object destObj, PropertyDescriptor pdA, PropertyDescriptor pdB, String fieldName) throws Exception {
+		private boolean doCompareField(Object sourceObj, Object destObj, PropertyDescriptor pdA, PropertyDescriptor pdB, String fieldName, List<FieldDifference> diffL) throws Exception {
 			if (propertyUtils.isReadable(sourceObj, fieldName) && propertyUtils.isReadable(destObj, fieldName)) {
 				try {
 					final Object valueA = propertyUtils.getSimpleProperty(sourceObj, fieldName);
@@ -159,10 +164,12 @@ public class BeanUtilCompareTests {
 
 					if (valueA == null && valueB == null) {
 					} else if (valueA == null) {
+						addDiff(diffL, fieldName, valueA, valueB);
 						return false; //B not null
 					} else {
 						boolean b = valueA.equals(valueB);
 						if (! b) {
+							addDiff(diffL, fieldName, valueA, valueB);
 							return false;
 						}
 					}
@@ -173,6 +180,18 @@ public class BeanUtilCompareTests {
 			}
 			return true;
 		}
+
+		private void addDiff(List<FieldDifference> diffL, String fieldName, Object valueA, Object valueB) {
+			if (diffL == null) {
+				return;
+			}
+			FieldDifference diff = new FieldDifference();
+			diff.fieldName = fieldName;
+			diff.valA = valueA;
+			diff.valB = valueB;
+			diffL.add(diff);
+		}
+
 
 		@Override
 		public SimpleLogger getLogger() {
@@ -204,7 +223,7 @@ public class BeanUtilCompareTests {
 		public FieldCompareService createCompareService() {
 			SimpleLogger logger = createLogger();
 			FieldRegistry registry = new FieldRegistry();
-			AutoCopyFieldFilter fieldFilter = createAutoCopyFieldFilter();
+			FieldFilter fieldFilter = createAutoCopyFieldFilter();
 			FieldCompareService copySvc = new BeanUtilFieldCompareService(logger, fieldFilter);
 			return copySvc;
 		}
@@ -221,7 +240,7 @@ public class BeanUtilCompareTests {
 		}
 
 		@Override
-		public AutoCopyFieldFilter createAutoCopyFieldFilter() {
+		public FieldFilter createAutoCopyFieldFilter() {
 			return new DefaultFieldFilter();
 		}
 	}	
@@ -328,10 +347,10 @@ public class BeanUtilCompareTests {
 		Source src2 = new Source("bobx", 33);
 		
 		FieldCompareService copySvc = createCompareService(); 
-		boolean b = copySvc.compareFields(src, src, CompareMode.B_CONTAINS_A);
+		boolean b = copySvc.compareFields(src, src, CompareMode.B_CONTAINS_A, null);
 		assertEquals(true, b);
 		
-		b = copySvc.compareFields(src, src2, CompareMode.BOTH);
+		b = copySvc.compareFields(src, src2, CompareMode.BOTH, null);
 		assertEquals(false, b);
 	}
 	

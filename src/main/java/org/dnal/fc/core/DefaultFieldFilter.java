@@ -1,11 +1,11 @@
 package org.dnal.fc.core;
 
-public class DefaultFieldFilter implements AutoCopyFieldFilter {
+public class DefaultFieldFilter implements FieldFilter {
 
 	@Override
-	public boolean shouldCopy(Object src, String fieldName) {
+	public boolean shouldProcess(Object src, String fieldName) {
         if ("class".equals(fieldName)) {
-        	return false; // No point in trying to set an object's class
+        	return true; // No point in trying to set an object's class
         }
         return true;
 	}

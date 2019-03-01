@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.CopyOptions;
-import org.dnal.fc.core.AutoCopyFieldFilter;
+import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
@@ -23,9 +23,9 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 		private FieldRegistry registry;
-		private AutoCopyFieldFilter fieldFilter;
+		private FieldFilter fieldFilter;
 		
-		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry, AutoCopyFieldFilter fieldFilter) {
+		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
@@ -46,7 +46,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
-            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
+            	if (! fieldFilter.shouldProcess(sourceObj, pd.getName())) {
             		continue; // No point in trying to set an object's class
                 }
 

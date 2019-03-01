@@ -5,7 +5,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
 
 public interface CopyFactory {
 	SimpleLogger createLogger();
-	AutoCopyFieldFilter createAutoCopyFieldFilter();
+	FieldFilter createAutoCopyFieldFilter();
 	FieldCopyService createCopyService();
 	FieldCopier createCopier();
 }
