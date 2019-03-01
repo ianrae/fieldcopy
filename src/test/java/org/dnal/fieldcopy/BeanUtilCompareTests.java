@@ -3,8 +3,9 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.core.AutoCopyFieldFilter;
 import org.dnal.fc.core.DefaultFieldFilter;
@@ -34,6 +35,11 @@ public class BeanUtilCompareTests {
 //		FieldComparer createComparer();
 	}	
 	
+	public static class CompareFrame {
+        public PropertyDescriptor pdA;
+        public PropertyDescriptor pdB;
+	}
+	
 	public static class BeanUtilFieldCompareService implements FieldCompareService {
 
 		private SimpleLogger logger;
@@ -52,32 +58,88 @@ public class BeanUtilCompareTests {
             final PropertyDescriptor[] arA = propertyUtils.getPropertyDescriptors(objA);
             final PropertyDescriptor[] arB = propertyUtils.getPropertyDescriptors(objB);
     		
-            for (int i = 0; i < arA.length; i++) {
-            	PropertyDescriptor pdA = arA[i];
-            	String fieldName = pdA.getName();
-            	
-            	if (! fieldFilter.shouldCopy(objA, fieldName)) {
-            		continue; // No point in trying to set an object's class
-                }
-            	
-            	PropertyDescriptor pdB = findProp(arB, fieldName);
-            	if (pdB == null) {
-            		throw new RuntimeException("XXXXX");
-            	}
-            	
-                if (propertyUtils.isReadable(objA, fieldName) && propertyUtils.isReadable(objB, fieldName)) {
-                	try {
-						return doCompareFields(objA, objB, pdA, pdB, fieldName);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-                }
-			}
+            boolean b;
+            if (CompareMode.B_CONTAINS_A.equals(mode)) {
+                for (int i = 0; i < arA.length; i++) {
+                	CompareFrame frame = buildFrame(arA[i], arB);
+                	String fieldName = frame.pdA.getName();
+                	b = doxx(objA, objB, fieldName, frame); 
+                	if (! b) {
+                		return false;
+                	}
+    			}
+            } else if (CompareMode.A_CONTAINS_B.equals(mode)) {
+                for (int i = 0; i < arB.length; i++) {
+                	CompareFrame frame = buildFrame(arB[i], arA);
+                	String fieldName = frame.pdB.getName();
+                	b = doxx(objA, objB, fieldName, frame); 
+                	if (! b) {
+                		return false;
+                	}
+    			}
+            } else {
+            	Map<String,String> alreadyProcessedMap = new HashMap<>();
+                for (int i = 0; i < arA.length; i++) {
+                	CompareFrame frame = buildFrame(arA[i], arB);
+                	String fieldName = frame.pdA.getName();
+                	b = doxx(objA, objB, fieldName, frame); 
+                	if (! b) {
+                		return false;
+                	}
+                	alreadyProcessedMap.put(fieldName, "");
+    			}
+                
+                //do fields of B not already compared
+                for (int i = 0; i < arB.length; i++) {
+                	if (alreadyProcessedMap.containsKey(arB[i].getName())) {
+                		continue;
+                	}
+                	CompareFrame frame = buildFrame(arB[i], arA);
+                	String fieldName = frame.pdB.getName();
+                	b = doxx(objA, objB, fieldName, frame); 
+                	if (! b) {
+                		return false;
+                	}
+    			}
+            }
             
 			
 			return true;
 		}
 		
+		private boolean doxx(Object objA, Object objB, String fieldName, CompareFrame frame) {
+        	if (! fieldFilter.shouldCopy(objA, fieldName)) {
+        		return true; // No point in trying to set an object's class
+            }
+        	if (! fieldFilter.shouldCopy(objB, fieldName)) {
+        		return true; // No point in trying to set an object's class
+            }
+        	
+            if (propertyUtils.isReadable(objA, fieldName) && propertyUtils.isReadable(objB, fieldName)) {
+            	try {
+					return doCompareFields(objA, objB, frame.pdA, frame.pdB, fieldName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+            }
+            return false;
+		}
+
+
+		private CompareFrame buildFrame(PropertyDescriptor pdFirst, PropertyDescriptor[] arSecond) {
+			CompareFrame frame = new CompareFrame();
+			frame.pdA = pdFirst;
+        	String fieldName = frame.pdA.getName();
+        	
+        	PropertyDescriptor pdSecond = findProp(arSecond, fieldName);
+        	if (pdSecond == null) {
+        		throw new RuntimeException("XXXXX");
+        	}
+        	frame.pdB = pdSecond;
+			return frame;
+		}
+
+
 		private PropertyDescriptor findProp(PropertyDescriptor[] arB, String fieldName) {
 			for(int i = 0; i < arB.length; i++) {
 				PropertyDescriptor pd = arB[i];
