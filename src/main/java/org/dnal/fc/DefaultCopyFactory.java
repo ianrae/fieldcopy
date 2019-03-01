@@ -32,7 +32,7 @@ public class DefaultCopyFactory implements CopyFactory {
 	public FieldCopyService createCopyService() {
 		SimpleLogger logger = createLogger();
 		FieldRegistry registry = new FieldRegistry();
-		FieldFilter fieldFilter = createAutoCopyFieldFilter();
+		FieldFilter fieldFilter = createFieldFilter();
 		FieldCopyService copySvc = new BeanUtilFieldCopyService(logger, registry, fieldFilter);
 		return copySvc;
 	}
@@ -49,7 +49,7 @@ public class DefaultCopyFactory implements CopyFactory {
 	}
 
 	@Override
-	public FieldFilter createAutoCopyFieldFilter() {
+	public FieldFilter createFieldFilter() {
 		return new DefaultFieldFilter();
 	}
 }

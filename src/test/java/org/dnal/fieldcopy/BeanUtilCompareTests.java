@@ -37,7 +37,7 @@ public class BeanUtilCompareTests {
 	
 	public interface CompareFactory {
 		SimpleLogger createLogger();
-		FieldFilter createAutoCopyFieldFilter();
+		FieldFilter createFieldFilter();
 		FieldCompareService createCompareService();
 //		FieldComparer createComparer();
 	}	
@@ -45,6 +45,7 @@ public class BeanUtilCompareTests {
 	public static class CompareFrame {
         public PropertyDescriptor pdA;
         public PropertyDescriptor pdB;
+        public String fieldName;
 	}
 	
 	public static class BeanUtilFieldCompareService implements FieldCompareService {
@@ -69,17 +70,19 @@ public class BeanUtilCompareTests {
             if (CompareMode.B_CONTAINS_A.equals(mode)) {
                 for (int i = 0; i < arA.length; i++) {
                 	CompareFrame frame = buildFrame(arA[i], arB);
-                	String fieldName = frame.pdA.getName();
-                	b = compareField(objA, objB, fieldName, frame, diffL); 
+                	b = compareField(objA, objB, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
     			}
             } else if (CompareMode.A_CONTAINS_B.equals(mode)) {
                 for (int i = 0; i < arB.length; i++) {
-                	CompareFrame frame = buildFrame(arB[i], arA);
-                	String fieldName = frame.pdB.getName();
-                	b = compareField(objA, objB, fieldName, frame, diffL); 
+                	CompareFrame frameBackwards = buildFrame(arB[i], arA);
+                	CompareFrame frame = new CompareFrame();
+                	frame.pdA = frameBackwards.pdB;
+                	frame.pdB = frameBackwards.pdA;
+                	frame.fieldName = frameBackwards.fieldName;
+                	b = compareField(objA, objB, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -88,12 +91,11 @@ public class BeanUtilCompareTests {
             	Map<String,String> alreadyProcessedMap = new HashMap<>();
                 for (int i = 0; i < arA.length; i++) {
                 	CompareFrame frame = buildFrame(arA[i], arB);
-                	String fieldName = frame.pdA.getName();
-                	b = compareField(objA, objB, fieldName, frame, diffL); 
+                	b = compareField(objA, objB, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
-                	alreadyProcessedMap.put(fieldName, "");
+                	alreadyProcessedMap.put(frame.fieldName, "");
     			}
                 
                 //do fields of B not already compared
@@ -101,9 +103,12 @@ public class BeanUtilCompareTests {
                 	if (alreadyProcessedMap.containsKey(arB[i].getName())) {
                 		continue;
                 	}
-                	CompareFrame frame = buildFrame(arB[i], arA);
-                	String fieldName = frame.pdB.getName();
-                	b = compareField(objA, objB, fieldName, frame, diffL); 
+                	CompareFrame frameBackwards = buildFrame(arB[i], arA);
+                	CompareFrame frame = new CompareFrame();
+                	frame.pdA = frameBackwards.pdB;
+                	frame.pdB = frameBackwards.pdA;
+                	frame.fieldName = frameBackwards.fieldName;
+                	b = compareField(objA, objB, frame, diffL); 
                 	if (! b) {
                 		return false;
                 	}
@@ -114,16 +119,16 @@ public class BeanUtilCompareTests {
 			return true;
 		}
 		
-		private boolean compareField(Object objA, Object objB, String fieldName, CompareFrame frame, List<FieldDifference> diffL) {
-        	if (! fieldFilter.shouldProcess(objA, fieldName)) {
+		private boolean compareField(Object objA, Object objB, CompareFrame frame, List<FieldDifference> diffL) {
+        	if (! fieldFilter.shouldProcess(objA, frame.fieldName)) {
         		return true; // No point in trying to set an object's class
             }
-        	if (! fieldFilter.shouldProcess(objB, fieldName)) {
+        	if (! fieldFilter.shouldProcess(objB, frame.fieldName)) {
         		return true; // No point in trying to set an object's class
             }
         	
         	try {
-        		return doCompareField(objA, objB, frame.pdA, frame.pdB, fieldName, diffL);
+        		return doCompareField(objA, objB, frame.pdA, frame.pdB, frame.fieldName, diffL);
         	} catch (Exception e) {
         		e.printStackTrace();
         	}
@@ -134,9 +139,9 @@ public class BeanUtilCompareTests {
 		private CompareFrame buildFrame(PropertyDescriptor pdFirst, PropertyDescriptor[] arSecond) {
 			CompareFrame frame = new CompareFrame();
 			frame.pdA = pdFirst;
-        	String fieldName = frame.pdA.getName();
+        	frame.fieldName = frame.pdA.getName();
         	
-        	PropertyDescriptor pdSecond = findProp(arSecond, fieldName);
+        	PropertyDescriptor pdSecond = findProp(arSecond, frame.fieldName);
         	if (pdSecond == null) {
         		throw new RuntimeException("XXXXX");
         	}
@@ -222,8 +227,7 @@ public class BeanUtilCompareTests {
 		@Override
 		public FieldCompareService createCompareService() {
 			SimpleLogger logger = createLogger();
-			FieldRegistry registry = new FieldRegistry();
-			FieldFilter fieldFilter = createAutoCopyFieldFilter();
+			FieldFilter fieldFilter = createFieldFilter();
 			FieldCompareService copySvc = new BeanUtilFieldCompareService(logger, fieldFilter);
 			return copySvc;
 		}
@@ -240,7 +244,7 @@ public class BeanUtilCompareTests {
 		}
 
 		@Override
-		public FieldFilter createAutoCopyFieldFilter() {
+		public FieldFilter createFieldFilter() {
 			return new DefaultFieldFilter();
 		}
 	}	
