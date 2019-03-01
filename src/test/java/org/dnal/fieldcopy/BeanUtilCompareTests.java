@@ -16,8 +16,14 @@ import org.junit.Test;
 
 public class BeanUtilCompareTests {
 	
+	public static enum CompareMode {
+		A_CONTAINS_B, //foreach field in B, its field in A is the same
+		B_CONTAINS_A, //for each field in A, its field in B is the same
+		BOTH
+	}
+	
 	public interface FieldCompareService {
-		boolean compareFields(Object sourceObj, Object destObj);
+		boolean compareFields(Object sourceObj, Object destObj, CompareMode mode);
 		SimpleLogger getLogger();
 	}	
 	
@@ -32,33 +38,36 @@ public class BeanUtilCompareTests {
 
 		private SimpleLogger logger;
 		private AutoCopyFieldFilter fieldFilter;
-		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 
 		public BeanUtilFieldCompareService(SimpleLogger logger, AutoCopyFieldFilter fieldFilter) {
 			this.logger = logger;
-			this.beanUtil =  BeanUtilsBean.getInstance();
 			this.propertyUtils =  new PropertyUtilsBean();
 			this.fieldFilter = fieldFilter;
 		}
 
 		
 		@Override
-		public boolean compareFields(Object sourceObj, Object destObj) {
-            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
-            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+		public boolean compareFields(Object objA, Object objB, CompareMode mode) {
+            final PropertyDescriptor[] arA = propertyUtils.getPropertyDescriptors(objA);
+            final PropertyDescriptor[] arB = propertyUtils.getPropertyDescriptors(objB);
     		
-            for (int i = 0; i < arSrc.length; i++) {
-            	PropertyDescriptor pd = arSrc[i];
-            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
+            for (int i = 0; i < arA.length; i++) {
+            	PropertyDescriptor pdA = arA[i];
+            	String fieldName = pdA.getName();
+            	
+            	if (! fieldFilter.shouldCopy(objA, fieldName)) {
             		continue; // No point in trying to set an object's class
                 }
-
-            	String name = pd.getName();
             	
-                if (propertyUtils.isReadable(sourceObj, name) && propertyUtils.isReadable(destObj, name)) {
+            	PropertyDescriptor pdB = findProp(arB, fieldName);
+            	if (pdB == null) {
+            		throw new RuntimeException("XXXXX");
+            	}
+            	
+                if (propertyUtils.isReadable(objA, fieldName) && propertyUtils.isReadable(objB, fieldName)) {
                 	try {
-						return doCompareFields(sourceObj, destObj);
+						return doCompareFields(objA, objB, pdA, pdB, fieldName);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -69,41 +78,37 @@ public class BeanUtilCompareTests {
 			return true;
 		}
 		
-		private boolean doCompareFields(Object sourceObj, Object destObj) throws Exception {
-            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
-            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
-    		
-            for (int i = 0; i < arSrc.length; i++) {
-            	PropertyDescriptor pd = arSrc[i];
-            	if (! fieldFilter.shouldCopy(sourceObj, pd.getName())) {
-            		continue; // No point in trying to set an object's class
-                }
-
-            	String targetFieldName = pd.getName();
-            	String name = pd.getName();
-            	
-                if (propertyUtils.isReadable(sourceObj, name) && propertyUtils.isReadable(destObj, name)) {
-                	try {
-                		final Object valueA = propertyUtils.getSimpleProperty(sourceObj, name);
-                		final Object valueB = propertyUtils.getSimpleProperty(destObj, name);
-                		
-                		if (valueA == null && valueB == null) {
-                		} else if (valueA == null) {
-                			return false; //B not null
-                		} else {
-                			boolean b = valueA.equals(valueB);
-                			if (! b) {
-                				return false;
-                			}
-                		}
-                		
-                	} catch (final NoSuchMethodException e) {
-                		// Should not happen
-                	}
-                }
+		private PropertyDescriptor findProp(PropertyDescriptor[] arB, String fieldName) {
+			for(int i = 0; i < arB.length; i++) {
+				PropertyDescriptor pd = arB[i];
+				if (pd.getName().equals(fieldName)) {
+					return pd;
+				}
 			}
-            
-			
+			return null;
+		}
+
+
+		private boolean doCompareFields(Object sourceObj, Object destObj, PropertyDescriptor pdA, PropertyDescriptor pdB, String fieldName) throws Exception {
+			if (propertyUtils.isReadable(sourceObj, fieldName) && propertyUtils.isReadable(destObj, fieldName)) {
+				try {
+					final Object valueA = propertyUtils.getSimpleProperty(sourceObj, fieldName);
+					final Object valueB = propertyUtils.getSimpleProperty(destObj, fieldName);
+
+					if (valueA == null && valueB == null) {
+					} else if (valueA == null) {
+						return false; //B not null
+					} else {
+						boolean b = valueA.equals(valueB);
+						if (! b) {
+							return false;
+						}
+					}
+
+				} catch (final NoSuchMethodException e) {
+					// Should not happen
+				}
+			}
 			return true;
 		}
 
@@ -261,10 +266,10 @@ public class BeanUtilCompareTests {
 		Source src2 = new Source("bobx", 33);
 		
 		FieldCompareService copySvc = createCompareService(); 
-		boolean b = copySvc.compareFields(src, src);
+		boolean b = copySvc.compareFields(src, src, CompareMode.B_CONTAINS_A);
 		assertEquals(true, b);
 		
-		b = copySvc.compareFields(src, src2);
+		b = copySvc.compareFields(src, src2, CompareMode.BOTH);
 		assertEquals(false, b);
 	}
 	
