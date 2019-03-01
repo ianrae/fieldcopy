@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.DefaultFieldFilter;
-import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
@@ -112,7 +111,7 @@ public class BeanUtilCompareTests {
                 	if (! b) {
                 		return false;
                 	}
-    			}
+                }
             }
             
 			
