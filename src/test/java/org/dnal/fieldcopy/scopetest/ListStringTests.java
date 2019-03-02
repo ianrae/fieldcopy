@@ -13,28 +13,33 @@ import org.junit.Test;
 
 public class ListStringTests extends BaseScopeTest {
 	
-	public static class MyListTransformer implements ValueTransformer {
-		@Override
-		public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
-			if (srcFieldName.equals("listString1")) {
-				return true;
-			}
-			return false;
-		}
-
+	public static abstract class BaseListTransformer implements ValueTransformer {
 		@Override
 		public Object transformValue(String srcFieldName, Object value, Class<?> destClass) {
 			@SuppressWarnings("unchecked")
-			List<String> list = (List<String>) value;
+			List<?> list = (List<?>) value;
 			
-			List<Integer> list2 = new ArrayList<>();
-			for(String s: list) {
-				Integer n = Integer.parseInt(s);
-				list2.add(n);
+			List<Object> list2 = new ArrayList<>();
+			for(Object el: list) {
+				Object copy = copyElement(el);
+				list2.add(copy);
 			}
 			return list2;
 		}
-		
+
+		protected abstract Object copyElement(Object el);
+	}
+	public static class MyListTransformer extends BaseListTransformer {
+		@Override
+		public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
+			return srcFieldName.equals("listString1");
+		}
+
+		@Override
+		protected Object copyElement(Object el) {
+			Integer n = Integer.parseInt(el.toString());
+			return n;
+		}
 	}
 	
 	@Test
