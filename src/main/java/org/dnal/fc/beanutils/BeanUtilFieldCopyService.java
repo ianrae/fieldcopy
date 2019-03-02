@@ -1,13 +1,10 @@
 package org.dnal.fc.beanutils;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,16 +13,15 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.FieldCopyMapping;
-import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
+import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.FieldCopyException;
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
@@ -203,46 +199,10 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 
 				//add one
 				String name = pair.srcProp.getName();
-				Class<?> destElementClass = detectElementClass(destObj, fd2);
+				Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
 				ListElementTransformer transformer = new ListElementTransformer(name, destElementClass);
 				transformerL.add(transformer);
 			}
-		}
-
-		private Class<?> detectElementClass(Object destObj, BeanUtilsFieldDescriptor fd2) {
-			String name = fd2.getName();
-			Field field = null;
-			try {
-				field = destObj.getClass().getDeclaredField(name);
-			} catch (NoSuchFieldException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			if (field == null) {
-				return null;
-			}
-			Type typ = field.getGenericType();
-			if (typ != null) {
-				if (typ instanceof ParameterizedType) {
-					ParameterizedType paramType = (ParameterizedType) typ;
-					Type[] argTypes = paramType.getActualTypeArguments();
-					Type target = argTypes[0];
-					Class<?> zz = null;
-					try {
-						zz = Class.forName(target.getTypeName());
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					return zz;
-				}		
-			}
-			
-			return null;
 		}
 
 		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueTransformer> transformerL) {
