@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -131,4 +132,23 @@ public class BooleanTests extends BaseScopeTest {
 	//---
 	private static final String primitiveField = "primitiveBool";
 	private static final String mainField = "bool1";
+	
+	@Before
+	public void init() {
+		super.init();
+	}
+	@Override
+	protected AllTypesEntity createEntity() {
+		AllTypesEntity entity = new AllTypesEntity();
+		entity.primitiveBool = true;
+		entity.bool1 = true;
+		
+		return entity;
+	}
+	
+	protected void chkValue(boolean bPrim, boolean b2) {
+		assertEquals(bPrim, dto.isPrimitiveBool());
+		assertEquals(b2, dto.getBool1().booleanValue());
+		assertEquals(null, dto.getString1());
+	}
 }

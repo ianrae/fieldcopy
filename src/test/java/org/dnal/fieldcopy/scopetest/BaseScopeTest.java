@@ -16,8 +16,7 @@ public class BaseScopeTest {
 	protected AllTypesDTO dto;
 	protected FieldCopier copier;
 	
-	@Before
-	public void init() {
+	protected void init() {
 		reset();
 		copier = createCopier();
 		copier.getOptions().logEachCopy = true;
@@ -42,11 +41,6 @@ public class BaseScopeTest {
 		return DefaultCopyFactory.Factory().createCopier();
 	}
 	
-	protected void chkValue(boolean bPrim, boolean b2) {
-		assertEquals(bPrim, dto.isPrimitiveBool());
-		assertEquals(b2, dto.getBool1().booleanValue());
-		assertEquals(null, dto.getString1());
-	}
 	protected void copySrcFieldTo(String srcField, String destField) {
 		copySrcFieldTo(srcField, destField, true);
 	}

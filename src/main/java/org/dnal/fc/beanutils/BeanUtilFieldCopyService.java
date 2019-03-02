@@ -71,6 +71,25 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
             return fieldPairs;
 		}
+		
+		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
+			if (pair.destProp != null) {
+				return;
+			}
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+    		
+            for (int i = 0; i < arDest.length; i++) {
+            	PropertyDescriptor pd = arDest[i];
+            	if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+            		continue; // No point in trying to set an object's class
+                }
+
+            	if (pd.getName().equals(pair.destFieldName)) {
+            		pair.destProp = new BeanUtilsFieldDescriptor(pd);
+            		return;
+            	}
+            }
+		}
 
 		@Override
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs,  List<FieldCopyMapping> mappingL, CopyOptions options)  {
@@ -119,6 +138,9 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 if (propertyUtils.isReadable(orig, name) &&
                 		propertyUtils.isWriteable(dest, pair.destFieldName)) {
                 	try {
+                		
+                		fillInDestPropIfNeeded(pair, destObj.getClass());
+                		
                 		final Object value = propertyUtils.getSimpleProperty(orig, name);
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
@@ -128,6 +150,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 				logger.log("%s -> %s = %s", pair.srcProp.getName(), pair.destFieldName, tmp);
                 			}
                 			
+                			validateIsAllowed(pair, value, dest);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -138,6 +161,27 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
+		private void validateIsAllowed(FieldPair pair, Object value, Object dest) {
+			if (value != null) {
+				Class<?> destClass =  isNotAllowed(pair, value, dest);
+				if (destClass != null) {
+					String err = String.format("Not allowed to copy %s to %s", value.getClass().getName(), destClass.getName());
+					throw new FieldCopyException(err);
+				}
+			}
+		}
+
+		private Class<?> isNotAllowed(FieldPair pair, Object value, Object dest) {
+			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
+			Class<?> type = desc.pd.getPropertyType();
+			if (value instanceof Number) {
+				if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
+					return type;
+				}
+			}
+			return null;
+		}
+
 		private boolean applyMapping(FieldPair pair, Object sourceObj, Object destObj, Object srcValue, List<FieldCopyMapping> mappingL, CopyOptions options, int runawayCounter) throws Exception {
 			if (CollectionUtils.isEmpty(mappingL)) {
 				return false;
