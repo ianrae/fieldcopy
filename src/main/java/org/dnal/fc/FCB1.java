@@ -8,6 +8,7 @@ import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
+import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
 
 /**
@@ -58,6 +59,14 @@ public class FCB1 {
 			this.transformers = new ArrayList<>();
 		}
 		this.transformers.addAll(Arrays.asList(transformers));
+		return this;
+	}
+	public FCB1 listHint(String srcField, Class<?> destListElementClass) {
+		if (this.transformers == null) {
+			this.transformers = new ArrayList<>();
+		}
+		ListElementTransformer transformer = new ListElementTransformer(srcField, destListElementClass);
+		this.transformers.add(transformer);
 		return this;
 	}
 	
