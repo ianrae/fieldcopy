@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
@@ -102,7 +103,15 @@ public class FCB1 {
 		}
 			
 		FieldCopyService fieldCopier = root.getCopyService();
-		fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy, mappingList, root.options);
+		
+		
+		CopySpec spec = new CopySpec();
+		spec.sourceObj = root.sourceObj;
+		spec.destObj = root.destObj;
+		spec.fieldPairs = fieldsToCopy;
+		spec.mappingL = mappingList;
+		spec.options = root.options;
+		fieldCopier.copyFields(spec);
 	}
 	
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {

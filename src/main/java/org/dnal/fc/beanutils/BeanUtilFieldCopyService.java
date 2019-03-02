@@ -13,6 +13,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.FieldFilter;
+import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
@@ -94,9 +95,9 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs,  List<FieldCopyMapping> mappingL, CopyOptions options)  {
+		public void copyFields(CopySpec copySpec)  {
 			try {
-				doCopyFields(sourceObj, destObj, fieldPairs, mappingL, options, 1);
+				doCopyFields(copySpec, 1);
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}
@@ -114,7 +115,13 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             return null;
 		}
 
-		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options, int runawayCounter) throws Exception {
+		private void doCopyFields(CopySpec copySpec, int runawayCounter) throws Exception {
+			Object sourceObj = copySpec.sourceObj;
+			Object destObj = copySpec.destObj;
+			List<FieldPair> fieldPairs = copySpec.fieldPairs;
+			List<FieldCopyMapping> mappingL = copySpec.mappingL;
+			CopyOptions options = copySpec.options;
+			
 			if (sourceObj == null) {
 				String error = String.format("copyFields. NULL passed to sourceObj");
 				throw new FieldCopyException(error);
@@ -253,7 +260,13 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		}
                 		
                 		//**recursion**
-                		doCopyFields(srcValue, destValue, mapping.getFieldPairs(),  mappingL, options, runawayCounter + 1);
+                		CopySpec spec = new CopySpec();
+                		spec.sourceObj = srcValue;
+                		spec.destObj = destValue;
+                		spec.fieldPairs = mapping.getFieldPairs();
+                		spec.mappingL = mappingL;
+                		spec.options = options;
+                		doCopyFields(spec, runawayCounter + 1);
 
 						return true;
 					}

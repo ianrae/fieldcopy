@@ -8,6 +8,7 @@ import java.util.List;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
+import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
@@ -120,7 +121,15 @@ public class BeanUtilTests {
 		
 		FieldCopyService copySvc = createCopyService(); 
 		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
-		copySvc.copyFields(src, dest, fieldPairs, null, new CopyOptions());
+		
+		
+		CopySpec spec = new CopySpec();
+		spec.sourceObj = src;
+		spec.destObj = dest;
+		spec.fieldPairs = fieldPairs;
+		spec.mappingL = null;
+		spec.options = new CopyOptions();
+		copySvc.copyFields(spec);
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 		

@@ -14,7 +14,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  */
 public interface FieldCopyService {
 	List<FieldPair> buildAutoCopyPairs(Class<?> sourceClass, Class<?> destClass);
-	void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options);
+	void copyFields(CopySpec copySpec);
 	void dumpFields(Object sourceObj);
 	SimpleLogger getLogger();
 	FieldRegistry getRegistry();
