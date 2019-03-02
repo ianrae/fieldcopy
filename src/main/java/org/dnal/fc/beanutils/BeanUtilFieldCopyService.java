@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.FieldFilter;
@@ -35,56 +36,57 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj)  {
-            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(sourceObj.getClass(), destObj.getClass());
+		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
+            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1.getClass(), class2.getClass());
 			if (fieldPairs != null) {
 				return fieldPairs;
 			}
 			
-            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(sourceObj);
-            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destObj);
+            final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
+            final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
     		
             fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
-            	if (! fieldFilter.shouldProcess(sourceObj, pd.getName())) {
+            	if (! fieldFilter.shouldProcess(class1, pd.getName())) {
             		continue; // No point in trying to set an object's class
                 }
 
-            	String targetFieldName = findMatchingField(arDest, pd.getName());
+            	PropertyDescriptor targetPd = findMatchingField(arDest, pd.getName());
             	
             	FieldPair pair = new FieldPair();
             	pair.srcProp = new BeanUtilsFieldDescriptor(pd);
-            	pair.destFieldName = targetFieldName;
+            	pair.destFieldName = (targetPd == null) ? null : targetPd.getName();
+            	pair.destProp = new BeanUtilsFieldDescriptor(targetPd);
             	fieldPairs.add(pair);
             }
 			
-			registry.registerAutoCopyInfo(sourceObj.getClass(), destObj.getClass(), fieldPairs);
+			registry.registerAutoCopyInfo(class1.getClass(), class2.getClass(), fieldPairs);
             return fieldPairs;
 		}
-		
+
 		@Override
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs,  List<FieldCopyMapping> mappingL, CopyOptions options)  {
 			try {
-				doCopyFields(sourceObj, destObj, fieldPairs, options);
+				doCopyFields(sourceObj, destObj, fieldPairs, mappingL, options);
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}
 		}
 		
 		
-		private String findMatchingField(PropertyDescriptor[] arDest, String name) {
+		private PropertyDescriptor findMatchingField(PropertyDescriptor[] arDest, String name) {
             for (int i = 0; i < arDest.length; i++) {
             	
             	PropertyDescriptor pd = arDest[i];
             	if (pd.getName().equals(name)) {
-            		return pd.getName();
+            		return pd;
             	}
             }
             return null;
 		}
 
-		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, CopyOptions options) throws IllegalAccessException, InvocationTargetException {
+		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options) throws IllegalAccessException, InvocationTargetException {
 			if (sourceObj == null) {
 				String error = String.format("copyFields. NULL passed to sourceObj");
 				throw new FieldCopyException(error);
@@ -118,6 +120,26 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		// Should not happen
                 	}
                 }
+			}
+		}
+		
+		private void xxxdoCopyFields(FieldPair pair, Object destObj, List<FieldCopyMapping> mappingL) throws IllegalAccessException, InvocationTargetException {
+			if (CollectionUtils.isEmpty(mappingL)) {
+				return;
+			}
+
+			BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+			for(FieldCopyMapping mapping: mappingL) {
+				if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
+					if (pair.destProp == null) {
+						throw new IllegalArgumentException("fix later");
+					}
+					BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+					if (mapping.getClazzDest().equals(fd2.pd.getPropertyType())) {
+						//use the mapping, which has fields, autocopy flag etc
+						
+					}
+				}
 			}
 		}
 		

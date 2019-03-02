@@ -8,42 +8,38 @@ import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 
-public class FCB1 {
+public class FCM0 {
 	private FieldCopier root;
 	private List<String> includeList;
 	private List<String> excludeList;
 	private boolean doAutoCopy;
-	private List<FieldCopyMapping> mappingList;
+	private Class<?> srcClass;
+	private Class<?> destClass;
 
-	public FCB1(FieldCopier fieldCopierBuilder) {
+	public FCM0(FieldCopier fieldCopierBuilder, Class<?> srcClass, Class<?> destClass) {
 		this.root = fieldCopierBuilder;
+		this.srcClass = srcClass;
+		this.destClass = destClass;
 	}
-	
-	public FCB1 include(String...fieldNames) {
+
+	public FCM0 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
-	public FCB1 exclude(String...fieldNames) {
+	public FCM0 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
 	
-	public FCB1 autoCopy() {
+	public FCM0 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
 	}
 	
-	public void execute() {
-		doExecute(null, null);
+	public FieldCopyMapping build() {
+		return doBuild(null, null);
 	}
 	
-	public FCB1 withMappings(FieldCopyMapping... mappings) {
-		if (this.mappingList == null) {
-			this.mappingList = new ArrayList<>();
-		}
-		this.mappingList.addAll(Arrays.asList(mappings));
-		return this;
-	}
 	
 	/**
 	 * if autocopy then copies matching fields
@@ -57,9 +53,9 @@ public class FCB1 {
 	 * @param destList
 	 */
 	
-	void doExecute(List<String> srcList, List<String> destList) {
+	FieldCopyMapping doBuild(List<String> srcList, List<String> destList) {
 		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
+		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(srcClass, destClass);
 		
 		if (this.doAutoCopy) {
 			if (includeList == null && excludeList == null) {
@@ -95,8 +91,9 @@ public class FCB1 {
 			}
 		}
 			
-		FieldCopyService fieldCopier = root.getCopyService();
-		fieldCopier.copyFields(root.sourceObj, root.destObj, fieldsToCopy, mappingList, root.options);
+		FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass);
+		mapping.setFieldPairs(fieldsToCopy);
+		return mapping;
 	}
 	
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
@@ -108,10 +105,10 @@ public class FCB1 {
 		return null;
 	}
 
-	public FCB2 field(String srcFieldName) {
-		return new FCB2(this, srcFieldName, srcFieldName);
+	public FCM02 field(String srcFieldName) {
+		return new FCM02(this, srcFieldName, srcFieldName);
 	}
-	public FCB2 field(String srcFieldName, String destFieldName) {
-		return new FCB2(this, srcFieldName, destFieldName);
+	public FCM02 field(String srcFieldName, String destFieldName) {
+		return new FCM02(this, srcFieldName, destFieldName);
 	}
 }

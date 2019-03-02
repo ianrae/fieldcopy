@@ -1,5 +1,8 @@
 package org.dnal.fc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dnal.fc.core.FieldCopyService;
 
 public class FieldCopier {
@@ -7,6 +10,7 @@ public class FieldCopier {
 	Object sourceObj;
 	Object destObj;
 	CopyOptions options = new CopyOptions();
+	//List<FieldCopyMapping> mappingList = new ArrayList<>();
 
 	public FieldCopier(FieldCopyService copier) {
 		this.copier = copier;
@@ -26,8 +30,7 @@ public class FieldCopier {
 		return options;
 	}
 	
-	public FieldCopyMapping createMapping(Class<?> srcClass, Class<?> destClass) {
-		FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass);
-		return mapping;
+	public FCM0 createMapping(Class<?> srcClass, Class<?> destClass) {
+		return new FCM0(this, srcClass, destClass);
 	}
 }

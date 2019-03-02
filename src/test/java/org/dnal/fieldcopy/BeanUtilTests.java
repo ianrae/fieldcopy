@@ -8,7 +8,6 @@ import java.util.List;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
-import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
@@ -112,31 +111,13 @@ public class BeanUtilTests {
 		}
 	}
 	
-	public static class Combo1 {
-		private int size;
-		private Source source;
-		
-		public int getSize() {
-			return size;
-		}
-		public void setSize(int size) {
-			this.size = size;
-		}
-		public Source getSource() {
-			return source;
-		}
-		public void setSource(Source source) {
-			this.source = source;
-		}
-	}
-	
 	@Test
 	public void test() {
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src, dest);
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
 		copySvc.copyFields(src, dest, fieldPairs, null, new CopyOptions());
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
@@ -150,8 +131,8 @@ public class BeanUtilTests {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src, dest);
-		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(src, dest);
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
+		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
 		
 		assertSame(fieldPairs, fieldPairs2);
 	}
@@ -210,37 +191,6 @@ public class BeanUtilTests {
 		assertEquals(33, dest.getAge2());
 	}
 	
-	@Test
-	public void testCopyStruct() {
-		Combo1 combo = new Combo1();
-		combo.size = 15;
-		combo.source = new Source("bob", 33);
-		Combo1 combo2 = new Combo1();
-		
-		FieldCopier copier = createCopier();
-		copier.getOptions().logEachCopy = true;
-		copier.copy(combo, combo2).autoCopy().execute();
-		assertEquals("bob", combo2.source.getName());
-		assertEquals(33, combo2.source.getAge());
-		assertEquals(15, combo2.getSize());
-//		assertEquals(-1, dest.getAge());
-	}
-	@Test
-	public void testCopyStructMapping() {
-		Combo1 combo = new Combo1();
-		combo.size = 15;
-		combo.source = new Source("bob", 33);
-		Combo1 combo2 = new Combo1();
-		
-		FieldCopier copier = createCopier();
-		FieldCopyMapping mapping = copier.createMapping(Source.class, Source.class);
-		copier.getOptions().logEachCopy = true;
-		copier.copy(combo, combo2).autoCopy().execute();
-		assertEquals("bob", combo2.source.getName());
-		assertEquals(33, combo2.source.getAge());
-		assertEquals(15, combo2.getSize());
-//		assertEquals(-1, dest.getAge());
-	}
 	
 	//--
 	private FieldCopyService createCopyService() {
