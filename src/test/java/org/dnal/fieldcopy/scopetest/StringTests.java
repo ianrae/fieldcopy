@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Before;
@@ -35,7 +34,6 @@ public class StringTests extends BaseScopeTest {
 	}
 	
 	
-	//----------- Double ------------
 	@Test
 	public void testToBoolean() {
 		copySrcFieldTo(mainField, "primitiveBool");

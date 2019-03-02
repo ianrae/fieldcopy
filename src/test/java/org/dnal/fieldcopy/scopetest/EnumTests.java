@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fc.CopyOptions;
 import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.FieldCopyException;
 import org.junit.Before;

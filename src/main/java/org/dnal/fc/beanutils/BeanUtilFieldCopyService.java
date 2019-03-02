@@ -4,6 +4,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -231,6 +232,11 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			} else if (value.getClass().isEnum()) {
 				if (type.isEnum()) {
 				} else if (String.class.equals(type)) {
+				} else {
+					return type;
+				}
+			} else if (value instanceof Collection) {
+				if (Collection.class.isAssignableFrom(type)) {
 				} else {
 					return type;
 				}

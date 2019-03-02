@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.scopetest;
 
 import java.util.Date;
+import java.util.List;
 
 public class AllTypesDTO {
 	private boolean primitiveBool;
@@ -18,6 +19,8 @@ public class AllTypesDTO {
 	
 	private Colour colour1;
 	private Province province1;
+	
+	private List<String> listString1;
 	
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -113,5 +116,13 @@ public class AllTypesDTO {
 
 	public void setProvince1(Province province1) {
 		this.province1 = province1;
+	}
+
+	public List<String> getListString1() {
+		return listString1;
+	}
+
+	public void setListString1(List<String> listString1) {
+		this.listString1 = listString1;
 	}
 }
