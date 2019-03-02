@@ -250,6 +250,7 @@ public class BooleanTests {
 		assertEquals(null, dto.getBool1());
 	}
 	
+	//----------- primitive ------------
 	@Test
 	public void testPrimitiveToBoolean() {
 		String srcField = "primitiveBool";
@@ -303,7 +304,65 @@ public class BooleanTests {
 	@Test
 	public void testPrimitiveToEnum() {
 		String srcField = "primitiveBool";
-		copySrcFieldToFail(srcField, "enum1");
+		copySrcFieldToFail(srcField, "colour1");
+		assertEquals(null, dto.getColour1());
+	}
+	
+	//----------- Boolean ------------
+	@Test
+	public void testToBoolean() {
+		String srcField = "bool1";
+		copySrcFieldTo(srcField, "primitiveBool");
+		assertEquals(true, dto.isPrimitiveBool());
+	}
+	@Test
+	public void testToInt() {
+		String srcField = "bool1";
+		copySrcFieldTo(srcField, "primitiveInt");
+		assertEquals(1, dto.getPrimitiveInt());
+		
+		copySrcFieldTo(srcField, "int1");
+		assertEquals(1, dto.getInt1().intValue());
+	}
+	@Test
+	public void testToLong() {
+		String srcField = "bool1";
+		copySrcFieldTo(srcField, "primitiveLong");
+		assertEquals(1L, dto.getPrimitiveLong());
+		
+		copySrcFieldTo(srcField, "long1");
+		assertEquals(1L, dto.getLong1().longValue());
+	}
+	@Test
+	public void testToDouble() {
+		String srcField = "bool1";
+		copySrcFieldTo(srcField, "primitiveDouble");
+		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
+		
+		copySrcFieldTo(srcField, "double1");
+		assertEquals(1.0, dto.getDouble1(), 0.001);
+	}
+	@Test
+	public void testToString() {
+		String srcField = "bool1";
+		copySrcFieldTo(srcField, "string1");
+		assertEquals("true", dto.getString1());
+		
+		reset();
+		entity.setBool1(false);
+		copySrcFieldTo(srcField, "string1", false);
+		assertEquals("false", dto.getString1());
+	}
+	@Test
+	public void testToDate() {
+		String srcField = "bool1";
+		copySrcFieldToFail(srcField, "date1");
+		assertEquals(null, dto.getDate1());
+	}
+	@Test
+	public void testToEnum() {
+		String srcField = "bool1";
+		copySrcFieldToFail(srcField, "colour1");
 		assertEquals(null, dto.getColour1());
 	}
 	

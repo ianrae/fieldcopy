@@ -117,7 +117,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 	continue; // No point in trying to set an object's class
                 }
                 if (propertyUtils.isReadable(orig, name) &&
-                		propertyUtils.isWriteable(dest, name)) {
+                		propertyUtils.isWriteable(dest, pair.destFieldName)) {
                 	try {
                 		final Object value = propertyUtils.getSimpleProperty(orig, name);
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
