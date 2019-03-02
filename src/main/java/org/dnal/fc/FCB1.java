@@ -8,6 +8,7 @@ import org.dnal.fc.core.CopySpec;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
+import org.dnal.fc.core.ValueTransformer;
 
 /**
  * First-level Fluent API for FieldCopy
@@ -21,6 +22,7 @@ public class FCB1 {
 	private List<String> excludeList;
 	private boolean doAutoCopy;
 	private List<FieldCopyMapping> mappingList;
+	public List<ValueTransformer> transformers;
 
 	public FCB1(FieldCopier fieldCopierBuilder) {
 		this.root = fieldCopierBuilder;
@@ -49,6 +51,13 @@ public class FCB1 {
 			this.mappingList = new ArrayList<>();
 		}
 		this.mappingList.addAll(Arrays.asList(mappings));
+		return this;
+	}
+	public FCB1 withTransformers(ValueTransformer... transformers) {
+		if (this.transformers == null) {
+			this.transformers = new ArrayList<>();
+		}
+		this.transformers.addAll(Arrays.asList(transformers));
 		return this;
 	}
 	
@@ -111,6 +120,7 @@ public class FCB1 {
 		spec.fieldPairs = fieldsToCopy;
 		spec.mappingL = mappingList;
 		spec.options = root.options;
+		spec.transformerL = this.transformers;
 		fieldCopier.copyFields(spec);
 	}
 	

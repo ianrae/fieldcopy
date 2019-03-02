@@ -11,4 +11,5 @@ public class CopySpec {
 		public List<FieldPair> fieldPairs;
 		public List<FieldCopyMapping> mappingL;
 		public CopyOptions options;
+		public List<ValueTransformer> transformerL;
 }

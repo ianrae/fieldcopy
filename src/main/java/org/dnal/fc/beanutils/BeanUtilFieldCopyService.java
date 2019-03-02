@@ -159,7 +159,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
-                			value = transformIfPresent(pair, value, options);
+                			value = transformIfPresent(pair, value, copySpec.transformerL);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -170,17 +170,19 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private Object transformIfPresent(FieldPair pair, Object value, CopyOptions options) {
+		private Object transformIfPresent(FieldPair pair, Object value, List<ValueTransformer> transformerL) {
 			if (value == null) {
 				return null;
 			}
 			
-			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
-			Class<?> destClass = desc.pd.getPropertyType();
-			//TODO: can we make this faster with a map??
-			for(ValueTransformer transformer: options.transformers) {
-				if (transformer.canHandle(value, destClass)) {
-					return transformer.transformValue(value, destClass);
+			if (CollectionUtils.isNotEmpty(transformerL)) {
+				BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
+				Class<?> destClass = desc.pd.getPropertyType();
+				//TODO: can we make this faster with a map??
+				for(ValueTransformer transformer: transformerL) {
+					if (transformer.canHandle(value, destClass)) {
+						return transformer.transformValue(value, destClass);
+					}
 				}
 			}
 			return value;

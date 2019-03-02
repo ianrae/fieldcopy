@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.FieldCopyException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -90,16 +91,19 @@ public class EnumTests extends BaseScopeTest {
 	
 	@Test
 	public void testToEnumTransformer() {
-		CopyOptions options = copier.getOptions();
-		options.transformers.add(new MyTransformer());
-		
 		entity.setColour1(Colour.BLUE);
-		copySrcFieldTo("colour1", "province1", false);
+		copier.copy(entity, dto).withTransformers(new MyTransformer()).field("colour1", "province1").execute();
 		assertEquals(Province.BLUE, dto.getProvince1());
 		
 		reset();
 		entity.setColour1(Colour.RED); //there is no Province.RED
-		copySrcFieldToFail("colour1", "province1", false);
+		boolean fail = false;
+		try {
+			copier.copy(entity, dto).withTransformers(new MyTransformer()).field("colour1", "province1").execute();
+		} catch (FieldCopyException e) {
+			fail = true;
+		}
+		assertEquals(true, fail);
 	}
 	
 	//---
