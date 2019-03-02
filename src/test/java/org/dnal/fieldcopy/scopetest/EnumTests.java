@@ -13,7 +13,7 @@ public class EnumTests extends BaseScopeTest {
 	public static class MyTransformer implements ValueTransformer {
 
 		@Override
-		public boolean canHandle(Object value, Class<?> destClass) {
+		public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
 			if (value.getClass().equals(Colour.class) && destClass.equals(Province.class)) {
 				return true;
 			}
@@ -21,7 +21,7 @@ public class EnumTests extends BaseScopeTest {
 		}
 
 		@Override
-		public Object transformValue(Object value, Class<?> destClass) {
+		public Object transformValue(String srcFieldName, Object value, Class<?> destClass) {
 			Colour col = (Colour) value;
 			
 			Province prov = Province.valueOf(col.name());

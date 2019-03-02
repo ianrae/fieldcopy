@@ -20,6 +20,8 @@ public class AllTypesDTO {
 	private Colour colour1;
 	private Province province1;
 	
+	//lists of all types
+	private List<Integer> listInt1;
 	private List<String> listString1;
 	
 	public boolean isPrimitiveBool() {
@@ -124,5 +126,13 @@ public class AllTypesDTO {
 
 	public void setListString1(List<String> listString1) {
 		this.listString1 = listString1;
+	}
+
+	public List<Integer> getListInt1() {
+		return listInt1;
+	}
+
+	public void setListInt1(List<Integer> listInt1) {
+		this.listInt1 = listInt1;
 	}
 }

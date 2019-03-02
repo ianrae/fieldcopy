@@ -2,6 +2,7 @@ package org.dnal.fc.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,8 +182,8 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				Class<?> destClass = desc.pd.getPropertyType();
 				//TODO: can we make this faster with a map??
 				for(ValueTransformer transformer: transformerL) {
-					if (transformer.canHandle(value, destClass)) {
-						return transformer.transformValue(value, destClass);
+					if (transformer.canHandle(pair.srcProp.getName(), value, destClass)) {
+						return transformer.transformValue(pair.srcProp.getName(), value, destClass);
 					}
 				}
 			}
@@ -237,6 +238,10 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				}
 			} else if (value instanceof Collection) {
 				if (Collection.class.isAssignableFrom(type)) {
+					Type[] z = value.getClass().getGenericInterfaces();
+					for(Type tt: z) {
+						System.out.println(tt);
+					}
 				} else {
 					return type;
 				}
