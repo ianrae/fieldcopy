@@ -3,7 +3,12 @@ package org.dnal.fc;
 import java.util.ArrayList;
 import java.util.List;
 
-//fluent api
+/**
+ * Second-level fluent API for creating a mapping.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class MapBuilder2 {
 	private MapBuilder1 fcb1;
 	private List<String> srcList = new ArrayList<>();

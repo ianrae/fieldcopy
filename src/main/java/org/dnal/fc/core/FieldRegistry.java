@@ -3,6 +3,14 @@ package org.dnal.fc.core;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Holds internal information about copy operations.
+ * Is used by FieldCopy to cache class and field information, in order to speed up
+ * subsequent copy operations. 
+ * 
+ * @author Ian Rae
+ *
+ */
 public class FieldRegistry {
 	private ConcurrentHashMap<String,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
 	

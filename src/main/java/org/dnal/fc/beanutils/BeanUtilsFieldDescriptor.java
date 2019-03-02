@@ -4,6 +4,12 @@ import java.beans.PropertyDescriptor;
 
 import org.dnal.fc.core.FieldDescriptor;
 
+/**
+ * Field description for BeanUtils copy service.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BeanUtilsFieldDescriptor implements FieldDescriptor {
 	public PropertyDescriptor pd;
 	

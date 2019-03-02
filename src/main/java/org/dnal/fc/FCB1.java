@@ -8,6 +8,12 @@ import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 
+/**
+ * First-level Fluent API for FieldCopy
+ * 
+ * @author Ian Rae
+ *
+ */
 public class FCB1 {
 	private FieldCopier root;
 	private List<String> includeList;

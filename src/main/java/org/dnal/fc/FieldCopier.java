@@ -1,10 +1,18 @@
 package org.dnal.fc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.dnal.fc.core.FieldCopyService;
 
+/**
+ * The main API for FieldCopy.
+ * It is a fluent api in which methods can be used to setup the copy, and ends with
+ * a call to execute() which performs the copy.
+ * 
+ * Example:  
+ *   fieldCopy.copy(mySourceObj, myDestObj).autoCopy().execute();
+ * 
+ * @author Ian Rae
+ *
+ */
 public class FieldCopier {
 	FieldCopyService copier;
 	Object sourceObj;

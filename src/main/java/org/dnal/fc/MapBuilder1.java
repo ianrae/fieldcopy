@@ -7,6 +7,12 @@ import java.util.List;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 
+/**
+ * First-level fluent API for creating a mapping.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class MapBuilder1 {
 	private FieldCopier root;
 	private List<String> includeList;
@@ -90,8 +96,7 @@ public class MapBuilder1 {
 			}
 		}
 			
-		FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass);
-		mapping.setFieldPairs(fieldsToCopy);
+		FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass, fieldsToCopy);
 		return mapping;
 	}
 	

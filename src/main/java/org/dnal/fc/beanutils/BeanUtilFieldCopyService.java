@@ -20,6 +20,13 @@ import org.dnal.fieldcopy.FieldCopyException;
 import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
+/**
+ * An implementation of FieldCopyService that uses Apache BeanUtils to do the
+ * copying.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BeanUtilFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
@@ -96,7 +103,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				throw new FieldCopyException(error);
 			}
 			if (runawayCounter > options.maxRecursionDepth) {
-				String error = String.format("maxRecursionDepth exceeded. do you have a self-reference?");
+				String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
 				throw new FieldCopyException(error);
 			}
 			
@@ -197,15 +204,4 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		public FieldRegistry getRegistry() {
 			return registry;
 		}
-		
-//		public Map<String,Object> convertToMap(Object sourceObj) {
-//			registry.prepareObj(sourceObj);
-//			Map<String,Object> map = new HashMap<>();
-//			ClassFieldInfo info1 = registry.find(sourceObj.getClass());
-//			for(String fieldName: info1.fieldMap.keySet()) {
-//				Value val1 = info1.getValueField(sourceObj, fieldName);
-//				map.put(fieldName, val1.getRawObject());
-//			}
-//			return map;
-//		}
 	}

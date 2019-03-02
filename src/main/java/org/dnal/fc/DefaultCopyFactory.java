@@ -9,6 +9,13 @@ import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
+/**
+ * Creates a field copier that uses Apache BeanUtils (reflection-based),
+ * and a console logger.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class DefaultCopyFactory implements CopyFactory {
 	private static DefaultCopyFactory theSingleton;
 	private static SimpleLogger theLogger;

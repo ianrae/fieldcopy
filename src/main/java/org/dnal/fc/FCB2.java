@@ -3,7 +3,12 @@ package org.dnal.fc;
 import java.util.ArrayList;
 import java.util.List;
 
-//fluent api
+/**
+ * Second-level Fluent API for FieldCopy
+ * 
+ * @author Ian Rae
+ *
+ */
 public class FCB2 {
 	private FCB1 fcb1;
 	private List<String> srcList = new ArrayList<>();
