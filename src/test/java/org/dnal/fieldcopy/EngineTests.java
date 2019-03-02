@@ -35,7 +35,7 @@ public class EngineTests {
 		ExecuteCopySpec execSpec = execSvc.generateExecutePlan(spec);
 		assertEquals(2, execSpec.fieldL.size());
 		
-		boolean b = execSvc.executePlan(spec, execSpec);
+		boolean b = execSvc.executePlan(spec, execSpec, null, 1);
 		assertEquals(true, b);
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());

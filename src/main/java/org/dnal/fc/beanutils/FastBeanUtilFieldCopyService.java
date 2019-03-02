@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.CopySpec;
+import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldPair;
@@ -241,56 +242,48 @@ public class FastBeanUtilFieldCopyService {
 		}
 		return null;
 	}
-	private boolean applyMapping(CopySpec copySpec, FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
+	private boolean applyMapping(FieldCopyService outerSvc, CopySpec copySpec, FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
 		if (srcValue == null) {
 			return true;
 		}
 
-		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
-		if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
-			if (pair.destProp == null) {
-				throw new IllegalArgumentException("fix later");
-			}
-			BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
-			if (mapping.getClazzDest().equals(fd2.pd.getPropertyType())) {
-				//use the mapping, which has fields, autocopy flag etc
-				Object destValue = propertyUtils.getSimpleProperty(destObj, pair.destFieldName);
-				if (destValue == null) {
-					destValue = createObject(mapping.getClazzDest());
-					beanUtil.copyProperty(destObj, pair.destFieldName, destValue);
-				}
-
-				//**recursion**
-				CopySpec spec = new CopySpec();
-				spec.sourceObj = srcValue;
-				spec.destObj = destValue;
-				spec.fieldPairs = mapping.getFieldPairs();
-				spec.mappingL = copySpec.mappingL;
-				spec.options = copySpec.options;
-				applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
-				doGenerateExecutePlan(spec, runawayCounter + 1);
-
-				return true;
-			}
+		//use the mapping, which has fields, autocopy flag etc
+		Object destValue = propertyUtils.getSimpleProperty(destObj, pair.destFieldName);
+		if (destValue == null) {
+			destValue = createObject(mapping.getClazzDest());
+			beanUtil.copyProperty(destObj, pair.destFieldName, destValue);
 		}
-		return false;
+
+		//**recursion**
+		CopySpec spec = new CopySpec();
+		spec.sourceObj = srcValue;
+		spec.destObj = destValue;
+		spec.fieldPairs = mapping.getFieldPairs();
+		spec.mappingL = copySpec.mappingL;
+		spec.options = copySpec.options;
+		
+		AlternateFieldCopyService altSvc = (AlternateFieldCopyService) outerSvc;
+		altSvc.doCopyFields(spec, runawayCounter + 1);
+//		applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
+
+		return true;
 	}
 	
 	private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
 		return clazzDest.newInstance();
 	}
 	
-	public boolean executePlan(CopySpec spec, ExecuteCopySpec execSpec)  {
+	public boolean executePlan(CopySpec spec, ExecuteCopySpec execSpec, FieldCopyService outerSvc, int runawayCounter)  {
 		boolean b = false;
 		try {
-			b = doExecutePlan(spec, execSpec, 1);
+			b = doExecutePlan(spec, execSpec, outerSvc, runawayCounter);
 		} catch (Exception e) {
 			throw new FieldCopyException(e.getMessage());
 		}
 		return b;
 	}
 
-	private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, int runawayCounter) throws Exception {
+	private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, FieldCopyService outerSvc, int runawayCounter) throws Exception {
 		boolean ok = true;
 		for(ExecuteFieldSpec fieldPlan: execSpec.fieldL) {
 			String name = fieldPlan.pair.srcProp.getName();
@@ -302,7 +295,7 @@ public class FastBeanUtilFieldCopyService {
 			}
 			
 			if (fieldPlan.mapping != null) {
-				applyMapping(spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
+				applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 			}
 			beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 		}
