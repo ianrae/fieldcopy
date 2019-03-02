@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
+import org.dnal.fieldcopy.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Before;
 import org.junit.Test;
@@ -232,14 +233,78 @@ public class BooleanTests {
 	
 	@Test
 	public void test() {
-		copier.copy(entity, dto).autoCopy().include("primitiveBool","bool1").execute();
+		doCopy("primitiveBool","bool1");
 		chkValue(true, true);
 		
 		reset();
 		entity.setPrimitiveBool(false);
 		entity.setBool1(false);
-		copier.copy(entity, dto).autoCopy().include("primitiveBool","bool1").execute();
+		doCopy("primitiveBool","bool1");
 		chkValue(false, false);
+	}
+	
+	@Test
+	public void testNull() {
+		entity.setBool1(null);
+		doCopy("bool1");
+		assertEquals(null, dto.getBool1());
+	}
+	
+	@Test
+	public void testPrimitiveToBoolean() {
+		String srcField = "primitiveBool";
+		copySrcFieldTo(srcField, "bool1");
+		assertEquals(true, dto.getBool1().booleanValue());
+	}
+	@Test
+	public void testPrimitiveToInt() {
+		String srcField = "primitiveBool";
+		copySrcFieldTo(srcField, "primitiveInt");
+		assertEquals(1, dto.getPrimitiveInt());
+		
+		copySrcFieldTo(srcField, "int1");
+		assertEquals(1, dto.getInt1().intValue());
+	}
+	@Test
+	public void testPrimitiveToLong() {
+		String srcField = "primitiveBool";
+		copySrcFieldTo(srcField, "primitiveLong");
+		assertEquals(1L, dto.getPrimitiveLong());
+		
+		copySrcFieldTo(srcField, "long1");
+		assertEquals(1L, dto.getLong1().longValue());
+	}
+	@Test
+	public void testPrimitiveToDouble() {
+		String srcField = "primitiveBool";
+		copySrcFieldTo(srcField, "primitiveDouble");
+		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
+		
+		copySrcFieldTo(srcField, "double1");
+		assertEquals(1.0, dto.getDouble1(), 0.001);
+	}
+	@Test
+	public void testPrimitiveToString() {
+		String srcField = "primitiveBool";
+		copySrcFieldTo(srcField, "string1");
+		assertEquals("true", dto.getString1());
+		
+		reset();
+		entity.setPrimitiveBool(false);
+		copySrcFieldTo(srcField, "string1", false);
+		assertEquals("false", dto.getString1());
+	}
+	@Test
+	public void testPrimitiveToDate() {
+		String srcField = "primitiveBool";
+		copySrcFieldToFail(srcField, "date1");
+		assertEquals(null, dto.getDate1());
+	}
+	@Test
+	public void testPrimitiveToEnum() {
+		String srcField = "primitiveBool";
+		copySrcFieldToFail(srcField, "enum1");
+		assertEquals(null, dto.getColour1());
 	}
 	
 	//--
@@ -264,8 +329,9 @@ public class BooleanTests {
 		
 		return entity;
 	}
-
-
+	private void doCopy(String...fields) {
+		copier.copy(entity, dto).autoCopy().include(fields).execute();
+	}
 	
 	private FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
@@ -277,4 +343,24 @@ public class BooleanTests {
 		assertEquals(b2, dto.getBool1().booleanValue());
 		assertEquals(null, dto.getString1());
 	}
+	private void copySrcFieldTo(String srcField, String destField) {
+		copySrcFieldTo(srcField, destField, true);
+	}
+	private void copySrcFieldTo(String srcField, String destField, boolean doReset) {
+		if (doReset) {
+			reset();
+		}
+		copier.copy(entity, dto).field(srcField, destField).execute();
+	}
+	private void copySrcFieldToFail(String srcField, String destField) {
+		boolean failed = false;
+		try {
+			copySrcFieldTo(srcField, destField, true);
+		} catch (FieldCopyException e) {
+			failed = true;
+			System.out.println(e.getMessage());
+		}
+		assertEquals(true, failed);
+	}
+	
 }
