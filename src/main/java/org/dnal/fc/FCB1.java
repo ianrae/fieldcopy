@@ -120,9 +120,6 @@ public class FCB1 {
 			}
 		}
 			
-		FieldCopyService fieldCopier = root.getCopyService();
-		
-		
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = root.sourceObj;
 		spec.destObj = root.destObj;
@@ -130,6 +127,7 @@ public class FCB1 {
 		spec.mappingL = mappingList;
 		spec.options = root.options;
 		spec.transformerL = this.transformers;
+		FieldCopyService fieldCopier = root.getCopyService();
 		fieldCopier.copyFields(spec);
 	}
 	

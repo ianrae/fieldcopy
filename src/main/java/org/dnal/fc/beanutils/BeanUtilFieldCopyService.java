@@ -1,7 +1,9 @@
 package org.dnal.fc.beanutils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.ArrayList;
@@ -20,8 +22,10 @@ import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
+import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.FieldCopyException;
+import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
@@ -152,6 +156,8 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		fillInDestPropIfNeeded(pair, destObj.getClass());
                 		
                 		Object value = propertyUtils.getSimpleProperty(orig, name);
+                		addListTransformerIfNeeded(pair, value, copySpec.transformerL, destObj);
+                		
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
                 		} else {
@@ -172,6 +178,73 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
+		private void addListTransformerIfNeeded(FieldPair pair, Object value, List<ValueTransformer> transformerL, Object destObj) {
+			if (value == null) {
+				return;
+			}
+			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+			BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+			
+			Class<?> srcFieldClass = fd1.pd.getPropertyType();
+			Class<?> destFieldClass = fd2.pd.getPropertyType();
+			if (Collection.class.isAssignableFrom(srcFieldClass) && 
+					Collection.class.isAssignableFrom(srcFieldClass)) {
+				
+				if (transformerL == null) {
+					transformerL = new ArrayList<>();
+				}
+
+				for(ValueTransformer transformer: transformerL) {
+					if (transformer.canHandle(pair.srcProp.getName(), value, destFieldClass)) {
+						//if already is a transform, nothing more to do
+						return;
+					}
+				}
+
+				//add one
+				String name = pair.srcProp.getName();
+				Class<?> destElementClass = detectElementClass(destObj, fd2);
+				ListElementTransformer transformer = new ListElementTransformer(name, destElementClass);
+				transformerL.add(transformer);
+			}
+		}
+
+		private Class<?> detectElementClass(Object destObj, BeanUtilsFieldDescriptor fd2) {
+			String name = fd2.getName();
+			Field field = null;
+			try {
+				field = destObj.getClass().getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			if (field == null) {
+				return null;
+			}
+			Type typ = field.getGenericType();
+			if (typ != null) {
+				if (typ instanceof ParameterizedType) {
+					ParameterizedType paramType = (ParameterizedType) typ;
+					Type[] argTypes = paramType.getActualTypeArguments();
+					Type target = argTypes[0];
+					Class<?> zz = null;
+					try {
+						zz = Class.forName(target.getTypeName());
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					return zz;
+				}		
+			}
+			
+			return null;
+		}
+
 		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueTransformer> transformerL) {
 			if (value == null) {
 				return null;
