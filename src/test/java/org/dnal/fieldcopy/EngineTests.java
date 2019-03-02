@@ -2,6 +2,7 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -71,18 +72,17 @@ public class EngineTests {
 	            }
 			}
 
-			public ExecuteCopySpec copyFields(CopySpec copySpec)  {
+			public ExecuteCopySpec generateExecutePlan(CopySpec copySpec)  {
 				ExecuteCopySpec result = null;
 				try {
-					result = doCopyFields(copySpec, 1);
+					result = doGenerateExecutePlan(copySpec, 1);
 				} catch (Exception e) {
 					throw new FieldCopyException(e.getMessage());
 				}
 				return result;
 			}
 			
-			
-			private ExecuteCopySpec doCopyFields(CopySpec copySpec, int runawayCounter) throws Exception {
+			private ExecuteCopySpec doGenerateExecutePlan(CopySpec copySpec, int runawayCounter) throws Exception {
 				ExecuteCopySpec execspec = new ExecuteCopySpec();
 				
 				Object sourceObj = copySpec.sourceObj;
@@ -126,6 +126,7 @@ public class EngineTests {
 	                			validateIsAllowed(pair);
 	                			
 	                			ExecuteFieldSpec fspec = new ExecuteFieldSpec();
+	                			fspec.pair = pair;
 	                			fspec.transformer = transformIfPresent(pair, orig, copySpec.transformerL);
 	                			execspec.fieldL.add(fspec);
 	                		}
@@ -267,7 +268,7 @@ public class EngineTests {
 	                		spec.fieldPairs = mapping.getFieldPairs();
 	                		spec.mappingL = mappingL;
 	                		spec.options = options;
-	                		doCopyFields(spec, runawayCounter + 1);
+	                		doGenerateExecutePlan(spec, runawayCounter + 1);
 
 							return true;
 						}
@@ -279,6 +280,33 @@ public class EngineTests {
 			private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
 				return clazzDest.newInstance();
 			}
+			
+			public boolean executePlan(CopySpec spec, ExecuteCopySpec execSpec)  {
+				boolean b = false;
+				try {
+					b = doExecutePlan(spec, execSpec, 1);
+				} catch (Exception e) {
+					throw new FieldCopyException(e.getMessage());
+				}
+				return b;
+			}
+
+			private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, int runawayCount) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+				boolean ok = true;
+				for(ExecuteFieldSpec fieldPlan: execSpec.fieldL) {
+					String name = fieldPlan.pair.srcProp.getName();
+            		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
+					if (fieldPlan.transformer != null) {
+						BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
+						Class<?> destClass = fd2.pd.getPropertyType();
+						value = fieldPlan.transformer.transformValue(name, spec.sourceObj, value, destClass);
+					}
+					beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
+				}
+				return ok;
+			}
+			
+			
 		}	
 
 	@Test
@@ -299,8 +327,13 @@ public class EngineTests {
 		spec.options = new CopyOptions();
 		spec.transformerL = null;;
 		
-		ExecuteCopySpec execSpec = execSvc.copyFields(spec);
-		assertEquals(33, execSpec.fieldL.size());
+		ExecuteCopySpec execSpec = execSvc.generateExecutePlan(spec);
+		assertEquals(2, execSpec.fieldL.size());
+		
+		boolean b = execSvc.executePlan(spec, execSpec);
+		assertEquals(true, b);
+		assertEquals("bob", dest.getName());
+		assertEquals(33, dest.getAge());
 	}
 	
 
