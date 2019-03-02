@@ -302,6 +302,7 @@ public class FastBeanUtilFieldCopyService {
 			if (fieldPlan.transformer != null) {
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 				Class<?> destClass = fd2.pd.getPropertyType();
+				fieldPlan.transformer.setCopySvc(outerSvc);
 				value = fieldPlan.transformer.transformValue(name, spec.sourceObj, value, destClass);
 			}
 			
