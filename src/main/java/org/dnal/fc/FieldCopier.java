@@ -30,7 +30,7 @@ public class FieldCopier {
 		return options;
 	}
 	
-	public FCM0 createMapping(Class<?> srcClass, Class<?> destClass) {
-		return new FCM0(this, srcClass, destClass);
+	public MapBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
+		return new MapBuilder1(this, srcClass, destClass);
 	}
 }

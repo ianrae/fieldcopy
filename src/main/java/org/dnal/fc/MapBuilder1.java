@@ -7,7 +7,7 @@ import java.util.List;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 
-public class FCM0 {
+public class MapBuilder1 {
 	private FieldCopier root;
 	private List<String> includeList;
 	private List<String> excludeList;
@@ -15,22 +15,22 @@ public class FCM0 {
 	private Class<?> srcClass;
 	private Class<?> destClass;
 
-	public FCM0(FieldCopier fieldCopierBuilder, Class<?> srcClass, Class<?> destClass) {
+	public MapBuilder1(FieldCopier fieldCopierBuilder, Class<?> srcClass, Class<?> destClass) {
 		this.root = fieldCopierBuilder;
 		this.srcClass = srcClass;
 		this.destClass = destClass;
 	}
 
-	public FCM0 include(String...fieldNames) {
+	public MapBuilder1 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
-	public FCM0 exclude(String...fieldNames) {
+	public MapBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
 	
-	public FCM0 autoCopy() {
+	public MapBuilder1 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
 	}
@@ -104,10 +104,10 @@ public class FCM0 {
 		return null;
 	}
 
-	public FCM02 field(String srcFieldName) {
-		return new FCM02(this, srcFieldName, srcFieldName);
+	public MapBuilder2 field(String srcFieldName) {
+		return new MapBuilder2(this, srcFieldName, srcFieldName);
 	}
-	public FCM02 field(String srcFieldName, String destFieldName) {
-		return new FCM02(this, srcFieldName, destFieldName);
+	public MapBuilder2 field(String srcFieldName, String destFieldName) {
+		return new MapBuilder2(this, srcFieldName, destFieldName);
 	}
 }

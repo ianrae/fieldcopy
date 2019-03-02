@@ -1,16 +1,10 @@
 package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
-import java.util.List;
-
-import org.dnal.fc.CopyOptions;
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
 import org.dnal.fc.FieldCopyMapping;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldPair;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;

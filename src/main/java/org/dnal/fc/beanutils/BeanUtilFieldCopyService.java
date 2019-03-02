@@ -68,7 +68,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		@Override
 		public void copyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs,  List<FieldCopyMapping> mappingL, CopyOptions options)  {
 			try {
-				doCopyFields(sourceObj, destObj, fieldPairs, mappingL, options);
+				doCopyFields(sourceObj, destObj, fieldPairs, mappingL, options, 1);
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}
@@ -86,13 +86,17 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             return null;
 		}
 
-		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options) throws Exception {
+		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options, int runawayCounter) throws Exception {
 			if (sourceObj == null) {
 				String error = String.format("copyFields. NULL passed to sourceObj");
 				throw new FieldCopyException(error);
 			}
 			if (destObj == null) {
 				String error = String.format("copyFields. NULL passed to destObj.");
+				throw new FieldCopyException(error);
+			}
+			if (runawayCounter > options.maxRecursionDepth) {
+				String error = String.format("maxRecursionDepth exceeded. do you have a self-reference?");
 				throw new FieldCopyException(error);
 			}
 			
@@ -109,7 +113,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		propertyUtils.isWriteable(dest, name)) {
                 	try {
                 		final Object value = propertyUtils.getSimpleProperty(orig, name);
-                		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options)) {
+                		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
                 		} else {
                 			if (options.logEachCopy) {
@@ -127,9 +131,12 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private boolean applyMapping(FieldPair pair, Object sourceObj, Object destObj, Object srcValue, List<FieldCopyMapping> mappingL, CopyOptions options) throws Exception {
+		private boolean applyMapping(FieldPair pair, Object sourceObj, Object destObj, Object srcValue, List<FieldCopyMapping> mappingL, CopyOptions options, int runawayCounter) throws Exception {
 			if (CollectionUtils.isEmpty(mappingL)) {
 				return false;
+			}
+			if (srcValue == null) {
+				return true;
 			}
 
 			BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
@@ -148,7 +155,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		}
                 		
                 		//**recursion**
-                		copyFields(srcValue, destValue, mapping.getFieldPairs(),  mappingL, options);
+                		doCopyFields(srcValue, destValue, mapping.getFieldPairs(),  mappingL, options, runawayCounter + 1);
 
 						return true;
 					}
