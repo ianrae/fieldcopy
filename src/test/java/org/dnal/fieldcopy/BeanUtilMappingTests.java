@@ -22,6 +22,9 @@ public class BeanUtilMappingTests {
 		private int size;
 		private Source source;
 		
+		public Combo1() {
+		}
+		
 		public int getSize() {
 			return size;
 		}
@@ -50,7 +53,6 @@ public class BeanUtilMappingTests {
 		assertEquals("bob", combo2.source.getName());
 		assertEquals(33, combo2.source.getAge());
 		assertEquals(15, combo2.getSize());
-//		assertEquals(-1, dest.getAge());
 	}
 	@Test
 	public void testCopyStructMapping() {
@@ -66,18 +68,25 @@ public class BeanUtilMappingTests {
 		assertEquals("bob", combo2.source.getName());
 		assertEquals(33, combo2.source.getAge());
 		assertEquals(15, combo2.getSize());
-//		assertEquals(-1, dest.getAge());
+	}
+	
+	@Test
+	public void testCopyStructMapping2() {
+		Combo1 combo = new Combo1();
+		combo.size = 15;
+		combo.source = new Source("bob", 33);
+		Combo1 combo2 = new Combo1();
+		
+		FieldCopier copier = createCopier();
+		FieldCopyMapping mapping = copier.createMapping(Source.class, Source.class).field("age").build();
+		copier.getOptions().logEachCopy = true;
+		copier.copy(combo, combo2).withMappings(mapping).autoCopy().execute();
+		assertEquals(null, combo2.source.getName());
+		assertEquals(33, combo2.source.getAge());
+		assertEquals(15, combo2.getSize());
 	}
 	
 	//--
-	private FieldCopyService createCopyService() {
-		return DefaultCopyFactory.Factory().createCopyService();
-//		SimpleLogger logger = new SimpleConsoleLogger();
-//		FieldRegistry registry = new FieldRegistry();
-//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-//		return copySvc;
-	}
-	
 	private FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		return DefaultCopyFactory.Factory().createCopier();

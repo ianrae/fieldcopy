@@ -86,7 +86,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             return null;
 		}
 
-		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options) throws IllegalAccessException, InvocationTargetException {
+		private void doCopyFields(Object sourceObj, Object destObj, List<FieldPair> fieldPairs, List<FieldCopyMapping> mappingL, CopyOptions options) throws Exception {
 			if (sourceObj == null) {
 				String error = String.format("copyFields. NULL passed to sourceObj");
 				throw new FieldCopyException(error);
@@ -109,13 +109,17 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 		propertyUtils.isWriteable(dest, name)) {
                 	try {
                 		final Object value = propertyUtils.getSimpleProperty(orig, name);
+                		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options)) {
+                			
+                		} else {
+                			if (options.logEachCopy) {
+                				String tmp = FieldCopyUtils.objToString(value);
+                				logger.log("%s -> %s = %s", pair.srcProp.getName(), pair.destFieldName, tmp);
+                			}
+                			
+                			beanUtil.copyProperty(dest, pair.destFieldName, value);
+                		}
                 		
-            			if (options.logEachCopy) {
-            				String tmp = FieldCopyUtils.objToString(value);
-            				logger.log("%s -> %s = %s", pair.srcProp.getName(), pair.destFieldName, tmp);
-            			}
-                		
-                		beanUtil.copyProperty(dest, pair.destFieldName, value);
                 	} catch (final NoSuchMethodException e) {
                 		// Should not happen
                 	}
@@ -123,9 +127,9 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private void xxxdoCopyFields(FieldPair pair, Object destObj, List<FieldCopyMapping> mappingL) throws IllegalAccessException, InvocationTargetException {
+		private boolean applyMapping(FieldPair pair, Object sourceObj, Object destObj, Object srcValue, List<FieldCopyMapping> mappingL, CopyOptions options) throws Exception {
 			if (CollectionUtils.isEmpty(mappingL)) {
-				return;
+				return false;
 			}
 
 			BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
@@ -137,12 +141,26 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 					BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 					if (mapping.getClazzDest().equals(fd2.pd.getPropertyType())) {
 						//use the mapping, which has fields, autocopy flag etc
-						
+                		Object destValue = propertyUtils.getSimpleProperty(destObj, pair.destFieldName);
+                		if (destValue == null) {
+                			destValue = createObject(mapping.getClazzDest());
+                			beanUtil.copyProperty(destObj, pair.destFieldName, destValue);
+                		}
+                		
+                		//**recursion**
+                		copyFields(srcValue, destValue, mapping.getFieldPairs(),  mappingL, options);
+
+						return true;
 					}
 				}
 			}
+			return false;
 		}
 		
+		private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
+			return clazzDest.newInstance();
+		}
+
 		@Override
 		public void dumpFields(Object sourceObj) {
 			try {

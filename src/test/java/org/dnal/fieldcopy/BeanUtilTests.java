@@ -19,6 +19,8 @@ public class BeanUtilTests {
 		private String name;
 		private int age;
 
+		public Source() {
+		}
 		public Source(String name, int age) {
 			this.name = name;
 			this.age = age;
