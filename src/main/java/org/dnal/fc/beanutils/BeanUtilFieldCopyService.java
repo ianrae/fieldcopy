@@ -2,7 +2,7 @@ package org.dnal.fc.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Date;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -181,10 +181,21 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 		private Class<?> isNotAllowed(FieldPair pair, Object value, Object dest) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> type = desc.pd.getPropertyType();
+			
 			if (value instanceof Number) {
 				if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
 					return type;
 				} else if (Date.class.equals(type)) {
+					return type;
+				}
+			} else if (value instanceof Date) {
+				if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
+					return type;
+				} else if (Integer.class.equals(type) || Integer.TYPE.equals(type)) {			
+					return type;
+				} else if (Double.class.equals(type) || Double.TYPE.equals(type)) {			
+					return type;
+				} else if (type.isEnum()) {			
 					return type;
 				}
 			}
