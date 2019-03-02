@@ -172,6 +172,12 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 
+		/**
+		 * Additional rules that we want to enfore.
+		 * For example, not allowed to copy an int to a boolean.
+		 * 
+		 * @return null if allowed, else class that we are NOT allowed to copy to
+		 */
 		private Class<?> isNotAllowed(FieldPair pair, Object value, Object dest) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> type = desc.pd.getPropertyType();
