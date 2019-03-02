@@ -1,5 +1,10 @@
 package org.dnal.fc;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.dnal.fc.core.ValueTransformer;
+
 /**
  * Various settings and flags to control the copy operation.
  * 
@@ -10,4 +15,5 @@ public class CopyOptions {
 	public boolean printStackTrace = false;
 	public boolean logEachCopy = false;
 	public int maxRecursionDepth = 100;
+	public List<ValueTransformer> transformers = new ArrayList<>();
 }

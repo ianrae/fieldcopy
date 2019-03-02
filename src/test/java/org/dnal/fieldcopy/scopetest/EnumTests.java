@@ -2,14 +2,33 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Calendar;
-import java.util.Date;
-
+import org.dnal.fc.CopyOptions;
+import org.dnal.fc.core.ValueTransformer;
 import org.junit.Before;
 import org.junit.Test;
 
 
 public class EnumTests extends BaseScopeTest {
+	
+	public static class MyTransformer implements ValueTransformer {
+
+		@Override
+		public boolean canHandle(Object value, Class<?> destClass) {
+			if (value.getClass().equals(Colour.class) && destClass.equals(Province.class)) {
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public Object transformValue(Object value, Class<?> destClass) {
+			Colour col = (Colour) value;
+			
+			Province prov = Province.valueOf(col.name());
+			return prov;
+		}
+		
+	}
 	
 	@Test
 	public void test() {
@@ -67,6 +86,17 @@ public class EnumTests extends BaseScopeTest {
 		reset();
 		entity.setColour1(Colour.BLUE);
 		copySrcFieldToFail(mainField, "province1", false);
+	}
+	
+	@Test
+	public void testToEnumTransformer() {
+		
+		CopyOptions options = copier.getOptions();
+		options.transformers.add(new MyTransformer());
+		
+		entity.setColour1(Colour.BLUE);
+		copier.copy(entity, dto).field("colour1", "province1").execute();
+		assertEquals(Province.BLUE, dto.getProvince1());
 	}
 	
 	//---

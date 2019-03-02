@@ -17,6 +17,7 @@ import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
+import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.FieldCopyException;
 import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
@@ -139,10 +140,9 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 if (propertyUtils.isReadable(orig, name) &&
                 		propertyUtils.isWriteable(dest, pair.destFieldName)) {
                 	try {
-                		
                 		fillInDestPropIfNeeded(pair, destObj.getClass());
                 		
-                		final Object value = propertyUtils.getSimpleProperty(orig, name);
+                		Object value = propertyUtils.getSimpleProperty(orig, name);
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
                 		} else {
@@ -152,6 +152,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
+                			value = runPreparerIfPresent(pair, value, options);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -162,22 +163,28 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private void validateIsAllowed(FieldPair pair, Object value, Object dest) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		private Object runPreparerIfPresent(FieldPair pair, Object value, CopyOptions options) {
+			if (value == null) {
+				return null;
+			}
+			
+			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
+			Class<?> destClass = desc.pd.getPropertyType();
+			//TODO: can we make this faster with a map??
+			for(ValueTransformer transformer: options.transformers) {
+				if (transformer.canHandle(value, destClass)) {
+					return transformer.transformValue(value, destClass);
+				}
+			}
+			return value;
+		}
+
+		private void validateIsAllowed(FieldPair pair, Object value, Object dest) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
 			if (value != null) {
 				Class<?> destClass =  isNotAllowed(pair, value, dest);
 				if (destClass != null) {
 					String err = String.format("Not allowed to copy %s to %s", value.getClass().getName(), destClass.getName());
 					throw new FieldCopyException(err);
-				}
-				
-				//do fixups here
-				if (value.getClass().isEnum()) {
-					BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
-					Class<?> type = desc.pd.getPropertyType();
-					if (! value.getClass().equals(type)) {
-                		final Object destValue = propertyUtils.getSimpleProperty(dest, desc.getName());
-						
-					}
 				}
 			}
 		}
