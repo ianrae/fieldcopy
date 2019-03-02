@@ -47,6 +47,9 @@ public class BeanUtilTests {
 		private String name;
 		private int age;
 
+		public Dest() {
+		}
+	
 		public Dest(String name, int age) {
 			this.name = name;
 			this.age = age;

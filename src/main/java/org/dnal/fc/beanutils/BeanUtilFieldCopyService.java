@@ -161,7 +161,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
-                			value = transformIfPresent(pair, value, copySpec.transformerL);
+                			value = transformIfPresent(pair, orig, value, copySpec.transformerL);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -172,7 +172,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private Object transformIfPresent(FieldPair pair, Object value, List<ValueTransformer> transformerL) {
+		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueTransformer> transformerL) {
 			if (value == null) {
 				return null;
 			}
@@ -183,7 +183,8 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				//TODO: can we make this faster with a map??
 				for(ValueTransformer transformer: transformerL) {
 					if (transformer.canHandle(pair.srcProp.getName(), value, destClass)) {
-						return transformer.transformValue(pair.srcProp.getName(), value, destClass);
+						transformer.setCopySvc(this);
+						return transformer.transformValue(pair.srcProp.getName(), orig, value, destClass);
 					}
 				}
 			}
@@ -238,10 +239,6 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				}
 			} else if (value instanceof Collection) {
 				if (Collection.class.isAssignableFrom(type)) {
-					Type[] z = value.getClass().getGenericInterfaces();
-					for(Type tt: z) {
-						System.out.println(tt);
-					}
 				} else {
 					return type;
 				}

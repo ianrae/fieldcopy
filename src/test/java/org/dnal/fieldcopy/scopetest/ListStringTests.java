@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.ValueTransformer;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class ListStringTests extends BaseScopeTest {
 	
 	public static abstract class BaseListTransformer implements ValueTransformer {
 		@Override
-		public Object transformValue(String srcFieldName, Object value, Class<?> destClass) {
+		public Object transformValue(String srcFieldName, Object bean, Object value, Class<?> destClass) {
 			@SuppressWarnings("unchecked")
 			List<?> list = (List<?>) value;
 			
@@ -39,6 +40,10 @@ public class ListStringTests extends BaseScopeTest {
 		protected Object copyElement(Object el) {
 			Integer n = Integer.parseInt(el.toString());
 			return n;
+		}
+
+		@Override
+		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	
