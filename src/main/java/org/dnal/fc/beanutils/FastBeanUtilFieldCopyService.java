@@ -193,7 +193,7 @@ public class FastBeanUtilFieldCopyService {
 		BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 		Class<?> type = desc.pd.getPropertyType();
 		
-		if (Number.class.isAssignableFrom(srcType)) {
+		if (Number.class.isAssignableFrom(srcType) || isNumberPrimitive(srcType)) {
 			if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
 				return type;
 			} else if (Date.class.equals(type)) {
@@ -225,6 +225,17 @@ public class FastBeanUtilFieldCopyService {
 			}
 		}
 		return null;
+	}
+
+	private boolean isNumberPrimitive(Class<?> srcType) {
+		if (Integer.TYPE.equals(srcType) ||
+				Long.TYPE.equals(srcType) ||
+				Double.TYPE.equals(srcType) ||
+				Float.TYPE.equals(srcType) ||
+				Short.TYPE.equals(srcType)) {
+			return true;
+		}
+		return false;
 	}
 
 	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
