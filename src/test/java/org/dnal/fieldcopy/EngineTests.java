@@ -1,5 +1,5 @@
 package org.dnal.fieldcopy;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
-import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
 
@@ -33,6 +32,7 @@ public class EngineTests {
 
 	public static class ExecuteFieldSpec {
 		public FieldPair pair;
+		public ValueTransformer transformer;
 	}
 	
 	public static class ExecuteCopySpec {
@@ -82,17 +82,6 @@ public class EngineTests {
 			}
 			
 			
-			private PropertyDescriptor findMatchingField(PropertyDescriptor[] arDest, String name) {
-	            for (int i = 0; i < arDest.length; i++) {
-	            	
-	            	PropertyDescriptor pd = arDest[i];
-	            	if (pd.getName().equals(name)) {
-	            		return pd;
-	            	}
-	            }
-	            return null;
-			}
-
 			private ExecuteCopySpec doCopyFields(CopySpec copySpec, int runawayCounter) throws Exception {
 				ExecuteCopySpec execspec = new ExecuteCopySpec();
 				
@@ -129,20 +118,16 @@ public class EngineTests {
 	                	try {
 	                		fillInDestPropIfNeeded(pair, destObj.getClass());
 	                		
-	                		Object value = propertyUtils.getSimpleProperty(orig, name);
-	                		addListTransformerIfNeeded(pair, value, copySpec.transformerL, destObj);
+	                		addListTransformerIfNeeded(pair, copySpec.transformerL, destObj);
 	                		
-	                		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
+	                		if (applyMapping(pair, sourceObj, destObj, null, mappingL, options, runawayCounter)) {
 	                			
 	                		} else {
-	                			if (options.logEachCopy) {
-	                				String tmp = FieldCopyUtils.objToString(value);
-	                				logger.log("%s -> %s = %s", pair.srcProp.getName(), pair.destFieldName, tmp);
-	                			}
+	                			validateIsAllowed(pair);
 	                			
-	                			validateIsAllowed(pair, value, dest);
-	                			value = transformIfPresent(pair, orig, value, copySpec.transformerL);
-	                			beanUtil.copyProperty(dest, pair.destFieldName, value);
+	                			ExecuteFieldSpec fspec = new ExecuteFieldSpec();
+	                			fspec.transformer = transformIfPresent(pair, orig, copySpec.transformerL);
+	                			execspec.fieldL.add(fspec);
 	                		}
 	                		
 	                	} catch (final NoSuchMethodException e) {
@@ -153,10 +138,7 @@ public class EngineTests {
 				return execspec;
 			}
 			
-			private void addListTransformerIfNeeded(FieldPair pair, Object value, List<ValueTransformer> transformerL, Object destObj) {
-				if (value == null) {
-					return;
-				}
+			private void addListTransformerIfNeeded(FieldPair pair, List<ValueTransformer> transformerL, Object destObj) {
 				BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 				
@@ -170,7 +152,8 @@ public class EngineTests {
 					}
 
 					for(ValueTransformer transformer: transformerL) {
-						if (transformer.canHandle(pair.srcProp.getName(), value, destFieldClass)) {
+						//TODO: is it ok to pass null for value
+						if (transformer.canHandle(pair.srcProp.getName(), null, destFieldClass)) {
 							//if already is a transform, nothing more to do
 							return;
 						}
@@ -184,32 +167,27 @@ public class EngineTests {
 				}
 			}
 
-			private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueTransformer> transformerL) {
-				if (value == null) {
-					return null;
-				}
-				
+			private ValueTransformer transformIfPresent(FieldPair pair, Object orig, List<ValueTransformer> transformerL) {
 				if (CollectionUtils.isNotEmpty(transformerL)) {
 					BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 					Class<?> destClass = desc.pd.getPropertyType();
 					//TODO: can we make this faster with a map??
 					for(ValueTransformer transformer: transformerL) {
-						if (transformer.canHandle(pair.srcProp.getName(), value, destClass)) {
-//							transformer.setCopySvc(this);
-//							return transformer.transformValue(pair.srcProp.getName(), orig, value, destClass);
+						//TODO: fix value null issue
+						if (transformer.canHandle(pair.srcProp.getName(), null, destClass)) {
+							return  transformer;
 						}
 					}
 				}
-				return value;
+				return null;
 			}
 
-			private void validateIsAllowed(FieldPair pair, Object value, Object dest) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
-				if (value != null) {
-					Class<?> destClass =  isNotAllowed(pair, value, dest);
-					if (destClass != null) {
-						String err = String.format("Not allowed to copy %s to %s", value.getClass().getName(), destClass.getName());
-						throw new FieldCopyException(err);
-					}
+			private void validateIsAllowed(FieldPair pair) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
+				Class<?> destClass = isNotAllowed(pair);
+				if (destClass != null) {
+					BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+					String err = String.format("Not allowed to copy %s to %s", fd1.pd.getPropertyType().getName(), destClass.getName());
+					throw new FieldCopyException(err);
 				}
 			}
 
@@ -219,21 +197,22 @@ public class EngineTests {
 			 * 
 			 * @return null if allowed, else class that we are NOT allowed to copy to
 			 */
-			private Class<?> isNotAllowed(FieldPair pair, Object value, Object dest) {
+			private Class<?> isNotAllowed(FieldPair pair) {
+				BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+				Class<?> srcType = fd1.pd.getPropertyType();
 				BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 				Class<?> type = desc.pd.getPropertyType();
 				
-				//TODO: this won't work if someone subclasses Integer. use isAssignableFrom!!
-				if (value instanceof Number) {
+				if (Number.class.isAssignableFrom(srcType)) {
 					if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
 						return type;
 					} else if (Date.class.equals(type)) {
-						if (Long.class.equals(value.getClass()) || Long.TYPE.equals(value.getClass())) {
+						if (Long.class.equals(srcType) || Long.TYPE.equals(srcType)) {
 						} else {
 							return type;
 						}
 					}
-				} else if (value instanceof Date) {
+				} else if (Date.class.isAssignableFrom(srcType)) {
 					if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
 						return type;
 					} else if (Integer.class.equals(type) || Integer.TYPE.equals(type)) {			
@@ -243,13 +222,13 @@ public class EngineTests {
 					} else if (type.isEnum()) {			
 						return type;
 					}
-				} else if (value.getClass().isEnum()) {
+				} else if (srcType.isEnum()) {
 					if (type.isEnum()) {
 					} else if (String.class.equals(type)) {
 					} else {
 						return type;
 					}
-				} else if (value instanceof Collection) {
+				} else if (Collection.class.isAssignableFrom(srcType)) {
 					if (Collection.class.isAssignableFrom(type)) {
 					} else {
 						return type;
