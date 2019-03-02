@@ -45,101 +45,97 @@ public class IntegerTests extends BaseScopeTest {
 		copySrcFieldToFail(primitiveField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
-//	@Test
-//	public void testPrimitiveToInt() {
-//		copySrcFieldTo(primitiveField, "primitiveInt");
-//		assertEquals(1, dto.getPrimitiveInt());
-//		
-//		copySrcFieldTo(primitiveField, "int1");
-//		assertEquals(1, dto.getInt1().intValue());
-//	}
-//	@Test
-//	public void testPrimitiveToLong() {
-//		copySrcFieldTo(primitiveField, "primitiveLong");
-//		assertEquals(1L, dto.getPrimitiveLong());
-//		
-//		copySrcFieldTo(primitiveField, "long1");
-//		assertEquals(1L, dto.getLong1().longValue());
-//	}
-//	@Test
-//	public void testPrimitiveToDouble() {
-//		copySrcFieldTo(primitiveField, "primitiveDouble");
-//		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
-//		
-//		copySrcFieldTo(primitiveField, "double1");
-//		assertEquals(1.0, dto.getDouble1(), 0.001);
-//	}
-//	@Test
-//	public void testPrimitiveToString() {
-//		copySrcFieldTo(primitiveField, "string1");
-//		assertEquals("true", dto.getString1());
-//		
-//		reset();
-//		entity.setPrimitiveBool(false);
-//		copySrcFieldTo(primitiveField, "string1", false);
-//		assertEquals("false", dto.getString1());
-//	}
-//	@Test
-//	public void testPrimitiveToDate() {
-//		copySrcFieldToFail(primitiveField, "date1");
-//		assertEquals(null, dto.getDate1());
-//	}
-//	@Test
-//	public void testPrimitiveToEnum() {
-//		copySrcFieldToFail(primitiveField, "colour1");
-//		assertEquals(null, dto.getColour1());
-//	}
-//	
-//	//----------- Boolean ------------
-//	@Test
-//	public void testToBoolean() {
-//		copySrcFieldTo(mainField, "primitiveBool");
-//		assertEquals(true, dto.isPrimitiveBool());
-//	}
-//	@Test
-//	public void testToInt() {
-//		copySrcFieldTo(mainField, "primitiveInt");
-//		assertEquals(1, dto.getPrimitiveInt());
-//		
-//		copySrcFieldTo(mainField, "int1");
-//		assertEquals(1, dto.getInt1().intValue());
-//	}
-//	@Test
-//	public void testToLong() {
-//		copySrcFieldTo(mainField, "primitiveLong");
-//		assertEquals(1L, dto.getPrimitiveLong());
-//		
-//		copySrcFieldTo(mainField, "long1");
-//		assertEquals(1L, dto.getLong1().longValue());
-//	}
-//	@Test
-//	public void testToDouble() {
-//		copySrcFieldTo(mainField, "primitiveDouble");
-//		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
-//		
-//		copySrcFieldTo(mainField, "double1");
-//		assertEquals(1.0, dto.getDouble1(), 0.001);
-//	}
-//	@Test
-//	public void testToString() {
-//		copySrcFieldTo(mainField, "string1");
-//		assertEquals("true", dto.getString1());
-//		
-//		reset();
-//		entity.setBool1(false);
-//		copySrcFieldTo(mainField, "string1", false);
-//		assertEquals("false", dto.getString1());
-//	}
-//	@Test
-//	public void testToDate() {
-//		copySrcFieldToFail(mainField, "date1");
-//		assertEquals(null, dto.getDate1());
-//	}
-//	@Test
-//	public void testToEnum() {
-//		copySrcFieldToFail(mainField, "colour1");
-//		assertEquals(null, dto.getColour1());
-//	}
+	@Test
+	public void testPrimitiveToInt() {
+		copySrcFieldTo(primitiveField, "int1");
+		assertEquals(516, dto.getInt1().intValue());
+	}
+	@Test
+	public void testPrimitiveToLong() {
+		copySrcFieldTo(primitiveField, "primitiveLong");
+		assertEquals(516L, dto.getPrimitiveLong());
+		
+		copySrcFieldTo(primitiveField, "long1");
+		assertEquals(516L, dto.getLong1().longValue());
+	}
+	@Test
+	public void testPrimitiveToDouble() {
+		copySrcFieldTo(primitiveField, "primitiveDouble");
+		assertEquals(516.0, dto.getPrimitiveDouble(), 0.001);
+		
+		copySrcFieldTo(primitiveField, "double1");
+		assertEquals(516.0, dto.getDouble1(), 0.001);
+	}
+	@Test
+	public void testPrimitiveToString() {
+		copySrcFieldTo(primitiveField, "string1");
+		assertEquals("516", dto.getString1());
+		
+		reset();
+		entity.setPrimitiveBool(false);
+		copySrcFieldTo(primitiveField, "string1", false);
+		assertEquals("516", dto.getString1());
+	}
+	@Test
+	public void testPrimitiveToDate() {
+		copySrcFieldToFail(primitiveField, "date1");
+		assertEquals(null, dto.getDate1());
+	}
+	@Test
+	public void testPrimitiveToEnum() {
+		//TODO: if enum has int value, perhaps we can copy then
+		
+		copySrcFieldToFail(primitiveField, "colour1");
+		assertEquals(null, dto.getColour1());
+	}
+	
+	//----------- Integer ------------
+	@Test
+	public void testToBoolean() {
+		copySrcFieldToFail(mainField, "primitiveBool");
+		assertEquals(false, dto.isPrimitiveBool());
+	}
+	@Test
+	public void testToInt() {
+		copySrcFieldTo(mainField, "primitiveInt");
+		assertEquals(517, dto.getPrimitiveInt());
+	}
+	@Test
+	public void testToLong() {
+		copySrcFieldTo(mainField, "primitiveLong");
+		assertEquals(517L, dto.getPrimitiveLong());
+		
+		copySrcFieldTo(mainField, "long1");
+		assertEquals(517L, dto.getLong1().longValue());
+	}
+	@Test
+	public void testToDouble() {
+		copySrcFieldTo(mainField, "primitiveDouble");
+		assertEquals(517.0, dto.getPrimitiveDouble(), 0.001);
+		
+		copySrcFieldTo(mainField, "double1");
+		assertEquals(517.0, dto.getDouble1(), 0.001);
+	}
+	@Test
+	public void testToString() {
+		copySrcFieldTo(mainField, "string1");
+		assertEquals("517", dto.getString1());
+		
+		reset();
+		entity.setInt1(-200);
+		copySrcFieldTo(mainField, "string1", false);
+		assertEquals("-200", dto.getString1());
+	}
+	@Test
+	public void testToDate() {
+		copySrcFieldToFail(mainField, "date1");
+		assertEquals(null, dto.getDate1());
+	}
+	@Test
+	public void testToEnum() {
+		copySrcFieldToFail(mainField, "colour1");
+		assertEquals(null, dto.getColour1());
+	}
 	
 	//---
 	private static final String primitiveField = "primitiveInt";
