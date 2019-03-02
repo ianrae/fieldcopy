@@ -90,13 +90,16 @@ public class EnumTests extends BaseScopeTest {
 	
 	@Test
 	public void testToEnumTransformer() {
-		
 		CopyOptions options = copier.getOptions();
 		options.transformers.add(new MyTransformer());
 		
 		entity.setColour1(Colour.BLUE);
-		copier.copy(entity, dto).field("colour1", "province1").execute();
+		copySrcFieldTo("colour1", "province1", false);
 		assertEquals(Province.BLUE, dto.getProvince1());
+		
+		reset();
+		entity.setColour1(Colour.RED); //there is no Province.RED
+		copySrcFieldToFail("colour1", "province1", false);
 	}
 	
 	//---

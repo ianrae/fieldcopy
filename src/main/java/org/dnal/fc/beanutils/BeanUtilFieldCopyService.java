@@ -152,7 +152,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
-                			value = runPreparerIfPresent(pair, value, options);
+                			value = transformIfPresent(pair, value, options);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -163,7 +163,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private Object runPreparerIfPresent(FieldPair pair, Object value, CopyOptions options) {
+		private Object transformIfPresent(FieldPair pair, Object value, CopyOptions options) {
 			if (value == null) {
 				return null;
 			}
