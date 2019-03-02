@@ -162,12 +162,22 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private void validateIsAllowed(FieldPair pair, Object value, Object dest) {
+		private void validateIsAllowed(FieldPair pair, Object value, Object dest) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 			if (value != null) {
 				Class<?> destClass =  isNotAllowed(pair, value, dest);
 				if (destClass != null) {
 					String err = String.format("Not allowed to copy %s to %s", value.getClass().getName(), destClass.getName());
 					throw new FieldCopyException(err);
+				}
+				
+				//do fixups here
+				if (value.getClass().isEnum()) {
+					BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
+					Class<?> type = desc.pd.getPropertyType();
+					if (! value.getClass().equals(type)) {
+                		final Object destValue = propertyUtils.getSimpleProperty(dest, desc.getName());
+						
+					}
 				}
 			}
 		}
@@ -182,11 +192,15 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> type = desc.pd.getPropertyType();
 			
+			//TODO: this won't work if someone subclasses Integer. use isAssignableFrom!!
 			if (value instanceof Number) {
 				if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
 					return type;
 				} else if (Date.class.equals(type)) {
-					return type;
+					if (Long.class.equals(value.getClass()) || Long.TYPE.equals(value.getClass())) {
+					} else {
+						return type;
+					}
 				}
 			} else if (value instanceof Date) {
 				if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			
@@ -196,6 +210,12 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				} else if (Double.class.equals(type) || Double.TYPE.equals(type)) {			
 					return type;
 				} else if (type.isEnum()) {			
+					return type;
+				}
+			} else if (value.getClass().isEnum()) {
+				if (type.isEnum()) {
+				} else if (String.class.equals(type)) {
+				} else {
 					return type;
 				}
 			}

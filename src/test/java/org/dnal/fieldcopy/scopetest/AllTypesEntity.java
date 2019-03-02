@@ -17,6 +17,7 @@ public class AllTypesEntity {
 	private String string1;
 	
 	private Colour colour1;
+	private Province province1;
 
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -104,5 +105,13 @@ public class AllTypesEntity {
 
 	public void setColour1(Colour colour1) {
 		this.colour1 = colour1;
+	}
+
+	public Province getProvince1() {
+		return province1;
+	}
+
+	public void setProvince1(Province province1) {
+		this.province1 = province1;
 	}
 }
