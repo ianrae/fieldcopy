@@ -89,19 +89,6 @@ public class DateTests extends BaseScopeTest {
 	}
 	
 	
-	private Date createDate(int year, int mon, int day) {
-    Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.YEAR, year);
-    cal.set(Calendar.MONTH, mon - 1);
-    cal.set(Calendar.DATE, day);
-    cal.set(Calendar.HOUR_OF_DAY, 7);
-    cal.set(Calendar.MINUTE, 30);
-    cal.set(Calendar.SECOND, 41);
-    cal.set(Calendar.MILLISECOND, 0);
-    Date dt = cal.getTime();
-    return dt;
-}
-	
 	protected void chkValue(Date dt) {
 		assertEquals(dt, dto.getDate1());
 	}
