@@ -34,6 +34,7 @@ public class EngineTests {
 	public static class ExecuteFieldSpec {
 		public FieldPair pair;
 		public ValueTransformer transformer;
+		public FieldCopyMapping mapping;
 	}
 	
 	public static class ExecuteCopySpec {
@@ -88,6 +89,10 @@ public class EngineTests {
 				Object sourceObj = copySpec.sourceObj;
 				Object destObj = copySpec.destObj;
 				List<FieldPair> fieldPairs = copySpec.fieldPairs;
+				
+				if (copySpec.mappingL == null) {
+					copySpec.mappingL = new ArrayList<>();
+				}
 				List<FieldCopyMapping> mappingL = copySpec.mappingL;
 				CopyOptions options = copySpec.options;
 				
@@ -120,8 +125,12 @@ public class EngineTests {
 	                		
 	                		addListTransformerIfNeeded(pair, copySpec.transformerL, destObj);
 	                		
-	                		if (applyMapping(pair, sourceObj, destObj, null, mappingL, options, runawayCounter)) {
-	                			
+	                		FieldCopyMapping mapping = generateMapping(pair, mappingL);
+	                		if (mapping != null) {
+	                			ExecuteFieldSpec fspec = new ExecuteFieldSpec();
+	                			fspec.pair = pair;
+	                			fspec.mapping = mapping;
+	                			execspec.fieldL.add(fspec);
 	                		} else {
 	                			validateIsAllowed(pair);
 	                			
@@ -238,14 +247,7 @@ public class EngineTests {
 				return null;
 			}
 
-			private boolean applyMapping(FieldPair pair, Object sourceObj, Object destObj, Object srcValue, List<FieldCopyMapping> mappingL, CopyOptions options, int runawayCounter) throws Exception {
-				if (CollectionUtils.isEmpty(mappingL)) {
-					return false;
-				}
-				if (srcValue == null) {
-					return true;
-				}
-
+			private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
 				BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
 				for(FieldCopyMapping mapping: mappingL) {
 					if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
@@ -254,24 +256,42 @@ public class EngineTests {
 						}
 						BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 						if (mapping.getClazzDest().equals(fd2.pd.getPropertyType())) {
-							//use the mapping, which has fields, autocopy flag etc
-	                		Object destValue = propertyUtils.getSimpleProperty(destObj, pair.destFieldName);
-	                		if (destValue == null) {
-	                			destValue = createObject(mapping.getClazzDest());
-	                			beanUtil.copyProperty(destObj, pair.destFieldName, destValue);
-	                		}
-	                		
-	                		//**recursion**
-	                		CopySpec spec = new CopySpec();
-	                		spec.sourceObj = srcValue;
-	                		spec.destObj = destValue;
-	                		spec.fieldPairs = mapping.getFieldPairs();
-	                		spec.mappingL = mappingL;
-	                		spec.options = options;
-	                		doGenerateExecutePlan(spec, runawayCounter + 1);
-
-							return true;
+							return mapping;
 						}
+					}
+				}
+				return null;
+			}
+			private boolean applyMapping(CopySpec copySpec, FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
+				if (srcValue == null) {
+					return true;
+				}
+
+				BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+				if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
+					if (pair.destProp == null) {
+						throw new IllegalArgumentException("fix later");
+					}
+					BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+					if (mapping.getClazzDest().equals(fd2.pd.getPropertyType())) {
+						//use the mapping, which has fields, autocopy flag etc
+						Object destValue = propertyUtils.getSimpleProperty(destObj, pair.destFieldName);
+						if (destValue == null) {
+							destValue = createObject(mapping.getClazzDest());
+							beanUtil.copyProperty(destObj, pair.destFieldName, destValue);
+						}
+
+						//**recursion**
+						CopySpec spec = new CopySpec();
+						spec.sourceObj = srcValue;
+						spec.destObj = destValue;
+						spec.fieldPairs = mapping.getFieldPairs();
+						spec.mappingL = copySpec.mappingL;
+						spec.options = copySpec.options;
+						applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
+						doGenerateExecutePlan(spec, runawayCounter + 1);
+
+						return true;
 					}
 				}
 				return false;
@@ -291,7 +311,7 @@ public class EngineTests {
 				return b;
 			}
 
-			private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, int runawayCount) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, int runawayCounter) throws Exception {
 				boolean ok = true;
 				for(ExecuteFieldSpec fieldPlan: execSpec.fieldL) {
 					String name = fieldPlan.pair.srcProp.getName();
@@ -300,6 +320,10 @@ public class EngineTests {
 						BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 						Class<?> destClass = fd2.pd.getPropertyType();
 						value = fieldPlan.transformer.transformValue(name, spec.sourceObj, value, destClass);
+					}
+					
+					if (fieldPlan.mapping != null) {
+						applyMapping(spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 					}
 					beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 				}
