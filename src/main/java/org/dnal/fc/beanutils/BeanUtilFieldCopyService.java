@@ -37,7 +37,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 
 		@Override
 		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
-            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1.getClass(), class2.getClass());
+            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;
 			}
@@ -61,7 +61,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
             	fieldPairs.add(pair);
             }
 			
-			registry.registerAutoCopyInfo(class1.getClass(), class2.getClass(), fieldPairs);
+			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
             return fieldPairs;
 		}
 

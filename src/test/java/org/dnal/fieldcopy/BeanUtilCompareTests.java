@@ -119,10 +119,10 @@ public class BeanUtilCompareTests {
 		}
 		
 		private boolean compareField(Object objA, Object objB, CompareFrame frame, List<FieldDifference> diffL) {
-        	if (! fieldFilter.shouldProcess(objA, frame.fieldName)) {
+        	if (! fieldFilter.shouldProcess(objA.getClass(), frame.fieldName)) {
         		return true; // No point in trying to set an object's class
             }
-        	if (! fieldFilter.shouldProcess(objB, frame.fieldName)) {
+        	if (! fieldFilter.shouldProcess(objB.getClass(), frame.fieldName)) {
         		return true; // No point in trying to set an object's class
             }
         	
