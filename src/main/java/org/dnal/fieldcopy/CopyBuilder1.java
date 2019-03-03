@@ -119,15 +119,6 @@ public class CopyBuilder1 {
 		return executionPlanCacheKey;
 	}
 
-	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
-		for(FieldPair pair: fieldPairs) {
-			if (pair.srcProp.getName().equals(srcField)) {
-				return pair.srcProp;
-			}
-		}
-		return null;
-	}
-
 	public CopyBuilder2 field(String srcFieldName) {
 		return new CopyBuilder2(this, srcFieldName, srcFieldName);
 	}
