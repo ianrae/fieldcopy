@@ -32,6 +32,9 @@ public class CopyBuilder2 {
 	}
 	
 	public void execute() {
-		fcb1.doExecute(srcList, destList);
+		fcb1.doExecute(null, srcList, destList);
+	}
+	public <T> T execute(Class<T> destClass) {
+		return fcb1.doExecute(destClass, null, null);
 	}
 }

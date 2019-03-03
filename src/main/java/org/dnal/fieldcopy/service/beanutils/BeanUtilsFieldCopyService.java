@@ -139,4 +139,25 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		public FieldRegistry getRegistry() {
 			return registry;
 		}
+
+		@Override
+		public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
+			T destObj = (T) createDestObject(destClass);
+			copySpec.destObj = destObj;
+			copyFields(copySpec);
+			return destObj;
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T> T createDestObject(Class<T> destClass) {
+			T obj = null;
+			try {
+				obj = (T) destClass.newInstance();
+			} catch (InstantiationException e) {
+				throw new FieldCopyException(e.getMessage());
+			} catch (IllegalAccessException e) {
+				throw new FieldCopyException(e.getMessage());
+			}
+			return obj;
+		}
 	}

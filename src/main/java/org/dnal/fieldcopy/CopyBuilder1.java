@@ -51,7 +51,10 @@ public class CopyBuilder1 {
 	}
 	
 	public void execute() {
-		doExecute(null, null);
+		doExecute(null, null, null);
+	}
+	public <T> T execute(Class<T> destClass) {
+		return doExecute(destClass, null, null);
 	}
 	
 	public CopyBuilder1 withMappings(FieldCopyMapping... mappings) {
@@ -89,9 +92,14 @@ public class CopyBuilder1 {
 	 * @param destList
 	 */
 	
-	void doExecute(List<String> srcList, List<String> destList) {
+	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList) {
 		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
+		List<FieldPair> fieldPairs;
+		if (root.destObj == null) {
+			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), destClass);
+		} else {
+			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
+		}
 		
 		if (this.doAutoCopy) {
 			if (includeList == null && excludeList == null) {
@@ -136,7 +144,12 @@ public class CopyBuilder1 {
 		spec.transformerL = this.transformers;
 		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
 		FieldCopyService copySvc = root.getCopyService();
-		copySvc.copyFields(spec);
+		if (destClass == null) {
+			copySvc.copyFields(spec);
+			return null;
+		} else {
+			return copySvc.copyFields(spec, destClass);
+		}
 	}
 	
 	private String generateCacheKey() {
