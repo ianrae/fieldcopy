@@ -22,8 +22,8 @@ import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
 import org.dnal.fieldcopy.FieldCopyException;
-import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.value.ValueTests.FieldCopyUtils;
 
 /**
  * An implementation of FieldCopyService that uses Apache BeanUtils to do the

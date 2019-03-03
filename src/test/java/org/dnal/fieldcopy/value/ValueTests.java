@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.value;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,6 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.dnal.fieldcopy.BooleanValue;
+import org.dnal.fieldcopy.DoubleValue;
+import org.dnal.fieldcopy.EnumValue;
+import org.dnal.fieldcopy.FieldCopyException;
+import org.dnal.fieldcopy.IntegerValue;
+import org.dnal.fieldcopy.ListValue;
+import org.dnal.fieldcopy.LongValue;
+import org.dnal.fieldcopy.StringValue;
+import org.dnal.fieldcopy.StructValue;
+import org.dnal.fieldcopy.Value;
+import org.dnal.fieldcopy.ValueTypes;
 import org.dnal.fieldcopy.factory.DefaultValueFactory;
 import org.dnal.fieldcopy.factory.ValueFactory;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
