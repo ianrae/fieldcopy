@@ -30,7 +30,7 @@ public class EngineTests {
 		spec.fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
 		spec.mappingL = null;
 		spec.options = new CopyOptions();
-		spec.transformerL = null;;
+		spec.converterL = null;;
 		
 		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec);
 		assertEquals(2, execSpec.fieldL.size());

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.ValueTransformer;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +15,9 @@ import org.junit.Test;
 
 public class ListStringTests extends BaseScopeTest {
 	
-	public static abstract class BaseListTransformer implements ValueTransformer {
+	public static abstract class BaseListTransformer implements ValueConverter {
 		@Override
-		public Object transformValue(Object srcBean, Object value, ConverterContext ctx) {
+		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
 			@SuppressWarnings("unchecked")
 			List<?> list = (List<?>) value;
 			

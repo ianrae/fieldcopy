@@ -11,12 +11,12 @@ import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 
-public class ListElementTransformer implements ValueTransformer {
+public class ListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> destElClass;
 	private FieldCopyService copySvc;
 	
-	public ListElementTransformer(String srcFieldName, Class<?> destElementClass) {
+	public ListElementConverter(String srcFieldName, Class<?> destElementClass) {
 		this.srcFieldName = srcFieldName;
 		this.destElClass = destElementClass;
 	}
@@ -27,7 +27,7 @@ public class ListElementTransformer implements ValueTransformer {
 	}
 	
 	@Override
-	public Object transformValue(Object srcBean, Object value, ConverterContext ctx) {
+	public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
@@ -38,7 +38,7 @@ public class ListElementTransformer implements ValueTransformer {
 		spec.fieldPairs = fieldPairs;
 		spec.options = new CopyOptions(); //TODO: should be propogated
 		spec.mappingL = null;
-		spec.transformerL = null;
+		spec.converterL = null;
 
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {

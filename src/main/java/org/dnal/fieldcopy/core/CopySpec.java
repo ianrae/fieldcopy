@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
-import org.dnal.fieldcopy.converter.ValueTransformer;
+import org.dnal.fieldcopy.converter.ValueConverter;
 
 public class CopySpec {
 		public Object sourceObj;
@@ -12,6 +12,6 @@ public class CopySpec {
 		public List<FieldPair> fieldPairs;
 		public List<FieldCopyMapping> mappingL;
 		public CopyOptions options;
-		public List<ValueTransformer> transformerL;
+		public List<ValueConverter> converterL;
 		public String executionPlanCacheKey;
 }

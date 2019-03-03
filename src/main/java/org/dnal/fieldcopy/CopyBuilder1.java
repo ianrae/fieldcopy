@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.converter.ListElementTransformer;
-import org.dnal.fieldcopy.converter.ValueTransformer;
+import org.dnal.fieldcopy.converter.ListElementConverter;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
@@ -23,7 +23,7 @@ public class CopyBuilder1 {
 	private List<String> excludeList;
 	private boolean doAutoCopy;
 	private List<FieldCopyMapping> mappingList;
-	private List<ValueTransformer> transformers;
+	private List<ValueConverter> converters;
 	private String executionPlanCacheKey;
 	
 
@@ -64,19 +64,19 @@ public class CopyBuilder1 {
 		this.mappingList.addAll(Arrays.asList(mappings));
 		return this;
 	}
-	public CopyBuilder1 withTransformers(ValueTransformer... transformers) {
-		if (this.transformers == null) {
-			this.transformers = new ArrayList<>();
+	public CopyBuilder1 withTransformers(ValueConverter... transformers) {
+		if (this.converters == null) {
+			this.converters = new ArrayList<>();
 		}
-		this.transformers.addAll(Arrays.asList(transformers));
+		this.converters.addAll(Arrays.asList(transformers));
 		return this;
 	}
 	public CopyBuilder1 listHint(String srcField, Class<?> destListElementClass) {
-		if (this.transformers == null) {
-			this.transformers = new ArrayList<>();
+		if (this.converters == null) {
+			this.converters = new ArrayList<>();
 		}
-		ListElementTransformer transformer = new ListElementTransformer(srcField, destListElementClass);
-		this.transformers.add(transformer);
+		ListElementConverter transformer = new ListElementConverter(srcField, destListElementClass);
+		this.converters.add(transformer);
 		return this;
 	}
 	
@@ -141,7 +141,7 @@ public class CopyBuilder1 {
 		spec.fieldPairs = fieldsToCopy;
 		spec.mappingL = mappingList;
 		spec.options = root.options;
-		spec.transformerL = this.transformers;
+		spec.converterL = this.converters;
 		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
 		FieldCopyService copySvc = root.getCopyService();
 		if (destClass == null) {

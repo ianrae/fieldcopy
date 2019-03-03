@@ -3,7 +3,7 @@ package org.dnal.fieldcopy.scopetest;
 import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.ValueTransformer;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.junit.Before;
@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class EnumTests extends BaseScopeTest {
 	
-	public static class MyTransformer implements ValueTransformer {
+	public static class MyTransformer implements ValueConverter {
 
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
@@ -23,7 +23,7 @@ public class EnumTests extends BaseScopeTest {
 		}
 
 		@Override
-		public Object transformValue(Object srcBean, Object value, ConverterContext ctx) {
+		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
 			Colour col = (Colour) value;
 			
 			Province prov = Province.valueOf(col.name());

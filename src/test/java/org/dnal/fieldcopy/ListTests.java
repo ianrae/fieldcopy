@@ -14,7 +14,7 @@ import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
-import org.dnal.fieldcopy.converter.ListElementTransformer;
+import org.dnal.fieldcopy.converter.ListElementConverter;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
@@ -94,7 +94,7 @@ public class ListTests {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		ListElementTransformer transformer = new ListElementTransformer("listSource1", Dest.class);
+		ListElementConverter transformer = new ListElementConverter("listSource1", Dest.class);
 		
 		copier.copy(holder, holder2).withTransformers(transformer).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
