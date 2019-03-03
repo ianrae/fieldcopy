@@ -101,25 +101,25 @@ public class ListTests {
 		assertEquals(1, holder2.getListSource1().size());
 	}
 	
-	@Test
-	public void test3() {
-		Source src = new Source("bob", 33);
-		Holder holder = new Holder();
-		holder.setWidth(55);
-		
-		List<Source> list = new ArrayList<>();
-		list.add(src);
-		holder.setListSource1(list);
-		
-		HolderDest holder2 = new HolderDest();
-		FieldCopier copier = createCopier();
-		
-		//OPTIONAL declare listHint for each field where you are converting list element types
-		//If the source and destination list elements are the same type, listHint is not needed.
-		copier.copy(holder, holder2).listHint("listSource1", Dest.class).autoCopy().execute();
-		assertEquals(55, holder2.getWidth());
-		assertEquals(1, holder2.getListSource1().size());
-	}
+//	@Test
+//	public void test3() {
+//		Source src = new Source("bob", 33);
+//		Holder holder = new Holder();
+//		holder.setWidth(55);
+//		
+//		List<Source> list = new ArrayList<>();
+//		list.add(src);
+//		holder.setListSource1(list);
+//		
+//		HolderDest holder2 = new HolderDest();
+//		FieldCopier copier = createCopier();
+//		
+//		//OPTIONAL declare listHint for each field where you are converting list element types
+//		//If the source and destination list elements are the same type, listHint is not needed.
+//		copier.copy(holder, holder2).listHint("listSource1", Dest.class).autoCopy().execute();
+//		assertEquals(55, holder2.getWidth());
+//		assertEquals(1, holder2.getListSource1().size());
+//	}
 	
 	@Test
 	public void test3a() {

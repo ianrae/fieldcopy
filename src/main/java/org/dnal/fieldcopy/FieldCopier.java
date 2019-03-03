@@ -24,8 +24,10 @@ public class FieldCopier {
 		this.copier = copier;
 	}
 	
-	public CopyBuilder1 copy(Object sourceObj) {
-		return copy(sourceObj, null);
+	public CopyBuilder1A copy(Object sourceObj) {
+		this.sourceObj = sourceObj;
+		this.destObj = null;
+		return new CopyBuilder1A(this);
 	}
 	public CopyBuilder1 copy(Object sourceObj, Object destObj) {
 		this.sourceObj = sourceObj;
