@@ -32,7 +32,7 @@ public class ListStringTests extends BaseScopeTest {
 	}
 	public static class MyListTransformer extends BaseListTransformer {
 		@Override
-		public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
+		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
 		}
 

@@ -139,8 +139,7 @@ public class FastBeanUtilFieldCopyService {
 			}
 
 			for(ValueTransformer transformer: transformerL) {
-				//TODO: is it ok to pass null for value
-				if (transformer.canHandle(pair.srcProp.getName(), null, destFieldClass)) {
+				if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
 					//if already is a transform, nothing more to do
 					return;
 				}
@@ -158,10 +157,13 @@ public class FastBeanUtilFieldCopyService {
 		if (CollectionUtils.isNotEmpty(transformerL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
+			
+			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+			Class<?> srcClass = fd1.pd.getPropertyType();
 			//TODO: can we make this faster with a map??
 			for(ValueTransformer transformer: transformerL) {
 				//TODO: fix value null issue
-				if (transformer.canHandle(pair.srcProp.getName(), null, destClass)) {
+				if (transformer.canHandle(pair.srcProp.getName(), srcClass, destClass)) {
 					return  transformer;
 				}
 			}

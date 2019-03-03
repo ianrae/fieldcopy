@@ -19,7 +19,7 @@ public class ListElementTransformer implements ValueTransformer {
 	}
 
 	@Override
-	public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
+	public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 		return this.srcFieldName.equals(srcFieldName);
 	}
 	

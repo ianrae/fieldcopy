@@ -191,7 +191,7 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 				}
 
 				for(ValueTransformer transformer: transformerL) {
-					if (transformer.canHandle(pair.srcProp.getName(), value, destFieldClass)) {
+					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
 						//if already is a transform, nothing more to do
 						return;
 					}
@@ -213,9 +213,13 @@ public class BeanUtilFieldCopyService implements FieldCopyService {
 			if (CollectionUtils.isNotEmpty(transformerL)) {
 				BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 				Class<?> destClass = desc.pd.getPropertyType();
+				
+				BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+				Class<?> srcFieldClass = fd1.pd.getPropertyType();
+				
 				//TODO: can we make this faster with a map??
 				for(ValueTransformer transformer: transformerL) {
-					if (transformer.canHandle(pair.srcProp.getName(), value, destClass)) {
+					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destClass)) {
 						transformer.setCopySvc(this);
 						return transformer.transformValue(pair.srcProp.getName(), orig, value, destClass);
 					}

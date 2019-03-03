@@ -14,8 +14,8 @@ public class EnumTests extends BaseScopeTest {
 	public static class MyTransformer implements ValueTransformer {
 
 		@Override
-		public boolean canHandle(String srcFieldName, Object value, Class<?> destClass) {
-			if (value.getClass().equals(Colour.class) && destClass.equals(Province.class)) {
+		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
+			if (srcClass.equals(Colour.class) && destClass.equals(Province.class)) {
 				return true;
 			}
 			return false;
