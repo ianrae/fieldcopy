@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.beanutils;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;

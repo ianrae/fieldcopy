@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.beanutils;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;

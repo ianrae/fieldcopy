@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.beanutils;
+package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.core.FieldPair;

@@ -17,7 +17,7 @@ import org.dnal.fieldcopy.core.ValueTransformer;
  * @author Ian Rae
  *
  */
-public class FCB1 {
+public class CopyBuilder1 {
 	private FieldCopier root;
 	private List<String> includeList;
 	private List<String> excludeList;
@@ -27,25 +27,25 @@ public class FCB1 {
 	private String executionPlanCacheKey;
 	
 
-	public FCB1(FieldCopier fieldCopierBuilder) {
+	public CopyBuilder1(FieldCopier fieldCopierBuilder) {
 		this.root = fieldCopierBuilder;
 	}
 	
-	public FCB1 cacheKey(String key) {
+	public CopyBuilder1 cacheKey(String key) {
 		executionPlanCacheKey = key;
 		return this;
 	}
 	
-	public FCB1 include(String...fieldNames) {
+	public CopyBuilder1 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
-	public FCB1 exclude(String...fieldNames) {
+	public CopyBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
 	
-	public FCB1 autoCopy() {
+	public CopyBuilder1 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
 	}
@@ -54,21 +54,21 @@ public class FCB1 {
 		doExecute(null, null);
 	}
 	
-	public FCB1 withMappings(FieldCopyMapping... mappings) {
+	public CopyBuilder1 withMappings(FieldCopyMapping... mappings) {
 		if (this.mappingList == null) {
 			this.mappingList = new ArrayList<>();
 		}
 		this.mappingList.addAll(Arrays.asList(mappings));
 		return this;
 	}
-	public FCB1 withTransformers(ValueTransformer... transformers) {
+	public CopyBuilder1 withTransformers(ValueTransformer... transformers) {
 		if (this.transformers == null) {
 			this.transformers = new ArrayList<>();
 		}
 		this.transformers.addAll(Arrays.asList(transformers));
 		return this;
 	}
-	public FCB1 listHint(String srcField, Class<?> destListElementClass) {
+	public CopyBuilder1 listHint(String srcField, Class<?> destListElementClass) {
 		if (this.transformers == null) {
 			this.transformers = new ArrayList<>();
 		}
@@ -162,10 +162,10 @@ public class FCB1 {
 		return null;
 	}
 
-	public FCB2 field(String srcFieldName) {
-		return new FCB2(this, srcFieldName, srcFieldName);
+	public CopyBuilder2 field(String srcFieldName) {
+		return new CopyBuilder2(this, srcFieldName, srcFieldName);
 	}
-	public FCB2 field(String srcFieldName, String destFieldName) {
-		return new FCB2(this, srcFieldName, destFieldName);
+	public CopyBuilder2 field(String srcFieldName, String destFieldName) {
+		return new CopyBuilder2(this, srcFieldName, destFieldName);
 	}
 }

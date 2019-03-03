@@ -24,10 +24,10 @@ public class FieldCopier {
 		this.copier = copier;
 	}
 	
-	public FCB1 copy(Object sourceObj, Object destObj) {
+	public CopyBuilder1 copy(Object sourceObj, Object destObj) {
 		this.sourceObj = sourceObj;
 		this.destObj = destObj;
-		return new FCB1(this);
+		return new CopyBuilder1(this);
 	}
 	
 	FieldCopyService getCopyService() {

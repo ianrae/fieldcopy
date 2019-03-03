@@ -1,7 +1,5 @@
 package org.dnal.fieldcopy;
 
-import org.dnal.fieldcopy.beanutils.AlternateFieldCopyService;
-import org.dnal.fieldcopy.beanutils.BeanUtilFieldCopyService;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -9,6 +7,8 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.service.beanutils.AlternateFieldCopyService;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilFieldCopyService;
 
 /**
  * Creates a field copier that uses Apache BeanUtils (reflection-based),

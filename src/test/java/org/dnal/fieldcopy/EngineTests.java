@@ -5,11 +5,11 @@ import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
-import org.dnal.fieldcopy.beanutils.ExecuteCopyPlan;
-import org.dnal.fieldcopy.beanutils.FastBeanUtilFieldCopyService;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.service.beanutils.ExecuteCopyPlan;
+import org.dnal.fieldcopy.service.beanutils.FastBeanUtilFieldCopyService;
 import org.junit.Test;
 
 public class EngineTests {
