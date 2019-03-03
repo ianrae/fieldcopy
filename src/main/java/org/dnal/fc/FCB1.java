@@ -23,10 +23,17 @@ public class FCB1 {
 	private List<String> excludeList;
 	private boolean doAutoCopy;
 	private List<FieldCopyMapping> mappingList;
-	public List<ValueTransformer> transformers;
+	private List<ValueTransformer> transformers;
+	private String executionPlanCacheKey;
+	
 
 	public FCB1(FieldCopier fieldCopierBuilder) {
 		this.root = fieldCopierBuilder;
+	}
+	
+	public FCB1 cacheKey(String key) {
+		executionPlanCacheKey = key;
+		return this;
 	}
 	
 	public FCB1 include(String...fieldNames) {
@@ -127,10 +134,21 @@ public class FCB1 {
 		spec.mappingL = mappingList;
 		spec.options = root.options;
 		spec.transformerL = this.transformers;
-		FieldCopyService fieldCopier = root.getCopyService();
-		fieldCopier.copyFields(spec);
+		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
+		FieldCopyService copySvc = root.getCopyService();
+		copySvc.copyFields(spec);
 	}
 	
+	private String generateCacheKey() {
+		if (executionPlanCacheKey == null) {
+			//if source or destObj are null we will catch it during copy
+			String class1Name = root.sourceObj == null ? "" : root.sourceObj.getClass().getName();
+			String class2Name = root.destObj == null ? "" : root.destObj.getClass().getName();
+			executionPlanCacheKey = String.format("%s--%s", class1Name, class2Name);
+		}
+		return executionPlanCacheKey;
+	}
+
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
 		for(FieldPair pair: fieldPairs) {
 			if (pair.srcProp.getName().equals(srcField)) {

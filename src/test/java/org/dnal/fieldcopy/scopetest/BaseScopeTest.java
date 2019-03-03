@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
@@ -49,7 +50,9 @@ public class BaseScopeTest {
 		if (doReset) {
 			reset();
 		}
-		copier.copy(entity, dto).field(srcField, destField).execute();
+		Random r = new Random();
+		String key = String.format("key%d", r.nextInt());
+		copier.copy(entity, dto).cacheKey(key).field(srcField, destField).execute();
 	}
 	protected void copySrcFieldToFail(String srcField, String destField) {
 		copySrcFieldToFail(srcField, destField, true);

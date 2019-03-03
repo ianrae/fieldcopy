@@ -3,6 +3,7 @@ package org.dnal.fc.beanutils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class AlternateFieldCopyService implements FieldCopyService {
 		private FieldRegistry registry;
 		private FieldFilter fieldFilter;
 		private FastBeanUtilFieldCopyService fastSvc;
+		private Map<String,ExecuteCopySpec> executionPlanMap = new HashMap<>();
 		
 		public AlternateFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
@@ -99,8 +101,11 @@ public class AlternateFieldCopyService implements FieldCopyService {
 				throw new FieldCopyException(error);
 			}
 			
-			//TODO cache fast thing later!!
-			ExecuteCopySpec execSpec = fastSvc.generateExecutePlan(copySpec);
+			ExecuteCopySpec execSpec = executionPlanMap.get(copySpec.executionPlanCacheKey);
+			if (execSpec == null) {
+				execSpec = fastSvc.generateExecutePlan(copySpec);
+				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
+			}
 			boolean b = fastSvc.executePlan(copySpec, execSpec, this, runawayCounter);
 			logger.log("fast: %b", b);
 		}

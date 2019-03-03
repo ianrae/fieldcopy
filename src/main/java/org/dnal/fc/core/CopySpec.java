@@ -12,4 +12,5 @@ public class CopySpec {
 		public List<FieldCopyMapping> mappingL;
 		public CopyOptions options;
 		public List<ValueTransformer> transformerL;
+		public String executionPlanCacheKey;
 }

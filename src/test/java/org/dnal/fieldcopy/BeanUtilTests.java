@@ -168,17 +168,17 @@ public class BeanUtilTests {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopier copier = createCopier();
-		copier.copy(src, dest).field("name", "name").execute();
+		copier.copy(src, dest).cacheKey("key1").field("name", "name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(-1, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).field("age", "age").execute();
+		copier.copy(src, dest).cacheKey("key2").field("age", "age").execute();
 		assertEquals(null, dest.getName());
 		assertEquals(33, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).field("age", "age").field("name").execute();
+		copier.copy(src, dest).cacheKey("key3").field("age", "age").field("name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 	}
@@ -190,17 +190,17 @@ public class BeanUtilTests {
 		
 		FieldCopier copier = createCopier();
 		copier.getOptions().logEachCopy = true;
-		copier.copy(src, dest).field("name", "name2").execute();
+		copier.copy(src, dest).cacheKey("key1").field("name", "name2").execute();
 		assertEquals("bob", dest.getName2());
 		assertEquals(-1, dest.getAge());
 		
 		dest = new Dest2(null, -1, null, -1);
-		copier.copy(src, dest).field("age", "age2").execute();
+		copier.copy(src, dest).cacheKey("key2").field("age", "age2").execute();
 		assertEquals(null, dest.getName());
 		assertEquals(33, dest.getAge2());
 		
 		dest = new Dest2(null, -1, null, -1);
-		copier.copy(src, dest).field("age", "age2").field("name").execute();
+		copier.copy(src, dest).cacheKey("key3").field("age", "age2").field("name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge2());
 	}
