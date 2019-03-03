@@ -8,7 +8,7 @@ import java.util.Random;
 
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
-import org.dnal.fieldcopy.FieldCopyException;
+import org.dnal.fc.core.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 
 public class BaseScopeTest {

@@ -10,11 +10,11 @@ import java.util.Map;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fc.core.CopySpec;
+import org.dnal.fc.core.FieldCopyException;
 import org.dnal.fc.core.FieldCopyService;
 import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
-import org.dnal.fieldcopy.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**

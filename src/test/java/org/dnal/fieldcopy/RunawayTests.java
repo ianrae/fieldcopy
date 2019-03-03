@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.dnal.fc.DefaultCopyFactory;
 import org.dnal.fc.FieldCopier;
 import org.dnal.fc.FieldCopyMapping;
+import org.dnal.fc.core.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 

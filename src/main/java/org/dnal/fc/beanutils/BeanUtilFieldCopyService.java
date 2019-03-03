@@ -14,15 +14,15 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.FieldCopyMapping;
 import org.dnal.fc.core.CopySpec;
+import org.dnal.fc.core.FieldCopyException;
 import org.dnal.fc.core.FieldCopyService;
+import org.dnal.fc.core.FieldCopyUtils;
 import org.dnal.fc.core.FieldDescriptor;
 import org.dnal.fc.core.FieldFilter;
 import org.dnal.fc.core.FieldPair;
 import org.dnal.fc.core.FieldRegistry;
 import org.dnal.fc.core.ListElementTransformer;
 import org.dnal.fc.core.ValueTransformer;
-import org.dnal.fieldcopy.FieldCopyException;
-import org.dnal.fieldcopy.ValueTests.FieldCopyUtils;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**

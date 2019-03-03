@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fc.core;
 
 public class FieldCopyException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
