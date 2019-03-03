@@ -34,7 +34,7 @@ public class AlternateFieldCopyService implements FieldCopyService {
 		private FieldRegistry registry;
 		private FieldFilter fieldFilter;
 		private FastBeanUtilFieldCopyService fastSvc;
-		private Map<String,ExecuteCopySpec> executionPlanMap = new HashMap<>();
+		private Map<String,ExecuteCopyPlan> executionPlanMap = new HashMap<>();
 		
 		public AlternateFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
@@ -101,7 +101,7 @@ public class AlternateFieldCopyService implements FieldCopyService {
 				throw new FieldCopyException(error);
 			}
 			
-			ExecuteCopySpec execSpec = executionPlanMap.get(copySpec.executionPlanCacheKey);
+			ExecuteCopyPlan execSpec = executionPlanMap.get(copySpec.executionPlanCacheKey);
 			if (execSpec == null) {
 				execSpec = fastSvc.generateExecutePlan(copySpec);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);

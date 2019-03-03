@@ -3,7 +3,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fc.CopyOptions;
 import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.beanutils.ExecuteCopySpec;
+import org.dnal.fc.beanutils.ExecuteCopyPlan;
 import org.dnal.fc.beanutils.FastBeanUtilFieldCopyService;
 import org.dnal.fc.core.CopyFactory;
 import org.dnal.fc.core.CopySpec;
@@ -32,7 +32,7 @@ public class EngineTests {
 		spec.options = new CopyOptions();
 		spec.transformerL = null;;
 		
-		ExecuteCopySpec execSpec = execSvc.generateExecutePlan(spec);
+		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec);
 		assertEquals(2, execSpec.fieldL.size());
 		
 		boolean b = execSvc.executePlan(spec, execSpec, null, 1);

@@ -53,8 +53,8 @@ public class FastBeanUtilFieldCopyService {
         }
 	}
 
-	public ExecuteCopySpec generateExecutePlan(CopySpec copySpec)  {
-		ExecuteCopySpec result = null;
+	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec)  {
+		ExecuteCopyPlan result = null;
 		try {
 			result = doGenerateExecutePlan(copySpec, 1);
 		} catch (Exception e) {
@@ -63,8 +63,8 @@ public class FastBeanUtilFieldCopyService {
 		return result;
 	}
 	
-	private ExecuteCopySpec doGenerateExecutePlan(CopySpec copySpec, int runawayCounter) throws Exception {
-		ExecuteCopySpec execspec = new ExecuteCopySpec();
+	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, int runawayCounter) throws Exception {
+		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
 		
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
@@ -104,14 +104,14 @@ public class FastBeanUtilFieldCopyService {
             		
             		FieldCopyMapping mapping = generateMapping(pair, mappingL);
             		if (mapping != null) {
-            			ExecuteFieldSpec fspec = new ExecuteFieldSpec();
+            			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
             			fspec.mapping = mapping;
             			execspec.fieldL.add(fspec);
             		} else {
             			validateIsAllowed(pair);
             			
-            			ExecuteFieldSpec fspec = new ExecuteFieldSpec();
+            			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
             			fspec.transformer = transformIfPresent(pair, orig, copySpec.transformerL);
             			execspec.fieldL.add(fspec);
@@ -284,19 +284,19 @@ public class FastBeanUtilFieldCopyService {
 		return clazzDest.newInstance();
 	}
 	
-	public boolean executePlan(CopySpec spec, ExecuteCopySpec execSpec, FieldCopyService outerSvc, int runawayCounter)  {
+	public boolean executePlan(CopySpec spec, ExecuteCopyPlan execPlan, FieldCopyService outerSvc, int runawayCounter)  {
 		boolean b = false;
 		try {
-			b = doExecutePlan(spec, execSpec, outerSvc, runawayCounter);
+			b = doExecutePlan(spec, execPlan, outerSvc, runawayCounter);
 		} catch (Exception e) {
 			throw new FieldCopyException(e.getMessage());
 		}
 		return b;
 	}
 
-	private boolean doExecutePlan(CopySpec spec, ExecuteCopySpec execSpec, FieldCopyService outerSvc, int runawayCounter) throws Exception {
+	private boolean doExecutePlan(CopySpec spec, ExecuteCopyPlan execPlan, FieldCopyService outerSvc, int runawayCounter) throws Exception {
 		boolean ok = true;
-		for(ExecuteFieldSpec fieldPlan: execSpec.fieldL) {
+		for(FieldPlan fieldPlan: execPlan.fieldL) {
 			String name = fieldPlan.pair.srcProp.getName();
     		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
 			if (fieldPlan.transformer != null) {
