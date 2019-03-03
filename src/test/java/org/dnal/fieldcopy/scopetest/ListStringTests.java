@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class ListStringTests extends BaseScopeTest {
 	
-	public static abstract class BaseListTransformer implements ValueConverter {
+	public static abstract class BaseListConverter implements ValueConverter {
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
 			@SuppressWarnings("unchecked")
@@ -31,7 +31,7 @@ public class ListStringTests extends BaseScopeTest {
 
 		protected abstract Object copyElement(Object el);
 	}
-	public static class MyListTransformer extends BaseListTransformer {
+	public static class MyListConverter extends BaseListConverter {
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
@@ -117,7 +117,7 @@ public class ListStringTests extends BaseScopeTest {
 		reset();
 		List<String> list = Arrays.asList("44", "45");
 		entity.setListString1(list);
-		copier.copy(entity, dto).withConverters(new MyListTransformer()).field("listString1", "listInt1").execute();
+		copier.copy(entity, dto).withConverters(new MyListConverter()).field("listString1", "listInt1").execute();
 		chkIntListValue(2, 44, 45);
 		
 	}

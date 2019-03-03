@@ -94,9 +94,9 @@ public class ListTests {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		ListElementConverter transformer = new ListElementConverter("listSource1", Dest.class);
+		ListElementConverter converter = new ListElementConverter("listSource1", Dest.class);
 		
-		copier.copy(holder, holder2).withConverters(transformer).autoCopy().execute();
+		copier.copy(holder, holder2).withConverters(converter).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
 		assertEquals(1, holder2.getListSource1().size());
 	}
@@ -134,7 +134,7 @@ public class ListTests {
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
 		
-		//will automatically create transformer
+		//will automatically create converter
 		copier.copy(holder, holder2).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
 		assertEquals(1, holder2.getListSource1().size());

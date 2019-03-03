@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class EnumTests extends BaseScopeTest {
 	
-	public static class MyTransformer implements ValueConverter {
+	public static class MyConverter implements ValueConverter {
 
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
@@ -94,16 +94,16 @@ public class EnumTests extends BaseScopeTest {
 	}
 	
 	@Test
-	public void testToEnumTransformer() {
+	public void testToEnumConverter() {
 		entity.setColour1(Colour.BLUE);
-		copier.copy(entity, dto).withConverters(new MyTransformer()).field("colour1", "province1").execute();
+		copier.copy(entity, dto).withConverters(new MyConverter()).field("colour1", "province1").execute();
 		assertEquals(Province.BLUE, dto.getProvince1());
 		
 		reset();
 		entity.setColour1(Colour.RED); //there is no Province.RED
 		boolean fail = false;
 		try {
-			copier.copy(entity, dto).withConverters(new MyTransformer()).field("colour1", "province1").execute();
+			copier.copy(entity, dto).withConverters(new MyConverter()).field("colour1", "province1").execute();
 		} catch (FieldCopyException e) {
 			fail = true;
 		}
