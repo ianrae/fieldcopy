@@ -1,8 +1,8 @@
 package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.converter.ValueTransformer;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.core.ValueTransformer;
 
 public class FieldPlan {
 	public FieldPair pair;

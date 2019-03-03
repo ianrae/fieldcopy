@@ -2,9 +2,10 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.ValueTransformer;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.ValueTransformer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class EnumTests extends BaseScopeTest {
 		}
 
 		@Override
-		public Object transformValue(String srcFieldName, Object bean, Object value, Class<?> destClass) {
+		public Object transformValue(Object srcBean, Object value, ConverterContext ctx) {
 			Colour col = (Colour) value;
 			
 			Province prov = Province.valueOf(col.name());

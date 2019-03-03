@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.core;
+package org.dnal.fieldcopy.converter;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dnal.fieldcopy.CopyOptions;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldPair;
 
 public class ListElementTransformer implements ValueTransformer {
 	private String srcFieldName;
@@ -24,11 +27,11 @@ public class ListElementTransformer implements ValueTransformer {
 	}
 	
 	@Override
-	public Object transformValue(String srcFieldName, Object bean, Object value, Class<?> destClass) {
+	public Object transformValue(Object srcBean, Object value, ConverterContext ctx) {
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
-		Class<?> srcElClass = this.detectSrcElementClass(bean);
+		Class<?> srcElClass = this.detectSrcElementClass(srcBean);
 		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();

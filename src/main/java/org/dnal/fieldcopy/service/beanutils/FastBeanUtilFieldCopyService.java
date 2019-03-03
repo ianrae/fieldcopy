@@ -11,14 +11,15 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.ListElementTransformer;
+import org.dnal.fieldcopy.converter.ValueTransformer;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.core.ListElementTransformer;
-import org.dnal.fieldcopy.core.ValueTransformer;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 public class FastBeanUtilFieldCopyService {
@@ -303,7 +304,15 @@ public class FastBeanUtilFieldCopyService {
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 				Class<?> destClass = fd2.pd.getPropertyType();
 				fieldPlan.transformer.setCopySvc(outerSvc);
-				value = fieldPlan.transformer.transformValue(name, spec.sourceObj, value, destClass);
+
+				BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) fieldPlan.pair.srcProp;
+				Class<?> srcClass = fd1.pd.getPropertyType();
+				
+				ConverterContext ctx = new ConverterContext();
+				ctx.destClass = destClass;
+				ctx.srcClass = srcClass;
+				ctx.srcFieldName = name;
+				value = fieldPlan.transformer.transformValue(spec.sourceObj, value, ctx);
 			}
 			
 			if (fieldPlan.mapping != null) {

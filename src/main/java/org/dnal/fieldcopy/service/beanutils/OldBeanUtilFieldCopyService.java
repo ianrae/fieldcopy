@@ -13,6 +13,9 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.ListElementTransformer;
+import org.dnal.fieldcopy.converter.ValueTransformer;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -21,8 +24,6 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
-import org.dnal.fieldcopy.core.ListElementTransformer;
-import org.dnal.fieldcopy.core.ValueTransformer;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**
@@ -221,7 +222,13 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				for(ValueTransformer transformer: transformerL) {
 					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destClass)) {
 						transformer.setCopySvc(this);
-						return transformer.transformValue(pair.srcProp.getName(), orig, value, destClass);
+						
+						ConverterContext ctx = new ConverterContext();
+						ctx.destClass = destClass;
+						ctx.srcClass = srcFieldClass;
+						ctx.srcFieldName = pair.srcProp.getName();
+						
+						return transformer.transformValue(orig, value, ctx);
 					}
 				}
 			}

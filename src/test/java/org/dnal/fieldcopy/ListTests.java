@@ -14,7 +14,7 @@ import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
-import org.dnal.fieldcopy.core.ListElementTransformer;
+import org.dnal.fieldcopy.converter.ListElementTransformer;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 

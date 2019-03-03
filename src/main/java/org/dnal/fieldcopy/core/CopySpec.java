@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.converter.ValueTransformer;
 
 public class CopySpec {
 		public Object sourceObj;
