@@ -1,9 +1,9 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 import java.util.List;
 
-import org.dnal.fc.CopyOptions;
-import org.dnal.fc.FieldCopyMapping;
+import org.dnal.fieldcopy.CopyOptions;
+import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**

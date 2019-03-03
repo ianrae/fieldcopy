@@ -1,4 +1,4 @@
-package org.dnal.fc.beanutils;
+package org.dnal.fieldcopy.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -9,16 +9,16 @@ import java.util.List;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
-import org.dnal.fc.CopyOptions;
-import org.dnal.fc.FieldCopyMapping;
-import org.dnal.fc.core.CopySpec;
-import org.dnal.fc.core.FieldCopyException;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldDescriptor;
-import org.dnal.fc.core.FieldFilter;
-import org.dnal.fc.core.FieldPair;
-import org.dnal.fc.core.ListElementTransformer;
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.CopyOptions;
+import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyException;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldFilter;
+import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.ListElementTransformer;
+import org.dnal.fieldcopy.core.ValueTransformer;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 public class FastBeanUtilFieldCopyService {

@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.ValueTransformer;
 import org.junit.Before;
 import org.junit.Test;
 

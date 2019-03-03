@@ -1,9 +1,9 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.core.ValueTransformer;
 
 /**
  * Various settings and flags to control the copy operation.

@@ -1,6 +1,6 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
-import org.dnal.fc.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldCopyService;
 
 /**
  * The main API for FieldCopy.

@@ -1,8 +1,8 @@
-package org.dnal.fc.beanutils;
+package org.dnal.fieldcopy.beanutils;
 
 import java.beans.PropertyDescriptor;
 
-import org.dnal.fc.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldDescriptor;
 
 /**
  * Field description for BeanUtils copy service.

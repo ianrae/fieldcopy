@@ -1,6 +1,6 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
-import org.dnal.fc.FieldCopier;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**

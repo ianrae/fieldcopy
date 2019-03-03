@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 /**
  * Defines the copy of a source field to a destination field.

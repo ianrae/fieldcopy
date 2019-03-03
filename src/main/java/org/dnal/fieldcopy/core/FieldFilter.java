@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 /**
  * A filter that determines which fields should be copied.

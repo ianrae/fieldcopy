@@ -2,9 +2,9 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fc.FieldCopyMapping;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 public interface ValueTransformer {
 	boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass);

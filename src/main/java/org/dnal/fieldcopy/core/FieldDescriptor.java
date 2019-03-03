@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 /**
  * Holds field information used by FieldCopyService

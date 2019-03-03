@@ -1,8 +1,8 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
 import java.util.List;
 
-import org.dnal.fc.core.FieldPair;
+import org.dnal.fieldcopy.core.FieldPair;
 
 /**
  * Defines the copying of non-scalar child of the parent objects that will be copied.

@@ -1,15 +1,15 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fc.core.CopySpec;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldDescriptor;
-import org.dnal.fc.core.FieldPair;
-import org.dnal.fc.core.ListElementTransformer;
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.ListElementTransformer;
+import org.dnal.fieldcopy.core.ValueTransformer;
 
 /**
  * First-level Fluent API for FieldCopy

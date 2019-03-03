@@ -2,9 +2,9 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fc.core.FieldCopyException;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.core.FieldCopyException;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.ValueTransformer;
 import org.junit.Before;
 import org.junit.Test;
 

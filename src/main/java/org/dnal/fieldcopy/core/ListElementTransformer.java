@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dnal.fc.CopyOptions;
+import org.dnal.fieldcopy.CopyOptions;
 
 public class ListElementTransformer implements ValueTransformer {
 	private String srcFieldName;

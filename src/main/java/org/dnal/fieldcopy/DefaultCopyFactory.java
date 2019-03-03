@@ -1,12 +1,12 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
-import org.dnal.fc.beanutils.AlternateFieldCopyService;
-import org.dnal.fc.beanutils.BeanUtilFieldCopyService;
-import org.dnal.fc.core.FieldFilter;
-import org.dnal.fc.core.CopyFactory;
-import org.dnal.fc.core.DefaultFieldFilter;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldRegistry;
+import org.dnal.fieldcopy.beanutils.AlternateFieldCopyService;
+import org.dnal.fieldcopy.beanutils.BeanUtilFieldCopyService;
+import org.dnal.fieldcopy.core.CopyFactory;
+import org.dnal.fieldcopy.core.DefaultFieldFilter;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldFilter;
+import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 

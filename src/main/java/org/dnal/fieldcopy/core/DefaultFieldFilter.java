@@ -1,4 +1,4 @@
-package org.dnal.fc.core;
+package org.dnal.fieldcopy.core;
 
 /**
  * Ignores the class field (i.e. getClass) which should not be copied.

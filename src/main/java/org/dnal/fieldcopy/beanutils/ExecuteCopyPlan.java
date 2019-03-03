@@ -1,4 +1,4 @@
-package org.dnal.fc.beanutils;
+package org.dnal.fieldcopy.beanutils;
 
 import java.util.ArrayList;
 import java.util.List;

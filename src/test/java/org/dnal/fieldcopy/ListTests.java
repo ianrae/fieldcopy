@@ -10,11 +10,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fc.core.ListElementTransformer;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.core.ListElementTransformer;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 

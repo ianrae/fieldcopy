@@ -1,11 +1,11 @@
-package org.dnal.fc;
+package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fc.core.FieldDescriptor;
-import org.dnal.fc.core.FieldPair;
+import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldPair;
 
 /**
  * First-level fluent API for creating a mapping.
