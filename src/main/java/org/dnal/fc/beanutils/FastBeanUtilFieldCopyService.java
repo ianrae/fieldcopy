@@ -95,9 +95,6 @@ public class FastBeanUtilFieldCopyService {
 		for(FieldPair pair: fieldPairs) {
             final FieldDescriptor origDescriptor = pair.srcProp;
             final String name = origDescriptor.getName();
-            if ("class".equals(name)) {
-            	continue; // No point in trying to set an object's class
-            }
             if (propertyUtils.isReadable(orig, name) &&
             		propertyUtils.isWriteable(dest, pair.destFieldName)) {
             	try {
@@ -253,7 +250,8 @@ public class FastBeanUtilFieldCopyService {
 		}
 		return null;
 	}
-	private boolean applyMapping(FieldCopyService outerSvc, CopySpec copySpec, FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
+	private boolean applyMapping(FieldCopyService outerSvc, CopySpec copySpec,  
+			FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
 		if (srcValue == null) {
 			return true;
 		}
@@ -308,8 +306,9 @@ public class FastBeanUtilFieldCopyService {
 			
 			if (fieldPlan.mapping != null) {
 				applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
+			} else {
+				beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 			}
-			beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 		}
 		return ok;
 	}
