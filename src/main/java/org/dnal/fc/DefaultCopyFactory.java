@@ -56,7 +56,7 @@ public class DefaultCopyFactory implements CopyFactory {
 	public static void setLogger(SimpleLogger logger) {
 		theLogger = logger;
 	}
-
+	
 	@Override
 	public FieldFilter createFieldFilter() {
 		return new DefaultFieldFilter();

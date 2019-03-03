@@ -141,6 +141,10 @@ public class FCB1 {
 	
 	private String generateCacheKey() {
 		if (executionPlanCacheKey == null) {
+			//NOTE. the following key will not work if you have multiple conversions of the
+			//same pair of source,destObj but with different fields, mappings, and transformers.
+			//If that is the case, you MUST key cacheKey and provide a unique value.
+			
 			//if source or destObj are null we will catch it during copy
 			String class1Name = root.sourceObj == null ? "" : root.sourceObj.getClass().getName();
 			String class2Name = root.destObj == null ? "" : root.destObj.getClass().getName();
