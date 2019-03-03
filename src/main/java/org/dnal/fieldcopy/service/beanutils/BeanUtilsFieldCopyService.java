@@ -27,7 +27,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * @author Ian Rae
  *
  */
-public class AlternateFieldCopyService implements FieldCopyService {
+public class BeanUtilsFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
@@ -36,7 +36,7 @@ public class AlternateFieldCopyService implements FieldCopyService {
 		private FastBeanUtilFieldCopyService fastSvc;
 		private Map<String,ExecuteCopyPlan> executionPlanMap = new HashMap<>();
 		
-		public AlternateFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+		public BeanUtilsFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
@@ -106,8 +106,7 @@ public class AlternateFieldCopyService implements FieldCopyService {
 				execSpec = fastSvc.generateExecutePlan(copySpec);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
 			}
-			boolean b = fastSvc.executePlan(copySpec, execSpec, this, runawayCounter);
-			logger.log("fast: %b", b);
+			fastSvc.executePlan(copySpec, execSpec, this, runawayCounter);
 		}
 
 		

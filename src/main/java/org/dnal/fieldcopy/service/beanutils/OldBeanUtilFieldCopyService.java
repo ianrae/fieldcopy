@@ -32,14 +32,14 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * @author Ian Rae
  *
  */
-public class BeanUtilFieldCopyService implements FieldCopyService {
+public class OldBeanUtilFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 		private FieldRegistry registry;
 		private FieldFilter fieldFilter;
 		
-		public BeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+		public OldBeanUtilFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();

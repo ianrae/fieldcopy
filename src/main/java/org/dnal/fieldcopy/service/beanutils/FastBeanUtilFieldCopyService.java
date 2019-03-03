@@ -273,7 +273,7 @@ public class FastBeanUtilFieldCopyService {
 		spec.mappingL = copySpec.mappingL;
 		spec.options = copySpec.options;
 		
-		AlternateFieldCopyService altSvc = (AlternateFieldCopyService) outerSvc;
+		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);
 //		applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
 
