@@ -13,6 +13,17 @@ public class FluentAPITests {
 	@Test
 	public void test() {
 		Source src = new Source("bob", 33);
+		Dest dest = new Dest();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+		assertEquals("bob", dest.getName());
+		assertEquals(33, dest.getAge());
+	}
+	
+	@Test
+	public void testA() {
+		Source src = new Source("bob", 33);
 		
 		FieldCopier copier = createCopier();
 		Dest dest = copier.copy(src).autoCopy().execute(Dest.class);

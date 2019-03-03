@@ -1,6 +1,11 @@
 package org.dnal.fieldcopy;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldPair;
 
 /**
  * The main API for FieldCopy.
@@ -46,4 +51,59 @@ public class FieldCopier {
 	public MapBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
 		return new MapBuilder1(this, srcClass, destClass);
 	}
+	
+	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
+			 List<String> excludeList, List<String> srcList, List<String> destList) {
+		List<FieldPair> fieldsToCopy;
+		List<FieldPair> fieldPairs;
+		if (destObj == null) {
+			fieldPairs = copier.buildAutoCopyPairs(sourceObj.getClass(), destClass);
+		} else {
+			fieldPairs = copier.buildAutoCopyPairs(sourceObj.getClass(), destObj.getClass());
+		}
+		
+		if (doAutoCopy) {
+			if (includeList == null && excludeList == null) {
+				fieldsToCopy = fieldPairs;
+			} else {
+				fieldsToCopy = new ArrayList<>();
+				for(FieldPair pair: fieldPairs) {
+					if (includeList != null && !includeList.contains(pair.srcProp.getName())) {
+						continue;
+					}
+					if (excludeList != null && excludeList.contains(pair.srcProp.getName())) {
+						continue;
+					}
+					
+					fieldsToCopy.add(pair);
+				}
+			}
+		} else {
+			fieldsToCopy = new ArrayList<>();
+		}
+		
+		//now do explicit fields
+		if (srcList != null && destList != null) {
+			for(int i = 0; i < srcList.size(); i++) {
+				String srcField = srcList.get(i);
+				String destField = destList.get(i);
+				
+				FieldPair pair = new FieldPair();
+				pair.srcProp = findInPairs(srcField, fieldPairs);
+				pair.destFieldName = destField;
+				
+				fieldsToCopy.add(pair);
+			}
+		}
+		return fieldsToCopy;
+	}
+	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
+		for(FieldPair pair: fieldPairs) {
+			if (pair.srcProp.getName().equals(srcField)) {
+				return pair.srcProp;
+			}
+		}
+		return null;
+	}
+
 }

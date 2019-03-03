@@ -89,47 +89,8 @@ public class CopyBuilder1 {
 	 */
 	
 	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList) {
-		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs;
-		if (root.destObj == null) {
-			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), destClass);
-		} else {
-			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
-		}
-		
-		if (this.doAutoCopy) {
-			if (includeList == null && excludeList == null) {
-				fieldsToCopy = fieldPairs;
-			} else {
-				fieldsToCopy = new ArrayList<>();
-				for(FieldPair pair: fieldPairs) {
-					if (includeList != null && !includeList.contains(pair.srcProp.getName())) {
-						continue;
-					}
-					if (excludeList != null && excludeList.contains(pair.srcProp.getName())) {
-						continue;
-					}
-					
-					fieldsToCopy.add(pair);
-				}
-			}
-		} else {
-			fieldsToCopy = new ArrayList<>();
-		}
-		
-		//now do explicit fields
-		if (srcList != null && destList != null) {
-			for(int i = 0; i < srcList.size(); i++) {
-				String srcField = srcList.get(i);
-				String destField = destList.get(i);
-				
-				FieldPair pair = new FieldPair();
-				pair.srcProp = findInPairs(srcField, fieldPairs);
-				pair.destFieldName = destField;
-				
-				fieldsToCopy.add(pair);
-			}
-		}
+		List<FieldPair> fieldsToCopy = root.buildFieldsToCopy(destClass, doAutoCopy, includeList, 
+				excludeList, srcList, destList);
 			
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = root.sourceObj;
@@ -140,12 +101,8 @@ public class CopyBuilder1 {
 		spec.converterL = this.converters;
 		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
 		FieldCopyService copySvc = root.getCopyService();
-		if (destClass == null) {
-			copySvc.copyFields(spec);
-			return null;
-		} else {
-			return copySvc.copyFields(spec, destClass);
-		}
+		copySvc.copyFields(spec);
+		return null;
 	}
 	
 	private String generateCacheKey() {

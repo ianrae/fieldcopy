@@ -7,7 +7,6 @@ import java.util.List;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
 
 /**
@@ -89,47 +88,8 @@ public class CopyBuilder1A {
 	 */
 	
 	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList) {
-		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs;
-		if (root.destObj == null) {
-			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), destClass);
-		} else {
-			fieldPairs = root.copier.buildAutoCopyPairs(root.sourceObj.getClass(), root.destObj.getClass());
-		}
-		
-		if (this.doAutoCopy) {
-			if (includeList == null && excludeList == null) {
-				fieldsToCopy = fieldPairs;
-			} else {
-				fieldsToCopy = new ArrayList<>();
-				for(FieldPair pair: fieldPairs) {
-					if (includeList != null && !includeList.contains(pair.srcProp.getName())) {
-						continue;
-					}
-					if (excludeList != null && excludeList.contains(pair.srcProp.getName())) {
-						continue;
-					}
-					
-					fieldsToCopy.add(pair);
-				}
-			}
-		} else {
-			fieldsToCopy = new ArrayList<>();
-		}
-		
-		//now do explicit fields
-		if (srcList != null && destList != null) {
-			for(int i = 0; i < srcList.size(); i++) {
-				String srcField = srcList.get(i);
-				String destField = destList.get(i);
-				
-				FieldPair pair = new FieldPair();
-				pair.srcProp = findInPairs(srcField, fieldPairs);
-				pair.destFieldName = destField;
-				
-				fieldsToCopy.add(pair);
-			}
-		}
+		List<FieldPair> fieldsToCopy = root.buildFieldsToCopy(destClass, doAutoCopy, includeList, 
+				excludeList, srcList, destList);
 			
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = root.sourceObj;
@@ -140,12 +100,7 @@ public class CopyBuilder1A {
 		spec.converterL = this.converters;
 		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
 		FieldCopyService copySvc = root.getCopyService();
-		if (destClass == null) {
-			copySvc.copyFields(spec);
-			return null;
-		} else {
-			return copySvc.copyFields(spec, destClass);
-		}
+		return copySvc.copyFields(spec, destClass);
 	}
 	
 	private String generateCacheKey() {
@@ -160,15 +115,6 @@ public class CopyBuilder1A {
 			executionPlanCacheKey = String.format("%s--%s", class1Name, class2Name);
 		}
 		return executionPlanCacheKey;
-	}
-
-	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
-		for(FieldPair pair: fieldPairs) {
-			if (pair.srcProp.getName().equals(srcField)) {
-				return pair.srcProp;
-			}
-		}
-		return null;
 	}
 
 	public CopyBuilder2A field(String srcFieldName) {
