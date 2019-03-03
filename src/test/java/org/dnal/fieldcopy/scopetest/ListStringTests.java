@@ -117,7 +117,7 @@ public class ListStringTests extends BaseScopeTest {
 		reset();
 		List<String> list = Arrays.asList("44", "45");
 		entity.setListString1(list);
-		copier.copy(entity, dto).withTransformers(new MyListTransformer()).field("listString1", "listInt1").execute();
+		copier.copy(entity, dto).withConverters(new MyListTransformer()).field("listString1", "listInt1").execute();
 		chkIntListValue(2, 44, 45);
 		
 	}

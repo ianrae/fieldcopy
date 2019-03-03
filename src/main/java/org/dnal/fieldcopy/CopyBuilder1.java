@@ -64,19 +64,19 @@ public class CopyBuilder1 {
 		this.mappingList.addAll(Arrays.asList(mappings));
 		return this;
 	}
-	public CopyBuilder1 withTransformers(ValueConverter... transformers) {
+	public CopyBuilder1 withConverters(ValueConverter... converters) {
 		if (this.converters == null) {
 			this.converters = new ArrayList<>();
 		}
-		this.converters.addAll(Arrays.asList(transformers));
+		this.converters.addAll(Arrays.asList(converters));
 		return this;
 	}
 	public CopyBuilder1 listHint(String srcField, Class<?> destListElementClass) {
 		if (this.converters == null) {
 			this.converters = new ArrayList<>();
 		}
-		ListElementConverter transformer = new ListElementConverter(srcField, destListElementClass);
-		this.converters.add(transformer);
+		ListElementConverter converter = new ListElementConverter(srcField, destListElementClass);
+		this.converters.add(converter);
 		return this;
 	}
 	
@@ -155,7 +155,7 @@ public class CopyBuilder1 {
 	private String generateCacheKey() {
 		if (executionPlanCacheKey == null) {
 			//NOTE. the following key will not work if you have multiple conversions of the
-			//same pair of source,destObj but with different fields, mappings, and transformers.
+			//same pair of source,destObj but with different fields, mappings, and converters.
 			//If that is the case, you MUST key cacheKey and provide a unique value.
 			
 			//if source or destObj are null we will catch it during copy

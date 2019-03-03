@@ -101,7 +101,7 @@ public class FastBeanUtilFieldCopyService {
             	try {
             		fillInDestPropIfNeeded(pair, destObj.getClass());
             		
-            		addListTransformerIfNeeded(pair, copySpec.converterL, destObj);
+            		addListConverterIfNeeded(pair, copySpec.converterL, destObj);
             		
             		FieldCopyMapping mapping = generateMapping(pair, mappingL);
             		if (mapping != null) {
@@ -114,7 +114,7 @@ public class FastBeanUtilFieldCopyService {
             			
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
-            			fspec.transformer = transformIfPresent(pair, orig, copySpec.converterL);
+            			fspec.converter = convertIfPresent(pair, orig, copySpec.converterL);
             			execspec.fieldL.add(fspec);
             		}
             		
@@ -126,7 +126,7 @@ public class FastBeanUtilFieldCopyService {
 		return execspec;
 	}
 	
-	private void addListTransformerIfNeeded(FieldPair pair, List<ValueConverter> transformerL, Object destObj) {
+	private void addListConverterIfNeeded(FieldPair pair, List<ValueConverter> converterL, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -135,13 +135,13 @@ public class FastBeanUtilFieldCopyService {
 		if (Collection.class.isAssignableFrom(srcFieldClass) && 
 				Collection.class.isAssignableFrom(srcFieldClass)) {
 			
-			if (transformerL == null) {
-				transformerL = new ArrayList<>();
+			if (converterL == null) {
+				converterL = new ArrayList<>();
 			}
 
-			for(ValueConverter transformer: transformerL) {
-				if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
-					//if already is a transform, nothing more to do
+			for(ValueConverter converter: converterL) {
+				if (converter.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
+					//if already is a converter, nothing more to do
 					return;
 				}
 			}
@@ -149,23 +149,23 @@ public class FastBeanUtilFieldCopyService {
 			//add one
 			String name = pair.srcProp.getName();
 			Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
-			ListElementConverter transformer = new ListElementConverter(name, destElementClass);
-			transformerL.add(transformer);
+			ListElementConverter converter = new ListElementConverter(name, destElementClass);
+			converterL.add(converter);
 		}
 	}
 
-	private ValueConverter transformIfPresent(FieldPair pair, Object orig, List<ValueConverter> transformerL) {
-		if (CollectionUtils.isNotEmpty(transformerL)) {
+	private ValueConverter convertIfPresent(FieldPair pair, Object orig, List<ValueConverter> converterL) {
+		if (CollectionUtils.isNotEmpty(converterL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
 			
 			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 			Class<?> srcClass = fd1.pd.getPropertyType();
 			//TODO: can we make this faster with a map??
-			for(ValueConverter transformer: transformerL) {
+			for(ValueConverter converter: converterL) {
 				//TODO: fix value null issue
-				if (transformer.canHandle(pair.srcProp.getName(), srcClass, destClass)) {
-					return  transformer;
+				if (converter.canHandle(pair.srcProp.getName(), srcClass, destClass)) {
+					return converter;
 				}
 			}
 		}
@@ -300,10 +300,10 @@ public class FastBeanUtilFieldCopyService {
 		for(FieldPlan fieldPlan: execPlan.fieldL) {
 			String name = fieldPlan.pair.srcProp.getName();
     		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
-			if (fieldPlan.transformer != null) {
+			if (fieldPlan.converter != null) {
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 				Class<?> destClass = fd2.pd.getPropertyType();
-				fieldPlan.transformer.setCopySvc(outerSvc);
+				fieldPlan.converter.setCopySvc(outerSvc);
 
 				BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) fieldPlan.pair.srcProp;
 				Class<?> srcClass = fd1.pd.getPropertyType();
@@ -312,7 +312,7 @@ public class FastBeanUtilFieldCopyService {
 				ctx.destClass = destClass;
 				ctx.srcClass = srcClass;
 				ctx.srcFieldName = name;
-				value = fieldPlan.transformer.convertValue(spec.sourceObj, value, ctx);
+				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
 			}
 			
 			if (fieldPlan.mapping != null) {

@@ -6,6 +6,6 @@ import org.dnal.fieldcopy.core.FieldPair;
 
 public class FieldPlan {
 	public FieldPair pair;
-	public ValueConverter transformer;
+	public ValueConverter converter;
 	public FieldCopyMapping mapping;
 }
