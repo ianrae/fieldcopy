@@ -16,6 +16,13 @@ public class ReqTests {
 		
 		String s = ReqCustomRunner.reqResult.xx;
 		System.out.println(String.format("winnir: %s", s));
+		for(String ss: ReqCustomRunner.reqResult.tests) {
+			log("  " + ss);
+		}
 		
+	}
+	
+	private void log(String s) {
+		System.out.println(s);
 	}
 }

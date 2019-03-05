@@ -9,12 +9,14 @@ import org.junit.runner.RunWith;
 public class RequirementTests {
 
 	@Test
+	@Scope("abcd")
 	public void test() {
 		assertEquals(1,1);
 	}
 	@Test
+	@Scope("abcdef")
 	public void test2() {
-//		assertEquals(2,1);
+		assertEquals(2,1);
 	}
 
 }

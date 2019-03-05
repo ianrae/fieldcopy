@@ -2,6 +2,8 @@ package org.dnal.fieldcopy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -15,6 +17,7 @@ public class ReqCustomRunner extends Runner  {
 	
 	public static class ReqResult {
 		public String xx;
+		public List<String> tests = new ArrayList<>();
 	}
 	public static ReqResult reqResult = null;
 	 
@@ -41,6 +44,14 @@ public class ReqCustomRunner extends Runner  {
             for (Method method : testClass.getMethods()) {
             	descr = Description.createTestDescription(testClass, method.getName());
                 if (method.isAnnotationPresent(Test.class)) {
+                	if (method.isAnnotationPresent(Scope.class)) {
+                		Scope[] ar = method.getAnnotationsByType(Scope.class);
+                		if (ar.length > 0) {
+                			Scope scope = ar[0];
+                			reqResult.tests.add(scope.value());
+                		}
+                	}
+                	
                     notifier.fireTestStarted(descr);
                     method.invoke(testObject);
                     notifier.fireTestFinished(descr);

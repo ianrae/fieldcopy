@@ -14,7 +14,6 @@ import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
-
 public class BeanUtilTests {
 	public static class Source {
 		private String name;
