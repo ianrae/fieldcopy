@@ -2,14 +2,21 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.ReqCustomRunner;
+import org.dnal.fieldcopy.Scope;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.dnal.fieldcopy.MyRunner;;
 
-
+//https://memorynotfound.com/add-junit-listener-example/
+@RunWith(MyRunner.class)
+@Scope("Boolean")
 public class BooleanTests extends BaseScopeTest {
 	
 	@Test
-	public void test() {
+	@Scope("values")
+	public void testValues() {
 		doCopy("primitiveBool","bool1");
 		chkValue(true, true);
 		
@@ -21,6 +28,7 @@ public class BooleanTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setBool1(null);
 		doCopy("bool1");
@@ -135,6 +143,7 @@ public class BooleanTests extends BaseScopeTest {
 	
 	@Before
 	public void init() {
+//		System.out.println("iiiiiiiiiiiiiiiii");
 		super.init();
 	}
 	@Override

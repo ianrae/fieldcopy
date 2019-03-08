@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -39,11 +40,14 @@ public class ReqCustomRunner extends Runner  {
     	reqResult = new ReqResult();
     	reqResult.xx = "abc";
     	
+    	
         try {
             Object testObject = testClass.newInstance();
             for (Method method : testClass.getMethods()) {
             	descr = Description.createTestDescription(testClass, method.getName());
                 if (method.isAnnotationPresent(Test.class)) {
+                	runInit(notifier);
+                	
                 	if (method.isAnnotationPresent(Scope.class)) {
                 		Scope[] ar = method.getAnnotationsByType(Scope.class);
                 		if (ar.length > 0) {
@@ -66,4 +70,21 @@ public class ReqCustomRunner extends Runner  {
             throw new RuntimeException(e);
         }
     }
+    
+    private void runInit(RunNotifier notifier) {
+        try {
+            Object testObject = testClass.newInstance();
+            for (Method method : testClass.getMethods()) {
+                if (method.isAnnotationPresent(Before.class)) {
+                    method.invoke(testObject);
+                }
+            }
+        } catch (InvocationTargetException e) {
+        	Throwable thr = e.getCause();
+            System.out.println("INIT-InvocationTargetException: " + thr.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
 }
