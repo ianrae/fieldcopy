@@ -2,14 +2,12 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.ReqCustomRunner;
+import org.dnal.fieldcopy.MyRunner;
 import org.dnal.fieldcopy.Scope;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.dnal.fieldcopy.MyRunner;;
+import org.junit.runner.RunWith;;
 
-//https://memorynotfound.com/add-junit-listener-example/
 @RunWith(MyRunner.class)
 @Scope("Boolean")
 public class BooleanTests extends BaseScopeTest {

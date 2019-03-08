@@ -15,18 +15,9 @@ public class ReqScopeTests {
 	public void test() {
 		JUnitCore junit = new JUnitCore();
 		junit.addListener(new TextListener(System.out));
-		ReqCustomRunner.reqResult = null;
 		
+		MyRunner.enableScopeProcessing = true;
 		Result result = junit.run(BooleanTests.class);		
-		System.out.println(String.format("winni: %d", result.getFailureCount()));
-		assertNotNull(ReqCustomRunner.reqResult);
-		
-		String s = ReqCustomRunner.reqResult.xx;
-		System.out.println(String.format("winnir: %s", s));
-		for(String ss: ReqCustomRunner.reqResult.tests) {
-			log("  " + ss);
-		}
-		
 	}
 	
 	private void log(String s) {
