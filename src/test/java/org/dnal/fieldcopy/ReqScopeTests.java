@@ -12,6 +12,7 @@ import org.dnal.fieldcopy.scope.ScopeResult;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
+import org.dnal.fieldcopy.scopetest.LongTests;
 import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
@@ -19,7 +20,7 @@ import org.junit.runner.JUnitCore;
 public class ReqScopeTests {
 	
 	public static class MyScopeTests {
-		public List<String> allTypes = Arrays.asList("Boolean", "Integer");
+		public List<String> allTypes = Arrays.asList("Boolean", "Integer", "Long");
 		public List<String> errors = new ArrayList<>();
 		private ScopeTestRunResults scopeResults;
 		
@@ -28,8 +29,9 @@ public class ReqScopeTests {
 			ensureHappened("values");
 			ensureHappened("null");
 			checkPrimitive("Boolean", "boolean");
-//			checkPrimitive("Integer:int");
-//			checkPrimitive("Double:double");
+			checkPrimitive("Integer", "int");
+			checkPrimitive("Long", "long");
+//			checkPrimitive("Double", "double");
 			checkAll();
 			return errors.isEmpty();
 		}
@@ -120,20 +122,24 @@ public class ReqScopeTests {
 		private static void log(String s) {
 			System.out.println(s);
 		}
-		
 	}
+	
+	//--
+	private JUnitCore junit;
+	private ScopeTestRunResults allResults;
 
 	@Test
 	public void test() {
-		JUnitCore junit = new JUnitCore();
+		junit = new JUnitCore();
 		junit.addListener(new TextListener(System.out));
 		
-		ScopeTestRunResults allResults = new ScopeTestRunResults();
+		allResults = new ScopeTestRunResults();
 		MyRunner.enableScopeProcessing = true;
-		junit.run(BooleanTests.class);	
-		allResults.executions.addAll(MyRunner.scopeResults.executions);
-		junit.run(IntegerTests.class);	
-		allResults.executions.addAll(MyRunner.scopeResults.executions);
+		
+		//--all classes here--
+		runClass(BooleanTests.class);
+		runClass(IntegerTests.class);	
+		runClass(LongTests.class);	
 		
 		MyScopeTests checker = new MyScopeTests();
 		log(String.format("num-results: %d", allResults.executions.size()));
@@ -142,6 +148,11 @@ public class ReqScopeTests {
 		assertEquals(true, b);
 	}
 	
+	private void runClass(Class<?> class1) {
+		junit.run(class1);	
+		allResults.executions.addAll(MyRunner.scopeResults.executions);
+	}
+
 	private static void log(String s) {
 		System.out.println(s);
 	}
