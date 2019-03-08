@@ -6,7 +6,8 @@ import org.junit.runners.model.InitializationError;
 
 public class MyRunner extends BlockJUnit4ClassRunner {
 	public static boolean enableScopeProcessing;
-	
+	public static ScopeTestRunResults scopeResults;
+
 	public MyRunner(Class<?> klass) throws InitializationError {
         super(klass);
     }
@@ -21,7 +22,8 @@ public class MyRunner extends BlockJUnit4ClassRunner {
 	public void run(RunNotifier notifier) {
 		MyTestListener listener = new MyTestListener();
 		if (enableScopeProcessing) {
-			listener.results = new ScopeTestRunResults();
+			scopeResults = new ScopeTestRunResults();
+			listener.results = scopeResults;
 			notifier.addListener(listener);
 		}
 		notifier.fireTestRunStarted(getDescription());
