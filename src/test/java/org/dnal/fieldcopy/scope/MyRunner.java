@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.scope;
 
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -31,8 +31,8 @@ public class MyRunner extends BlockJUnit4ClassRunner {
 		
 		if (enableScopeProcessing) {
 			System.out.println("---");
-			for(String s: listener.results.executions) {
-				System.out.println(s);
+			for(ScopeResult res: listener.results.executions) {
+				System.out.println(String.format("[%b] %s", res.pass, res.scope));
 			}
 		}
 	}

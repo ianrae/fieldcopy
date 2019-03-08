@@ -1,9 +1,9 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.scope;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScopeTestRunResults {
-	public List<String> executions = new ArrayList<>();
+	public List<ScopeResult> executions = new ArrayList<>();
 	public String scope;
 }

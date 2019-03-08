@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.scope;
 
 import java.lang.reflect.Method;
 
@@ -72,28 +72,31 @@ public class MyTestListener extends RunListener {
 	    }
 
 	    public void testFinished(Description description) throws Exception {
-	    	scopeExecution(description, "PASS");
+	    	scopeExecution(description, true);
 	    }
 	    
-	    private void scopeExecution(Description desc, String prefix) {
+	    private void scopeExecution(Description desc, boolean pass) {
 	        if (results != null) {
 	        	String target = getMethodScopeTarget(desc);
 	        	String detail = getMethodScopeValue(desc);
 	        	if (StringUtils.isNotEmpty(detail)) {
 	        		target = StringUtils.isNotEmpty(target) ? target : "";
-	        		String s = String.format("[%s] %s:%s: %s", prefix, results.scope, target, detail);
-	        		results.executions.add(s);
+	        		String s = String.format("%s:%s: %s", results.scope, target, detail);
+	        		ScopeResult res = new ScopeResult();
+	        		res.pass = pass;
+	        		res.scope = s;
+	        		results.executions.add(res);
 	        	}
 	        }
 	    	
 	    }
 
 	    public void testFailure(Failure failure) throws Exception {
-	    	scopeExecution(failure.getDescription(), "FAIL");
+	    	scopeExecution(failure.getDescription(), false);
 	    }
 
 	    public void testAssumptionFailure(Failure failure) {
-	    	scopeExecution(failure.getDescription(), "FAIL");
+	    	scopeExecution(failure.getDescription(), false);
 	    }
 
 	    public void testIgnored(Description description) throws Exception {

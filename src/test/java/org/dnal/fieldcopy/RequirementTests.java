@@ -2,6 +2,8 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.scope.MyRunner;
+import org.dnal.fieldcopy.scope.Scope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

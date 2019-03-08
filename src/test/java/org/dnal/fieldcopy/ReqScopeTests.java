@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.dnal.fieldcopy.ReqCustomRunner.ReqResult;
+import org.dnal.fieldcopy.scope.MyRunner;
+import org.dnal.fieldcopy.scope.ScopeResult;
+import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.junit.Test;
 import org.junit.internal.TextListener;
@@ -35,9 +38,9 @@ public class ReqScopeTests {
 		}
 
 		private boolean find(String type, String testName) {
-			for(String res: scopeResults.executions) {
+			for(ScopeResult res: scopeResults.executions) {
 				String s = String.format("%s:: %s", type, testName);
-				if (res.equals(s)) {
+				if (res.scope.equals(s)) {
 					return true;
 				}
 			}
