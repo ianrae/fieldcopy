@@ -22,9 +22,7 @@ public class MyRunner extends BlockJUnit4ClassRunner {
 	public void run(RunNotifier notifier) {
 		MyTestListener listener = new MyTestListener();
 		if (enableScopeProcessing) {
-			if (scopeResults == null) {
-				scopeResults = new ScopeTestRunResults();
-			}
+			scopeResults = new ScopeTestRunResults();
 			listener.results = scopeResults;
 			notifier.addListener(listener);
 		}
@@ -37,5 +35,6 @@ public class MyRunner extends BlockJUnit4ClassRunner {
 				System.out.println(String.format("[%b] %s", res.pass, res.scope));
 			}
 		}
+		notifier.removeListener(listener);
 	}
 }

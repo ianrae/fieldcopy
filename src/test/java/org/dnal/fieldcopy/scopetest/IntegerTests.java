@@ -105,19 +105,19 @@ public class IntegerTests extends BaseScopeTest {
 	
 	//----------- Integer ------------
 	@Test
-	@Scope(target="Boolean")
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
-	@Scope(target="Integer")
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldTo(mainField, "primitiveInt");
 		assertEquals(517, dto.getPrimitiveInt());
 	}
 	@Test
-	@Scope(target="Long")
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldTo(mainField, "primitiveLong");
 		assertEquals(517L, dto.getPrimitiveLong());
@@ -126,7 +126,7 @@ public class IntegerTests extends BaseScopeTest {
 		assertEquals(517L, dto.getLong1().longValue());
 	}
 	@Test
-	@Scope(target="Double")
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldTo(mainField, "primitiveDouble");
 		assertEquals(517.0, dto.getPrimitiveDouble(), 0.001);
@@ -135,7 +135,7 @@ public class IntegerTests extends BaseScopeTest {
 		assertEquals(517.0, dto.getDouble1(), 0.001);
 	}
 	@Test
-	@Scope(target="String")
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		assertEquals("517", dto.getString1());
@@ -146,13 +146,13 @@ public class IntegerTests extends BaseScopeTest {
 		assertEquals("-200", dto.getString1());
 	}
 	@Test
-	@Scope(target="Date")
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 		assertEquals(null, dto.getDate1());
 	}
 	@Test
-	@Scope(target="enum")
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 		assertEquals(null, dto.getColour1());

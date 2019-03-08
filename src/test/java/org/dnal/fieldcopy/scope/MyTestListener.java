@@ -17,11 +17,46 @@ public class MyTestListener extends RunListener {
 	        	results.scope = getClassScopeValue(description);
 	        }
 	    }
+	    public void testRunFinished(Result result) throws Exception {
+	    }
+	    public void testStarted(Description description) throws Exception {
+	    }
+	    public void testFinished(Description description) throws Exception {
+	    	scopeExecution(description, true);
+	    }
+
+	    public void testFailure(Failure failure) throws Exception {
+	    	scopeExecution(failure.getDescription(), false);
+	    }
+
+	    public void testAssumptionFailure(Failure failure) {
+	    	scopeExecution(failure.getDescription(), false);
+	    }
+
+	    public void testIgnored(Description description) throws Exception {
+	        //System.out.println("Ignored: " + description.getMethodName());
+	    }
 	    
+	    //--helpers--
+	    private void scopeExecution(Description desc, boolean pass) {
+	        if (results != null) {
+	        	String target = getMethodScopeTarget(desc);
+	        	String detail = getMethodScopeValue(desc);
+	        	if (StringUtils.isNotEmpty(detail)) {
+	        		target = StringUtils.isNotEmpty(target) ? target : "";
+	        		String s = String.format("%s:%s: %s", results.scope, target, detail);
+	        		ScopeResult res = new ScopeResult();
+	        		res.pass = pass;
+	        		res.scope = s;
+	        		results.executions.add(res);
+	        	}
+	        }
+	    	
+	    }
 	    private String getClassScopeValue(Description desc) {
         	Class<?> testClass = desc.getTestClass();
         	String testClassName = testClass.getSimpleName();
-	        System.out.println("TCCC: " + testClassName);
+	        //System.out.println("TCCC: " + testClassName);
 	        if (testClass.isAnnotationPresent(Scope.class)) {
         		Scope[] ar = testClass.getAnnotationsByType(Scope.class);
         		if (ar.length > 0) {
@@ -66,40 +101,4 @@ public class MyTestListener extends RunListener {
             return null;
 	    }
 	    
-	    public void testRunFinished(Result result) throws Exception {
-	    }
-	    public void testStarted(Description description) throws Exception {
-	    }
-
-	    public void testFinished(Description description) throws Exception {
-	    	scopeExecution(description, true);
-	    }
-	    
-	    private void scopeExecution(Description desc, boolean pass) {
-	        if (results != null) {
-	        	String target = getMethodScopeTarget(desc);
-	        	String detail = getMethodScopeValue(desc);
-	        	if (StringUtils.isNotEmpty(detail)) {
-	        		target = StringUtils.isNotEmpty(target) ? target : "";
-	        		String s = String.format("%s:%s: %s", results.scope, target, detail);
-	        		ScopeResult res = new ScopeResult();
-	        		res.pass = pass;
-	        		res.scope = s;
-	        		results.executions.add(res);
-	        	}
-	        }
-	    	
-	    }
-
-	    public void testFailure(Failure failure) throws Exception {
-	    	scopeExecution(failure.getDescription(), false);
-	    }
-
-	    public void testAssumptionFailure(Failure failure) {
-	    	scopeExecution(failure.getDescription(), false);
-	    }
-
-	    public void testIgnored(Description description) throws Exception {
-	        //System.out.println("Ignored: " + description.getMethodName());
-	    }
 	}

@@ -1,13 +1,12 @@
 package org.dnal.fieldcopy;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.dnal.fieldcopy.ReqCustomRunner.ReqResult;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.ScopeResult;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
@@ -16,7 +15,6 @@ import org.dnal.fieldcopy.scopetest.IntegerTests;
 import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 
 public class ReqScopeTests {
 	
@@ -130,12 +128,16 @@ public class ReqScopeTests {
 		JUnitCore junit = new JUnitCore();
 		junit.addListener(new TextListener(System.out));
 		
+		ScopeTestRunResults allResults = new ScopeTestRunResults();
 		MyRunner.enableScopeProcessing = true;
 		junit.run(BooleanTests.class);	
+		allResults.executions.addAll(MyRunner.scopeResults.executions);
 		junit.run(IntegerTests.class);	
+		allResults.executions.addAll(MyRunner.scopeResults.executions);
 		
 		MyScopeTests checker = new MyScopeTests();
-		boolean b = checker.checkResults(MyRunner.scopeResults);
+		log(String.format("num-results: %d", allResults.executions.size()));
+		boolean b = checker.checkResults(allResults);
 		checker.dump();
 		assertEquals(true, b);
 	}
