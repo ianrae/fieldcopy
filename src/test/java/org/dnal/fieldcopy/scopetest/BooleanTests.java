@@ -37,11 +37,13 @@ public class BooleanTests extends BaseScopeTest {
 	
 	//----------- primitive ------------
 	@Test
+	@Scope(target="boolean", value="boolean")
 	public void testPrimitiveToBoolean() {
 		copySrcFieldTo(primitiveField, "bool1");
 		assertEquals(true, dto.getBool1().booleanValue());
 	}
 	@Test
+	@Scope(target="boolean", value="int")
 	public void testPrimitiveToInt() {
 		copySrcFieldTo(primitiveField, "primitiveInt");
 		assertEquals(1, dto.getPrimitiveInt());
@@ -50,6 +52,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1, dto.getInt1().intValue());
 	}
 	@Test
+	@Scope(target="boolean", value="long")
 	public void testPrimitiveToLong() {
 		copySrcFieldTo(primitiveField, "primitiveLong");
 		assertEquals(1L, dto.getPrimitiveLong());
@@ -58,6 +61,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1L, dto.getLong1().longValue());
 	}
 	@Test
+	@Scope(target="boolean", value="double")
 	public void testPrimitiveToDouble() {
 		copySrcFieldTo(primitiveField, "primitiveDouble");
 		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
@@ -66,6 +70,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1.0, dto.getDouble1(), 0.001);
 	}
 	@Test
+	@Scope(target="boolean", value="String")
 	public void testPrimitiveToString() {
 		copySrcFieldTo(primitiveField, "string1");
 		assertEquals("true", dto.getString1());
@@ -76,11 +81,13 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals("false", dto.getString1());
 	}
 	@Test
+	@Scope(target="boolean", value="Date")
 	public void testPrimitiveToDate() {
 		copySrcFieldToFail(primitiveField, "date1");
 		assertEquals(null, dto.getDate1());
 	}
 	@Test
+	@Scope(target="boolean", value="enum")
 	public void testPrimitiveToEnum() {
 		copySrcFieldToFail(primitiveField, "colour1");
 		assertEquals(null, dto.getColour1());
@@ -88,11 +95,13 @@ public class BooleanTests extends BaseScopeTest {
 	
 	//----------- Boolean ------------
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldTo(mainField, "primitiveBool");
 		assertEquals(true, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldTo(mainField, "primitiveInt");
 		assertEquals(1, dto.getPrimitiveInt());
@@ -101,6 +110,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1, dto.getInt1().intValue());
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldTo(mainField, "primitiveLong");
 		assertEquals(1L, dto.getPrimitiveLong());
@@ -109,6 +119,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1L, dto.getLong1().longValue());
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldTo(mainField, "primitiveDouble");
 		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);
@@ -117,6 +128,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1.0, dto.getDouble1(), 0.001);
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		assertEquals("true", dto.getString1());
@@ -127,11 +139,13 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals("false", dto.getString1());
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 		assertEquals(null, dto.getDate1());
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 		assertEquals(null, dto.getColour1());

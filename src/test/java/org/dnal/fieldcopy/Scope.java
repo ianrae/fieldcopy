@@ -11,4 +11,5 @@ import java.lang.annotation.Target;
 public
 @interface Scope {
     String value() default "";
+    String target() default "";
 }
