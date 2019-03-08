@@ -26,25 +26,77 @@ public class ReqScopeTests {
 		public boolean checkResults(ScopeTestRunResults scopeResults) {
 			this.scopeResults = scopeResults;
 			ensureHappened("values");
+			ensureHappened("null");
+			checkPrimitive("Boolean:boolean");
+//			checkPrimitive("Integer:int");
+//			checkPrimitive("Double:double");
+			checkAll();
 			return errors.isEmpty();
+		}
+
+		private void checkAll() {
+			for(String type: allTypes) {
+				for(String inner: allTypes) {
+					if (inner.equals(type)) {
+						continue;
+					}
+					String s = String.format("%s:: %s", type, inner);
+					ScopeResult res = findTarget(s);
+					if (res == null) {
+						errors.add(String.format("%s:: %s MISSING (checkAll)", type, inner));
+					} else if (!res.pass) {
+						errors.add(String.format("%s:: %s FAILED (checkAll)", type, inner));
+					}
+					
+				}
+			}
+		}
+
+		private void checkPrimitive(String target) {
+			for(String type: allTypes) {
+				if (target.startsWith(type)) {
+					continue;
+				}
+				String s = String.format("%s: %s", target, type);
+				ScopeResult res = findTarget(s);
+				if (res == null) {
+					errors.add(String.format("%s:: %s MISSING", target, type));
+				} else if (!res.pass) {
+					errors.add(String.format("%s:: %s FAILED", target, type));
+				}
+			}
 		}
 
 		private void ensureHappened(String testName) {
 			for(String type: allTypes) {
-				if (! find(type, testName)) {
-					errors.add(String.format("%s:: %s", type, testName));
+				ScopeResult res = find(type, testName);
+				if (res == null) {
+					errors.add(String.format("%s:: %s - MISSING", type, testName));
+				} else if (!res.pass) {
+					errors.add(String.format("%s:: %s - FAILED", type, testName));
 				}
 			}
 		}
 
-		private boolean find(String type, String testName) {
+		private ScopeResult find(String type, String testName) {
+			String s = String.format("%s:: %s", type, testName);
+			return findTarget(s);
+		}
+		private ScopeResult findTarget(String target) {
 			for(ScopeResult res: scopeResults.executions) {
-				String s = String.format("%s:: %s", type, testName);
-				if (res.scope.equals(s)) {
-					return true;
+				if (res.scope.equals(target)) {
+					return res;
 				}
 			}
-			return false;
+			return null;
+		}
+		private ScopeResult findTargetStartsWith(String target) {
+			for(ScopeResult res: scopeResults.executions) {
+				if (res.scope.startsWith(target)) {
+					return res;
+				}
+			}
+			return null;
 		}
 
 		public void dump() {
