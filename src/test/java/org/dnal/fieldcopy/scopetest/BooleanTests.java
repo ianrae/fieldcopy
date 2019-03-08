@@ -35,13 +35,13 @@ public class BooleanTests extends BaseScopeTest {
 	
 	//----------- primitive ------------
 	@Test
-	@Scope(target="boolean", value="boolean")
+	@Scope(target="boolean", value="Boolean")
 	public void testPrimitiveToBoolean() {
 		copySrcFieldTo(primitiveField, "bool1");
 		assertEquals(true, dto.getBool1().booleanValue());
 	}
 	@Test
-	@Scope(target="boolean", value="int")
+	@Scope(target="boolean", value="Integer")
 	public void testPrimitiveToInt() {
 		copySrcFieldTo(primitiveField, "primitiveInt");
 		assertEquals(1, dto.getPrimitiveInt());
@@ -50,7 +50,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1, dto.getInt1().intValue());
 	}
 	@Test
-	@Scope(target="boolean", value="long")
+	@Scope(target="boolean", value="Long")
 	public void testPrimitiveToLong() {
 		copySrcFieldTo(primitiveField, "primitiveLong");
 		assertEquals(1L, dto.getPrimitiveLong());
@@ -59,7 +59,7 @@ public class BooleanTests extends BaseScopeTest {
 		assertEquals(1L, dto.getLong1().longValue());
 	}
 	@Test
-	@Scope(target="boolean", value="double")
+	@Scope(target="boolean", value="Double")
 	public void testPrimitiveToDouble() {
 		copySrcFieldTo(primitiveField, "primitiveDouble");
 		assertEquals(1.0, dto.getPrimitiveDouble(), 0.001);

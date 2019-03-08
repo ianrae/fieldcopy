@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.dnal.fieldcopy.ReqCustomRunner.ReqResult;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.ScopeResult;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
+import org.dnal.fieldcopy.scopetest.IntegerTests;
 import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
@@ -27,7 +29,7 @@ public class ReqScopeTests {
 			this.scopeResults = scopeResults;
 			ensureHappened("values");
 			ensureHappened("null");
-			checkPrimitive("Boolean:boolean");
+			checkPrimitive("Boolean", "boolean");
 //			checkPrimitive("Integer:int");
 //			checkPrimitive("Double:double");
 			checkAll();
@@ -42,39 +44,51 @@ public class ReqScopeTests {
 					}
 					String s = String.format("%s:: %s", type, inner);
 					ScopeResult res = findTarget(s);
-					if (res == null) {
-						errors.add(String.format("%s:: %s MISSING (checkAll)", type, inner));
-					} else if (!res.pass) {
-						errors.add(String.format("%s:: %s FAILED (checkAll)", type, inner));
-					}
-					
+					addErrorIfFailed("checkAll", res, type, inner);
+//					if (res == null) {
+//						errors.add(String.format("%s:: %s MISSING (checkAll)", type, inner));
+//					} else if (!res.pass) {
+//						errors.add(String.format("%s:: %s FAILED (checkAll)", type, inner));
+//					}
 				}
 			}
 		}
+		private void addErrorIfFailed(String name, ScopeResult res, String s1, String s2) {
+			String title = StringUtils.isEmpty(name) ? "" : String.format("(%s)", name);
+			if (res == null) {
+				errors.add(String.format("%s:: %s MISSING %s", s1, s2, title));
+			} else if (!res.pass) {
+				errors.add(String.format("%s:: %s FAILED %s", s1, s2, title));
+			}
+		}
 
-		private void checkPrimitive(String target) {
+		private void checkPrimitive(String mainType, String primitiveType) {
 			for(String type: allTypes) {
-				if (target.startsWith(type)) {
+				if (mainType.startsWith(type)) {
 					continue;
 				}
+				String target = String.format("%s:%s", mainType, primitiveType);
+				
 				String s = String.format("%s: %s", target, type);
 				ScopeResult res = findTarget(s);
-				if (res == null) {
-					errors.add(String.format("%s:: %s MISSING", target, type));
-				} else if (!res.pass) {
-					errors.add(String.format("%s:: %s FAILED", target, type));
-				}
+				addErrorIfFailed("checkPrimitives", res, target, type);
+//				if (res == null) {
+//					errors.add(String.format("%s:: %s MISSING", target, type));
+//				} else if (!res.pass) {
+//					errors.add(String.format("%s:: %s FAILED", target, type));
+//				}
 			}
 		}
 
 		private void ensureHappened(String testName) {
 			for(String type: allTypes) {
 				ScopeResult res = find(type, testName);
-				if (res == null) {
-					errors.add(String.format("%s:: %s - MISSING", type, testName));
-				} else if (!res.pass) {
-					errors.add(String.format("%s:: %s - FAILED", type, testName));
-				}
+				addErrorIfFailed("", res, type, testName);
+//				if (res == null) {
+//					errors.add(String.format("%s:: %s - MISSING", type, testName));
+//				} else if (!res.pass) {
+//					errors.add(String.format("%s:: %s - FAILED", type, testName));
+//				}
 			}
 		}
 
@@ -117,7 +131,8 @@ public class ReqScopeTests {
 		junit.addListener(new TextListener(System.out));
 		
 		MyRunner.enableScopeProcessing = true;
-		Result result = junit.run(BooleanTests.class);	
+		junit.run(BooleanTests.class);	
+		junit.run(IntegerTests.class);	
 		
 		MyScopeTests checker = new MyScopeTests();
 		boolean b = checker.checkResults(MyRunner.scopeResults);
