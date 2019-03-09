@@ -53,7 +53,7 @@ public class ListStringTests extends BaseListTest {
 		reset();
 		list = createStringList();
 		list.clear();
-		entity.setListString1(list);;
+		entity.setListString1(list);
 		doCopy(mainField);
 		chkValue(0, null, null);
 	}
@@ -109,9 +109,16 @@ public class ListStringTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listInt1", false);
+		chkIntListValue(2, 44, 45);
+		
+		reset();
 		copySrcFieldTo(mainField, "listInt1");
-		//TODO: fix bug. the above line works but the list contains strings not integers!!
-		//BeanUtils must simply be copying over the values
+		//TODO: fix bug. converts to 0. should really be a conversion error
+		//since "abc" can't be converted to 0
 		chkIntListValue(2, 0, 0);
 	}
 	@Test

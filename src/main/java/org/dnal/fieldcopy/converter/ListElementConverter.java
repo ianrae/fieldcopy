@@ -32,6 +32,10 @@ public class ListElementConverter implements ValueConverter {
 	
 	@Override
 	public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
+		if (value == null) {
+			return null;
+		}
+		
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
