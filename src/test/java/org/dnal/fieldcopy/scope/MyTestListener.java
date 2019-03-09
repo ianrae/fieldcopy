@@ -41,10 +41,10 @@ public class MyTestListener extends RunListener {
 	    private void scopeExecution(Description desc, boolean pass) {
 	        if (results != null) {
 	        	String target = getMethodScopeTarget(desc);
-	        	String detail = getMethodScopeValue(desc);
-	        	if (StringUtils.isNotEmpty(detail)) {
+	        	String value = getMethodScopeValue(desc);
+	        	if (StringUtils.isNotEmpty(value)) {
 	        		target = StringUtils.isNotEmpty(target) ? target : "";
-	        		String s = String.format("%s:%s: %s", results.scope, target, detail);
+	        		String s = String.format("%s:%s: %s", results.scope, target, value);
 	        		ScopeResult res = new ScopeResult();
 	        		res.pass = pass;
 	        		res.scope = s;

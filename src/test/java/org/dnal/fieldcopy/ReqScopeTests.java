@@ -6,12 +6,14 @@ import java.util.Arrays;
 
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.MyScopeTestsBase;
+import org.dnal.fieldcopy.scope.ScopeResult;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.EnumTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
+import org.dnal.fieldcopy.scopetest.ListStringTests;
 import org.dnal.fieldcopy.scopetest.LongTests;
 import org.dnal.fieldcopy.scopetest.StringTests;
 import org.junit.Test;
@@ -36,6 +38,12 @@ public class ReqScopeTests {
 			checkPrimitive("Long", "long");
 			checkPrimitive("Double", "double");
 			checkAll();
+			
+			for(String type: allTypes) {
+				checkListType(type);
+			}
+			
+			//checkListAll();
 			checkObserved();
 			return errors.isEmpty();
 		}
@@ -57,6 +65,8 @@ public class ReqScopeTests {
 		runClass(IntegerTests.class);	
 		runClass(LongTests.class);	
 		runClass(StringTests.class);	
+		
+		runClass(ListStringTests.class);	
 
 		afterRunning();
 	}

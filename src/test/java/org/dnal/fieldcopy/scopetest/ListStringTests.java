@@ -9,11 +9,16 @@ import java.util.List;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.scope.MyRunner;
+import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
+@RunWith(MyRunner.class)
+@Scope("List<String>")
 public class ListStringTests extends BaseScopeTest {
 	
 	public static abstract class BaseListConverter implements ValueConverter {
@@ -50,6 +55,7 @@ public class ListStringTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy(mainField);
 		chkValue(2, "abc", "def");
@@ -70,6 +76,7 @@ public class ListStringTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setListString1(null);
 		doCopy(mainField);
@@ -77,50 +84,61 @@ public class ListStringTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
+		copySrcFieldToFail(mainField, "bool1");
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldToFail(mainField, "primitiveInt");
 		copySrcFieldToFail(mainField, "int1");
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldToFail(mainField, "primitiveLong");
 		copySrcFieldToFail(mainField, "long1");
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldToFail(mainField, "primitiveDouble");
 		copySrcFieldToFail(mainField, "double1");
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldToFail(mainField, "string1");
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 	}
 	
 	@Test
-	public void testToList() {
+	@Scope("List<Integer>")
+	public void testToListInt() {
 		copySrcFieldTo(mainField, "listInt1");
 		//TODO: fix bug. the above line works but the list contains strings not integers!!
 		//BeanUtils must simply be copying over the values
 //		chkIntListValue(2, 0, 0);
-		
+	}
+	@Test
+	@Scope("List<String>")
+	public void testToListString() {
 		reset();
 		List<String> list = Arrays.asList("44", "45");
 		entity.setListString1(list);
 		copier.copy(entity, dto).withConverters(new MyListConverter()).field("listString1", "listInt1").execute();
 		chkIntListValue(2, 44, 45);
-		
 	}
 	
 	

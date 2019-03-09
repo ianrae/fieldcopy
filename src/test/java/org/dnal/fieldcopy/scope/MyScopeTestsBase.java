@@ -33,22 +33,19 @@ public abstract class MyScopeTestsBase {
 			}
 		}
 	}
-	private void addToObserved(ScopeResult res) {
-		if (res != null) {
-			observedL.add(res);
+	protected void checkListAll() {
+		for(String type: allTypes) {
+			for(String inner: allTypes) {
+				String s = String.format("List<%s>:: List<%s>", type, inner);
+				ScopeResult res = findTarget(s);
+				if (inner.equals(type)) {
+					addToObserved(res);
+					continue;
+				}
+				addErrorIfFailed("checkListAll", res, type, inner);
+			}
 		}
 	}
-
-	protected void addErrorIfFailed(String name, ScopeResult res, String s1, String s2) {
-		observedL.add(res);
-		String title = StringUtils.isEmpty(name) ? "" : String.format("(%s)", name);
-		if (res == null) {
-			errors.add(String.format("%s:: %s MISSING %s", s1, s2, title));
-		} else if (!res.pass) {
-			errors.add(String.format("%s:: %s FAILED %s", s1, s2, title));
-		}
-	}
-
 	protected void checkPrimitive(String mainType, String primitiveType) {
 		for(String type: allTypes) {
 			String target = String.format("%s:%s", mainType, primitiveType);
@@ -60,6 +57,16 @@ public abstract class MyScopeTestsBase {
 				continue;
 			}
 			addErrorIfFailed("checkPrimitives", res, target, type);
+		}
+	}
+
+	protected void checkListType(String elementType) {
+		for(String type: allTypes) {
+			String listType = String.format("List<%s>", elementType);
+			String target = String.format("%s:: %s", listType, type);
+			
+			ScopeResult res = findTarget(target);
+			addErrorIfFailed("checkListType", res, target, type);
 		}
 	}
 
@@ -89,6 +96,21 @@ public abstract class MyScopeTestsBase {
 			}
 		}
 		return null;
+	}
+	private void addToObserved(ScopeResult res) {
+		if (res != null) {
+			observedL.add(res);
+		}
+	}
+
+	protected void addErrorIfFailed(String name, ScopeResult res, String s1, String s2) {
+		observedL.add(res);
+		String title = StringUtils.isEmpty(name) ? "" : String.format("(%s)", name);
+		if (res == null) {
+			errors.add(String.format("%s:: %s MISSING %s", s1, s2, title));
+		} else if (!res.pass) {
+			errors.add(String.format("%s:: %s FAILED %s", s1, s2, title));
+		}
 	}
 
 	public void dump() {
