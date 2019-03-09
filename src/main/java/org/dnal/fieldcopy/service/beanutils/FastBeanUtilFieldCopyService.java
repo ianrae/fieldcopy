@@ -149,8 +149,9 @@ public class FastBeanUtilFieldCopyService {
 
 			//add one
 			String name = pair.srcProp.getName();
+			Class<?> srcElementClass = ReflectionUtil.detectElementClass(copySpec.sourceObj, fd1);
 			Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
-			ListElementConverter converter = new ListElementConverter(name, destElementClass);
+			ListElementConverter converter = new ListElementConverter(name, srcElementClass, destElementClass);
 			copySpec.converterL.add(converter);
 		}
 	}

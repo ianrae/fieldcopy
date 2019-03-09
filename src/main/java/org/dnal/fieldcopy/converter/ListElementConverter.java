@@ -17,11 +17,13 @@ import org.dnal.fieldcopy.core.FieldPair;
 
 public class ListElementConverter implements ValueConverter {
 	private String srcFieldName;
+	private Class<?> srcElClass;
 	private Class<?> destElClass;
 	private FieldCopyService copySvc;
 	
-	public ListElementConverter(String srcFieldName, Class<?> destElementClass) {
+	public ListElementConverter(String srcFieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.srcFieldName = srcFieldName;
+		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
 	}
 
@@ -40,7 +42,7 @@ public class ListElementConverter implements ValueConverter {
 		List<?> list = (List<?>) value;
 		
 		//TODO: why can't we determine srcElClass during generation?
-		Class<?> srcElClass = this.detectSrcElementClass(srcBean);
+		//Class<?> srcElClass = this.detectSrcElementClass(srcBean);
 		if (! isBean(srcElClass) && ! isBean(destElClass)) {
 			return copyScalarList(list, srcElClass);
 		}

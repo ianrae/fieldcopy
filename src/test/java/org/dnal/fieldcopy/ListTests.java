@@ -94,7 +94,7 @@ public class ListTests {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		ListElementConverter converter = new ListElementConverter("listSource1", Dest.class);
+		ListElementConverter converter = new ListElementConverter("listSource1", Source.class, Dest.class);
 		
 		copier.copy(holder, holder2).withConverters(converter).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());

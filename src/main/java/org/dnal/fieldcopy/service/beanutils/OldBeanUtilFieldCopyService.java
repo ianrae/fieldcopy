@@ -153,7 +153,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
                 		fillInDestPropIfNeeded(pair, destObj.getClass());
                 		
                 		Object value = propertyUtils.getSimpleProperty(orig, name);
-                		addListTransformerIfNeeded(pair, value, copySpec.converterL, destObj);
+                		addListTransformerIfNeeded(pair, value, copySpec.converterL, sourceObj, destObj);
                 		
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
@@ -175,7 +175,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private void addListTransformerIfNeeded(FieldPair pair, Object value, List<ValueConverter> transformerL, Object destObj) {
+		private void addListTransformerIfNeeded(FieldPair pair, Object value, List<ValueConverter> transformerL, Object sourceObj, Object destObj) {
 			if (value == null) {
 				return;
 			}
@@ -200,8 +200,9 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 
 				//add one
 				String name = pair.srcProp.getName();
+				Class<?> srcElementClass = ReflectionUtil.detectElementClass(sourceObj, fd1);
 				Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
-				ListElementConverter transformer = new ListElementConverter(name, destElementClass);
+				ListElementConverter transformer = new ListElementConverter(name, srcElementClass, destElementClass);
 				transformerL.add(transformer);
 			}
 		}
