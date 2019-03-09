@@ -26,6 +26,8 @@ public class ReqScopeTests {
 		public MyScopeTests() {
 			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", 
 					"String", "Date", "enum");
+			
+			this.allListTypes = Arrays.asList("List<String>");
 		}
 		
 		@Override
@@ -39,13 +41,39 @@ public class ReqScopeTests {
 			checkPrimitive("Double", "double");
 			checkAll();
 			
-			for(String type: allTypes) {
-				checkListType(type);
+			for(String listType: allListTypes) {
+				ensureHappenedList("values");
+				ensureHappenedList("null");
+				checkListType(listType);
+				checkListToListType(listType);
 			}
 			
 			//checkListAll();
 			checkObserved();
 			return errors.isEmpty();
+		}
+		
+		protected void ensureHappenedList(String testName) {
+			for(String type: allListTypes) {
+				ScopeResult res = find(type, testName);
+				addErrorIfFailed("", res, type, testName);
+			}
+		}
+		protected void checkListType(String listType) {
+			for(String type: allTypes) {
+				String target = String.format("%s:: %s", listType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkListType", res, target, type);
+			}
+		}
+		protected void checkListToListType(String listType) {
+			for(String type: allListTypes) {
+				String target = String.format("%s:: %s", listType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkListToListType", res, target, type);
+			}
 		}
 	}
 	

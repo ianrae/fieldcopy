@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public abstract class MyScopeTestsBase {
 	public List<String> allTypes;
+	public List<String> allListTypes;
 	public List<String> errors = new ArrayList<>();
 	protected ScopeTestRunResults scopeResults;
 	public List<ScopeResult> observedL = new ArrayList<>();
@@ -57,16 +58,6 @@ public abstract class MyScopeTestsBase {
 				continue;
 			}
 			addErrorIfFailed("checkPrimitives", res, target, type);
-		}
-	}
-
-	protected void checkListType(String elementType) {
-		for(String type: allTypes) {
-			String listType = String.format("List<%s>", elementType);
-			String target = String.format("%s:: %s", listType, type);
-			
-			ScopeResult res = findTarget(target);
-			addErrorIfFailed("checkListType", res, target, type);
 		}
 	}
 
