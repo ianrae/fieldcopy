@@ -98,7 +98,7 @@ public class LongTests extends BaseScopeTest {
 		assertEquals(516L, dto.getDate1().getTime());
 	}
 	@Test
-	@Scope(target="long", value="Enum")
+	@Scope(target="long", value="enum")
 	public void testPrimitiveToEnum() {
 		//TODO: if enum has int value, perhaps we can copy then
 		

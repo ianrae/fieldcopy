@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
+import org.dnal.fieldcopy.scopetest.EnumTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
 import org.dnal.fieldcopy.scopetest.LongTests;
 import org.dnal.fieldcopy.scopetest.StringTests;
@@ -22,7 +23,7 @@ public class ReqScopeTests {
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {
 			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", 
-					"String", "Date");
+					"String", "Date", "enum");
 		}
 		
 		@Override
@@ -49,11 +50,12 @@ public class ReqScopeTests {
 		
 		//--all classes here--
 		runClass(BooleanTests.class);
+		runClass(DateTests.class);	
+		runClass(DoubleTests.class);	
+		runClass(EnumTests.class);	
 		runClass(IntegerTests.class);	
 		runClass(LongTests.class);	
-		runClass(DoubleTests.class);	
 		runClass(StringTests.class);	
-		runClass(DateTests.class);	
 
 		afterRunning();
 	}

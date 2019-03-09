@@ -6,13 +6,18 @@ import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.scope.MyRunner;
+import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.dnal.fieldcopy.scopetest.data.Colour;
 import org.dnal.fieldcopy.scopetest.data.Province;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
+@RunWith(MyRunner.class)
+@Scope("enum")
 public class EnumTests extends BaseScopeTest {
 	
 	public static class MyConverter implements ValueConverter {
@@ -39,6 +44,7 @@ public class EnumTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy("colour1");
 		chkValue(Colour.GREEN);
@@ -50,6 +56,7 @@ public class EnumTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setColour1(null);
 		doCopy("colour1");
@@ -59,32 +66,39 @@ public class EnumTests extends BaseScopeTest {
 	
 	//----------- Enum ------------
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldToFail(mainField, "primitiveInt");
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldToFail(mainField, "primitiveLong");
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldToFail(mainField, "primitiveDouble");
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		assertEquals("GREEN", dto.getString1());
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldTo(mainField, "colour1");
 		assertEquals(Colour.GREEN, dto.getColour1());
