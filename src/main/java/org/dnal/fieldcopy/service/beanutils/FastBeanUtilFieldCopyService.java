@@ -101,8 +101,9 @@ public class FastBeanUtilFieldCopyService {
             	try {
             		fillInDestPropIfNeeded(pair, destObj.getClass());
             		
-            		addListConverterIfNeeded(pair, copySpec.converterL, destObj);
+            		addListConverterIfNeeded(pair, copySpec, destObj);
             		
+            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
             		FieldCopyMapping mapping = generateMapping(pair, mappingL);
             		if (mapping != null) {
             			FieldPlan fspec = new FieldPlan();
@@ -126,7 +127,7 @@ public class FastBeanUtilFieldCopyService {
 		return execspec;
 	}
 	
-	private void addListConverterIfNeeded(FieldPair pair, List<ValueConverter> converterL, Object destObj) {
+	private void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -135,11 +136,11 @@ public class FastBeanUtilFieldCopyService {
 		if (Collection.class.isAssignableFrom(srcFieldClass) && 
 				Collection.class.isAssignableFrom(srcFieldClass)) {
 			
-			if (converterL == null) {
-				converterL = new ArrayList<>();
+			if (copySpec.converterL == null) {
+				copySpec.converterL = new ArrayList<>();
 			}
 
-			for(ValueConverter converter: converterL) {
+			for(ValueConverter converter: copySpec.converterL) {
 				if (converter.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
 					//if already is a converter, nothing more to do
 					return;
@@ -150,7 +151,7 @@ public class FastBeanUtilFieldCopyService {
 			String name = pair.srcProp.getName();
 			Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
 			ListElementConverter converter = new ListElementConverter(name, destElementClass);
-			converterL.add(converter);
+			copySpec.converterL.add(converter);
 		}
 	}
 

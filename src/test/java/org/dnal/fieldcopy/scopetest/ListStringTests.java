@@ -112,7 +112,7 @@ public class ListStringTests extends BaseListTest {
 		copySrcFieldTo(mainField, "listInt1");
 		//TODO: fix bug. the above line works but the list contains strings not integers!!
 		//BeanUtils must simply be copying over the values
-//		chkIntListValue(2, 0, 0);
+		chkIntListValue(2, 0, 0);
 	}
 	@Test
 	@Scope("List<String>")

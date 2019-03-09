@@ -1,11 +1,15 @@
 package org.dnal.fieldcopy.converter;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.beanutils.ConvertUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -31,7 +35,11 @@ public class ListElementConverter implements ValueConverter {
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
+		//TODO: why can't we determine srcElClass during generation?
 		Class<?> srcElClass = this.detectSrcElementClass(srcBean);
+		if (! isBean(srcElClass) && ! isBean(destElClass)) {
+			return copyScalarList(list, srcElClass);
+		}
 		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();
@@ -50,6 +58,39 @@ public class ListElementConverter implements ValueConverter {
 		}
 		return list2;
 	}
+	
+	private Object copyScalarList(List<?> list, Class<?> srcElClass) {
+		List<Object> list2 = new ArrayList<>();
+		for(Object el: list) {
+			
+			Object result = ConvertUtils.convert(el, destElClass);
+			list2.add(result);
+		}
+		return list2;
+	}
+
+	/**
+	 * Determine if class is a bean (i.e. has inner fields).
+	 * Classes like Integer are not beans.
+	 * @param clazz
+	 * @return
+	 */
+	private boolean isBean(Class<?> clazz) {
+		if (String.class.equals(clazz)) {
+			return false;
+		}
+		
+		try {
+			//use Java's Introspector. beans will have > 1 property descriptor
+			BeanInfo info = Introspector.getBeanInfo(clazz);
+			return info.getPropertyDescriptors().length > 1;
+		} catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	private Object createObject(Class<?> clazzDest) {
 		Object obj = null;
 		try {
