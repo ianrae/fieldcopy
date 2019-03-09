@@ -2,8 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -18,7 +16,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(MyRunner.class)
 @Scope("List<Integer>")
-public class ListIntegerTests extends BaseScopeTest {
+public class ListIntegerTests extends BaseListTest {
 	
 	public static class MyIntegerToStringListConverter extends BaseListConverter {
 		@Override
@@ -41,21 +39,21 @@ public class ListIntegerTests extends BaseScopeTest {
 	@Scope("values")
 	public void test() {
 		doCopy(mainField);
-		chkValue(2, 44, 45);
+		chkIntListValue(2, 44, 45);
 		
 		reset();
-		List<Integer> list = testIntList();
+		List<Integer> list = createIntList();
 		list.add(66);
 		entity.setListInt1(list);;
 		doCopy(mainField);
-		chkValue(3, 44, 45);
+		chkIntListValue(3, 44, 45);
 
 		reset();
-		list = testIntList();
+		list = createIntList();
 		list.clear();
 		entity.setListInt1(list);;
 		doCopy(mainField);
-		chkValue(0, 0, 0);
+		chkIntListValue(0, 0, 0);
 	}
 	
 	@Test
@@ -118,7 +116,7 @@ public class ListIntegerTests extends BaseScopeTest {
 	@Scope("List<String>")
 	public void testToListString() {
 		copier.copy(entity, dto).withConverters(new MyIntegerToStringListConverter()).field("listInt1", "listString1").execute();
-		//chkIntListValue(2, 44, 45);
+		chkValue(2, "44", "45");
 	}
 	
 	
@@ -133,42 +131,9 @@ public class ListIntegerTests extends BaseScopeTest {
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
 		
-		List<Integer> list = testIntList();
+		List<Integer> list = createIntList();
 		entity.setListInt1(list);
 		
 		return entity;
-	}
-	private List<String> testStringList() {
-		List<String> list = Arrays.asList("abc", "def");
-		list = new ArrayList<>(list);
-		return list;
-	}
-	private List<Integer> testIntList() {
-		List<Integer> list = Arrays.asList(44, 45);
-		list = new ArrayList<>(list);
-		return list;
-	}
-	
-	protected void chkValue(int expected, int n1, int n2) {
-		List<Integer> list = dto.getListInt1();
-		assertEquals(expected, list.size());
-		
-		if (expected > 0) {
-			assertEquals(n1, list.get(0).intValue());
-		}
-		if (expected > 1) {
-			assertEquals(n2, list.get(1).intValue());
-		}
-	}
-	protected void chkIntListValue(int expected, int n1, int n2) {
-		List<Integer> list = dto.getListInt1();
-		assertEquals(expected, list.size());
-		
-		if (expected > 0) {
-			assertEquals(n1, list.get(0).intValue());
-		}
-		if (expected > 1) {
-			assertEquals(n2, list.get(1).intValue());
-		}
 	}
 }
