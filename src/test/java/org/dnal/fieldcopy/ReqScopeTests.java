@@ -36,6 +36,7 @@ public class ReqScopeTests {
 			checkPrimitive("Long", "long");
 			checkPrimitive("Double", "double");
 			checkAll();
+			checkObserved();
 			return errors.isEmpty();
 		}
 	}
