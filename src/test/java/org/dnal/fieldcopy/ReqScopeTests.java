@@ -8,8 +8,10 @@ import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.MyScopeTestsBase;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
+import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
 import org.dnal.fieldcopy.scopetest.LongTests;
+import org.dnal.fieldcopy.scopetest.StringTests;
 import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
@@ -18,8 +20,9 @@ public class ReqScopeTests {
 	
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {
-			this.allTypes = Arrays.asList("Boolean", "Integer", "Long");
+			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", "String");
 		}
+		
 		@Override
 		public boolean checkResults(ScopeTestRunResults scopeResults) {
 			this.scopeResults = scopeResults;
@@ -28,7 +31,7 @@ public class ReqScopeTests {
 			checkPrimitive("Boolean", "boolean");
 			checkPrimitive("Integer", "int");
 			checkPrimitive("Long", "long");
-//			checkPrimitive("Double", "double");
+			checkPrimitive("Double", "double");
 			checkAll();
 			return errors.isEmpty();
 		}
@@ -46,6 +49,8 @@ public class ReqScopeTests {
 		runClass(BooleanTests.class);
 		runClass(IntegerTests.class);	
 		runClass(LongTests.class);	
+		runClass(DoubleTests.class);	
+		runClass(StringTests.class);	
 
 		afterRunning();
 	}
