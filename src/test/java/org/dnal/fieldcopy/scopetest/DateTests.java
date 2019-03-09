@@ -4,13 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 
+import org.dnal.fieldcopy.scope.MyRunner;
+import org.dnal.fieldcopy.scope.Scope;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-
+@RunWith(MyRunner.class)
+@Scope("Date")
 public class DateTests extends BaseScopeTest {
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy("date1");
 		chkValue(testDate());
@@ -22,6 +27,7 @@ public class DateTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setDouble1(null);
 		doCopy("double1");
@@ -31,38 +37,45 @@ public class DateTests extends BaseScopeTest {
 	
 	//----------- Double ------------
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldToFail(mainField, "primitiveInt");
 		assertEquals(0, dto.getPrimitiveInt());
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldTo(mainField, "primitiveLong");
 		Date dt = testDate();
 		assertEquals(dt.getTime(), dto.getPrimitiveLong());
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldToFail(mainField, "primitiveDouble");
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		//TODO: need a date-to-string string converter
 		assertEquals("Fri Dec 25 07:30:41 EST 2015", dto.getString1());
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldTo(mainField, "date1");
 		Date dt = testDate();
 		assertEquals(dt, dto.getDate1());
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 		assertEquals(null, dto.getColour1());

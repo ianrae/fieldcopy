@@ -8,6 +8,7 @@ import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.MyScopeTestsBase;
 import org.dnal.fieldcopy.scope.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
+import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
 import org.dnal.fieldcopy.scopetest.LongTests;
@@ -20,7 +21,8 @@ public class ReqScopeTests {
 	
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {
-			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", "String");
+			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", 
+					"String", "Date");
 		}
 		
 		@Override
@@ -51,6 +53,7 @@ public class ReqScopeTests {
 		runClass(LongTests.class);	
 		runClass(DoubleTests.class);	
 		runClass(StringTests.class);	
+		runClass(DateTests.class);	
 
 		afterRunning();
 	}
