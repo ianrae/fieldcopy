@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

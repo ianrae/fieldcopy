@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.scopetest;
+package org.dnal.fieldcopy.scopetest.data;
 
 public enum Colour {
 	RED,

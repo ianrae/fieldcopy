@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;;
@@ -161,8 +162,8 @@ public class BooleanTests extends BaseScopeTest {
 	@Override
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
-		entity.primitiveBool = true;
-		entity.bool1 = true;
+		entity.setPrimitiveBool(true);
+		entity.setBool1(true);
 		
 		return entity;
 	}

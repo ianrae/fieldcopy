@@ -9,6 +9,7 @@ import java.util.List;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
 

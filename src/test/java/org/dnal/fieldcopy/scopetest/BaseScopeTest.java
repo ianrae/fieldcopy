@@ -10,6 +10,8 @@ import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 
 public class BaseScopeTest {
 	
@@ -29,8 +31,8 @@ public class BaseScopeTest {
 	}
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
-		entity.primitiveBool = true;
-		entity.bool1 = true;
+		entity.setPrimitiveBool(true);
+		entity.setBool1(true);
 		
 		return entity;
 	}

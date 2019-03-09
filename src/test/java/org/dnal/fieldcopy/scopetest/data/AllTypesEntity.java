@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.scopetest;
+package org.dnal.fieldcopy.scopetest.data;
 
 import java.util.Date;
 import java.util.List;
