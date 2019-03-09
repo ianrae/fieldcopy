@@ -6,12 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
+import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,32 +20,16 @@ import org.junit.runner.RunWith;
 @Scope("List<Integer>")
 public class ListIntegerTests extends BaseScopeTest {
 	
-	public static abstract class BaseListConverter implements ValueConverter {
-		@Override
-		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
-			@SuppressWarnings("unchecked")
-			List<?> list = (List<?>) value;
-			
-			List<Object> list2 = new ArrayList<>();
-			for(Object el: list) {
-				Object copy = copyElement(el);
-				list2.add(copy);
-			}
-			return list2;
-		}
-
-		protected abstract Object copyElement(Object el);
-	}
-	public static class MyListConverter extends BaseListConverter {
+	public static class MyIntegerToStringListConverter extends BaseListConverter {
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listString1");
+			return srcFieldName.equals("listInt1");
 		}
 
 		@Override
 		protected Object copyElement(Object el) {
-			Integer n = Integer.parseInt(el.toString());
-			return n;
+			Integer n = (Integer) el;
+			return n.toString();
 		}
 
 		@Override
@@ -129,16 +112,13 @@ public class ListIntegerTests extends BaseScopeTest {
 		copySrcFieldTo(mainField, "listInt1");
 		//TODO: fix bug. the above line works but the list contains strings not integers!!
 		//BeanUtils must simply be copying over the values
-//		chkIntListValue(2, 0, 0);
+		chkIntListValue(2, 44, 45);
 	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
-		reset();
-		List<String> list = Arrays.asList("44", "45");
-		entity.setListString1(list);
-		copier.copy(entity, dto).withConverters(new MyListConverter()).field("listString1", "listInt1").execute();
-		chkIntListValue(2, 44, 45);
+		copier.copy(entity, dto).withConverters(new MyIntegerToStringListConverter()).field("listInt1", "listString1").execute();
+		//chkIntListValue(2, 44, 45);
 	}
 	
 	

@@ -6,12 +6,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
+import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,23 +20,7 @@ import org.junit.runner.RunWith;
 @Scope("List<String>")
 public class ListStringTests extends BaseScopeTest {
 	
-	public static abstract class BaseListConverter implements ValueConverter {
-		@Override
-		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
-			@SuppressWarnings("unchecked")
-			List<?> list = (List<?>) value;
-			
-			List<Object> list2 = new ArrayList<>();
-			for(Object el: list) {
-				Object copy = copyElement(el);
-				list2.add(copy);
-			}
-			return list2;
-		}
-
-		protected abstract Object copyElement(Object el);
-	}
-	public static class MyListConverter extends BaseListConverter {
+	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
@@ -137,7 +120,7 @@ public class ListStringTests extends BaseScopeTest {
 		reset();
 		List<String> list = Arrays.asList("44", "45");
 		entity.setListString1(list);
-		copier.copy(entity, dto).withConverters(new MyListConverter()).field("listString1", "listInt1").execute();
+		copier.copy(entity, dto).withConverters(new MyStringToIntegerListConverter()).field("listString1", "listInt1").execute();
 		chkIntListValue(2, 44, 45);
 	}
 	
