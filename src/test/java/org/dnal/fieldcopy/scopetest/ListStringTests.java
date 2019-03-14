@@ -11,6 +11,7 @@ import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
+import org.dnal.fieldcopy.scopetest.data.Colour;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -155,6 +156,15 @@ public class ListStringTests extends BaseListTest {
 		entity.setListString1(list);
 		copySrcFieldTo(mainField, "listLong1", false);
 		chkLongListValue(2, 44L, 45L);
+	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToListColour() {
+		reset();
+		List<String> list = Arrays.asList("RED", "BLUE");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listColour1", false);
+		chkColourListValue(2, Colour.RED, Colour.BLUE);
 	}
 	
 	

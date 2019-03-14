@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(MyRunner.class)
-@Scope("List<Long>")
+@Scope("List<Colour>")
 public class ListEnumTests extends BaseListTest {
 	
 	public static class MyStringToColourListConverter extends BaseListConverter {
@@ -61,9 +61,9 @@ public class ListEnumTests extends BaseListTest {
 	@Test
 	@Scope("null")
 	public void testNull() {
-		entity.setListLong1(null);
+		entity.setListColour1(null);
 		doCopy(mainField);
-		assertEquals(null, dto.getListLong1());
+		assertEquals(null, dto.getListColour1());
 	}
 	
 	@Test
@@ -109,28 +109,23 @@ public class ListEnumTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
-		copySrcFieldTo(mainField, "listInt1");
-		chkIntListValue(2, 44, 45);
+		copySrcFieldToFail(mainField, "listInt1");
 	}
 	@Test
 	@Scope("List<Long>")
 	public void testToListLong() {
-		copySrcFieldTo(mainField, "listLong1");
-		chkLongListValue(2, 44L, 45L);
+		copySrcFieldToFail(mainField, "listLong1");
 	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
-//		copier.copy(entity, dto).withConverters(new MyLongToStringListConverter()).field("listLong1", "listString1").execute();
-//		chkValue(2, "44", "45");
+		copySrcFieldTo(mainField, "listString1");
+		chkValue(2, "RED", "BLUE");
 	}
 	@Test
 	@Scope("List<Date>")
 	public void testToListDate() {
-		copySrcFieldTo(mainField, "listDate1");
-		refDate1 = new Date(44L);
-		refDate2 = new Date(45L);
-		this.chkDateListValue(2, refDate1, refDate2);
+		copySrcFieldToFail(mainField, "listDate1");
 	}
 	
 	

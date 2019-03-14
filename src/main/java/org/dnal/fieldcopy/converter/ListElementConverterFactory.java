@@ -23,6 +23,9 @@ public class ListElementConverterFactory {
 		if (srcElementClass.equals(Date.class)) {
 			List<Class<?>> list = Arrays.asList(String.class, Long.class);
 			return list.contains(destElementClass);
+		} else if (srcElementClass.isEnum()) {
+			List<Class<?>> list = Arrays.asList(String.class);
+			return list.contains(destElementClass);
 		}
 		return true;
 	}
