@@ -24,6 +24,7 @@ public class AllTypesEntity {
 	private List<Integer> listInt1;
 	private List<String> listString1;
 	private List<Date> listDate1;
+	private List<Long> listLong1;
 
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -143,5 +144,13 @@ public class AllTypesEntity {
 
 	public void setListDate1(List<Date> listDate1) {
 		this.listDate1 = listDate1;
+	}
+
+	public List<Long> getListLong1() {
+		return listLong1;
+	}
+
+	public void setListLong1(List<Long> listLong1) {
+		this.listLong1 = listLong1;
 	}
 }

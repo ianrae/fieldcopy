@@ -130,6 +130,16 @@ public class ListStringTests extends BaseListTest {
 		copier.copy(entity, dto).withConverters(new MyStringToIntegerListConverter()).field("listString1", "listInt1").execute();
 		chkIntListValue(2, 44, 45);
 	}
+	@Test
+	@Scope("List<Date>")
+	public void testToListDate() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listDate1", false);
+//		copier.copy(entity, dto).withConverters(new MyStringToIntegerListConverter()).field("listString1", "listDate1").execute();
+		this.chkDateListValue(2, refDate1, refDate1);
+	}
 	
 	
 	//---

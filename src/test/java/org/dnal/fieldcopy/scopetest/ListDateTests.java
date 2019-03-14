@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import org.junit.runner.RunWith;
 @Scope("List<Date>")
 public class ListDateTests extends BaseListTest {
 	
-	public static class MyIntegerToStringListConverter extends BaseListConverter {
+	public static class MyDateToStringListConverter extends BaseListConverter {
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listDate1");
@@ -27,8 +28,9 @@ public class ListDateTests extends BaseListTest {
 
 		@Override
 		protected Object copyElement(Object el) {
-			Integer n = (Integer) el;
-			return n.toString();
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date dt = (Date) el;
+			return sdf.format(dt);
 		}
 
 		@Override
@@ -54,7 +56,7 @@ public class ListDateTests extends BaseListTest {
 		list.clear();
 		entity.setListDate1(list);
 		doCopy(mainField);
-		chkDateListValue(2, null, null);
+		chkDateListValue(0, null, null);
 	}
 	
 	@Test
@@ -110,25 +112,33 @@ public class ListDateTests extends BaseListTest {
 	public void testToListInt() {
 		copySrcFieldToFail(mainField, "listInt1");
 	}
-	
+	@Test
+	@Scope("List<Long>")
+	public void testToListLong() {
+		copySrcFieldTo(mainField, "listLong1");
+		chkLongListValue(2, refDate1.getTime(), refDate2.getTime());
+	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
-		copier.copy(entity, dto).withConverters(new MyIntegerToStringListConverter()).field("listInt1", "listString1").execute();
-		chkValue(2, "44", "45");
+		copySrcFieldTo(mainField, "listString1");
+		String s = "Fri Dec 25 07:30:41 EST 2015";
+		assertEquals(s, refDate1.toString());
+//		copier.copy(entity, dto).withConverters(new MyIntegerToStringListConverter()).field("listInt1", "listString1").execute();
+		chkValue(2, refDate1.toString(), refDate2.toString());
+		
+		reset();
+		copier.copy(entity, dto).withConverters(new MyDateToStringListConverter()).field("listDate1", "listString1").execute();
+		chkValue(2, "2015-12-25", "2016-12-25");
 	}
 	
 	
 	//---
 	private static final String mainField = "listDate1";
-	private Date refDate1;
-	private Date refDate2;
 	
 	@Before
 	public void init() {
 		super.init();
-		refDate1 = createADate(0);
-		refDate2 = createADate(1);
 	}
 	@Override
 	protected AllTypesEntity createEntity() {
@@ -139,16 +149,4 @@ public class ListDateTests extends BaseListTest {
 		
 		return entity;
 	}
-	protected void chkDateListValue(int expected, Date dt1, Date dt2) {
-		List<Date> list = dto.getListDate1();
-		assertEquals(expected, list.size());
-		
-		if (expected > 0) {
-			assertEquals(dt1, list.get(0));
-		}
-		if (expected > 1) {
-			assertEquals(dt2, list.get(1));
-		}
-	}
-	
 }

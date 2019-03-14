@@ -13,6 +13,7 @@ import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.EnumTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
+import org.dnal.fieldcopy.scopetest.ListDateTests;
 import org.dnal.fieldcopy.scopetest.ListIntegerTests;
 import org.dnal.fieldcopy.scopetest.ListStringTests;
 import org.dnal.fieldcopy.scopetest.LongTests;
@@ -28,7 +29,7 @@ public class ReqScopeTests {
 			this.allTypes = Arrays.asList("Boolean", "Integer", "Long", "Double", 
 					"String", "Date", "enum");
 			
-			this.allListTypes = Arrays.asList("List<String>", "List<Integer>");
+			this.allListTypes = Arrays.asList("List<String>", "List<Integer>", "List<Date>");
 		}
 		
 		@Override
@@ -97,6 +98,7 @@ public class ReqScopeTests {
 		
 		runClass(ListStringTests.class);	
 		runClass(ListIntegerTests.class);	
+		runClass(ListDateTests.class);	
 
 		afterRunning();
 	}

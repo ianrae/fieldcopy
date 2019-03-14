@@ -9,7 +9,15 @@ import java.util.List;
 
 
 public class BaseListTest extends BaseScopeTest {
+	protected Date refDate1;
+	protected Date refDate2;
 	
+	protected void init() {
+		super.init();
+		refDate1 = createADate(0);
+		refDate2 = createADate(1);
+	}
+
 	protected List<String> createStringList() {
 		List<String> list = Arrays.asList("abc", "def");
 		list = new ArrayList<>(list);
@@ -51,6 +59,28 @@ public class BaseListTest extends BaseScopeTest {
 		}
 		if (expected > 1) {
 			assertEquals(n2, list.get(1).intValue());
+		}
+	}
+	protected void chkLongListValue(int expected, long n1, long n2) {
+		List<Long> list = dto.getListLong1();
+		assertEquals(expected, list.size());
+		
+		if (expected > 0) {
+			assertEquals(n1, list.get(0).longValue());
+		}
+		if (expected > 1) {
+			assertEquals(n2, list.get(1).longValue());
+		}
+	}
+	protected void chkDateListValue(int expected, Date dt1, Date dt2) {
+		List<Date> list = dto.getListDate1();
+		assertEquals(expected, list.size());
+		
+		if (expected > 0) {
+			assertEquals(dt1, list.get(0));
+		}
+		if (expected > 1) {
+			assertEquals(dt2, list.get(1));
 		}
 	}
 }
