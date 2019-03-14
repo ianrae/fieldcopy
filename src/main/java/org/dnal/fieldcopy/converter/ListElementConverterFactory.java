@@ -27,7 +27,7 @@ public class ListElementConverterFactory {
 			List<Class<?>> list = Arrays.asList(String.class);
 			return list.contains(destElementClass);
 		}
-		return true;
+		return !destElementClass.isEnum();
 	}
 	
 }

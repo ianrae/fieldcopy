@@ -127,6 +127,11 @@ public class ListIntegerTests extends BaseListTest {
 		copySrcFieldTo(mainField, "listLong1");
 		chkLongListValue(2, 44L, 45L);
 	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToLisColour() {
+		copySrcFieldToFail(mainField, "listColour1");
+	}
 	
 	
 	//---

@@ -137,6 +137,11 @@ public class ListDateTests extends BaseListTest {
 		copySrcFieldTo(mainField, "listDate1");
 		this.chkDateListValue(2, refDate1, refDate2);
 	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToListColour() {
+		copySrcFieldToFail(mainField, "listColour1");
+	}
 	
 	
 	private String formatDate(Date dt) {

@@ -131,6 +131,11 @@ public class ListLongTests extends BaseListTest {
 		refDate2 = new Date(45L);
 		this.chkDateListValue(2, refDate1, refDate2);
 	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToListColour() {
+		copySrcFieldToFail(mainField, "listColour1");
+	}
 	
 	
 	//---

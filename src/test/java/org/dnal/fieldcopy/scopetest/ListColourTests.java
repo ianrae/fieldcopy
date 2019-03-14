@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Date;
 import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -18,7 +17,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(MyRunner.class)
 @Scope("List<Colour>")
-public class ListEnumTests extends BaseListTest {
+public class ListColourTests extends BaseListTest {
 	
 	public static class MyStringToColourListConverter extends BaseListConverter {
 		@Override
@@ -126,6 +125,12 @@ public class ListEnumTests extends BaseListTest {
 	@Scope("List<Date>")
 	public void testToListDate() {
 		copySrcFieldToFail(mainField, "listDate1");
+	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToListColour() {
+		copySrcFieldTo(mainField, "listColour1");
+		chkColourListValue(2, Colour.RED, Colour.BLUE);
 	}
 	
 	

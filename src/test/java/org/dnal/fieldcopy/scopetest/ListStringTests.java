@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -163,7 +162,13 @@ public class ListStringTests extends BaseListTest {
 		reset();
 		List<String> list = Arrays.asList("RED", "BLUE");
 		entity.setListString1(list);
-		copySrcFieldTo(mainField, "listColour1", false);
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "listColour1", false);
+		
+		reset();
+		Arrays.asList("RED", "BLUE");
+		entity.setListString1(list);
+		copier.copy(entity, dto).withConverters(new ListColourTests.MyStringToColourListConverter()).field("listString1", "listColour1").execute();
 		chkColourListValue(2, Colour.RED, Colour.BLUE);
 	}
 	
