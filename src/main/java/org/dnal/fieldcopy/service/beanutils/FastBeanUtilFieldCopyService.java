@@ -13,6 +13,7 @@ import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ListElementConverter;
+import org.dnal.fieldcopy.converter.ListElementConverterFactory;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
@@ -27,12 +28,14 @@ public class FastBeanUtilFieldCopyService {
 	private BeanUtilsBean beanUtil;
 	private PropertyUtilsBean propertyUtils;
 	private FieldFilter fieldFilter;
+	private ListElementConverterFactory converterFactory;
 	
 	public FastBeanUtilFieldCopyService(SimpleLogger logger, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
+		this.converterFactory = new ListElementConverterFactory();
 	}
 
 	private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
@@ -151,7 +154,12 @@ public class FastBeanUtilFieldCopyService {
 			String name = pair.srcProp.getName();
 			Class<?> srcElementClass = ReflectionUtil.detectElementClass(copySpec.sourceObj, fd1);
 			Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
-			ListElementConverter converter = new ListElementConverter(name, srcElementClass, destElementClass);
+			ListElementConverter converter = converterFactory.createConverter(name, srcElementClass, destElementClass);
+			if (converter == null) {
+				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
+				throw new FieldCopyException(error);
+			}
+			
 			copySpec.converterL.add(converter);
 		}
 	}

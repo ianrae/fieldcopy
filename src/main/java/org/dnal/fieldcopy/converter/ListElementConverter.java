@@ -3,10 +3,9 @@ package org.dnal.fieldcopy.converter;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
@@ -20,11 +19,13 @@ public class ListElementConverter implements ValueConverter {
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
 	private FieldCopyService copySvc;
+	private List<Class<?>> knownScalarsL;
 	
 	public ListElementConverter(String srcFieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.srcFieldName = srcFieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
+		this.knownScalarsL = Arrays.asList(String.class, Date.class);
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class ListElementConverter implements ValueConverter {
 	 * @return
 	 */
 	private boolean isBean(Class<?> clazz) {
-		if (String.class.equals(clazz)) {
+		if (knownScalarsL.contains(clazz)) {
 			return false;
 		}
 		
@@ -111,48 +112,48 @@ public class ListElementConverter implements ValueConverter {
 		return obj;
 	}
 
-	private Class<?> detectSrcElementClass(Object bean) {
-		Class<?> clazz = null;
-		try {
-			clazz = doDetectSrcElementClass(bean);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return clazz;
-	}
-	
-	private Class<?> doDetectSrcElementClass(Object bean) throws Exception {
-		
-		//TODO: fix. getField only works with public fields, but getDeclaredField won't handle inheritance
-		Field field = bean.getClass().getDeclaredField(srcFieldName);
-
-		//determine type of list element
-		System.out.println(field.getName());
-		Class<?> c2 = List.class;
-		if (c2.isAssignableFrom(field.getType())) {
-			System.out.println("sdf");
-			field.setAccessible(true);
-			Collection<?> col = (Collection<?>) field.get(bean);
-
-			if (col.isEmpty()) {
-				System.out.println("empty");
-			} else {
-				Iterator<?> it = col.iterator();
-
-				while(it.hasNext()) {
-					Object element = it.next();
-					if (element == null) {
-						continue;
-					}
-					Class<?> elclazz = element.getClass();
-					System.out.println("!!! " + elclazz);
-					return elclazz;
-				}
-			}
-		}
-		return null;
-	}
+//	private Class<?> detectSrcElementClass(Object bean) {
+//		Class<?> clazz = null;
+//		try {
+//			clazz = doDetectSrcElementClass(bean);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return clazz;
+//	}
+//	
+//	private Class<?> doDetectSrcElementClass(Object bean) throws Exception {
+//		
+//		//TODO: fix. getField only works with public fields, but getDeclaredField won't handle inheritance
+//		Field field = bean.getClass().getDeclaredField(srcFieldName);
+//
+//		//determine type of list element
+//		System.out.println(field.getName());
+//		Class<?> c2 = List.class;
+//		if (c2.isAssignableFrom(field.getType())) {
+//			System.out.println("sdf");
+//			field.setAccessible(true);
+//			Collection<?> col = (Collection<?>) field.get(bean);
+//
+//			if (col.isEmpty()) {
+//				System.out.println("empty");
+//			} else {
+//				Iterator<?> it = col.iterator();
+//
+//				while(it.hasNext()) {
+//					Object element = it.next();
+//					if (element == null) {
+//						continue;
+//					}
+//					Class<?> elclazz = element.getClass();
+//					System.out.println("!!! " + elclazz);
+//					return elclazz;
+//				}
+//			}
+//		}
+//		return null;
+//	}
 
 
 	public FieldCopyService getCopySvc() {

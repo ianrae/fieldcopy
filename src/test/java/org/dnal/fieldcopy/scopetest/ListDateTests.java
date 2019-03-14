@@ -47,7 +47,7 @@ public class ListDateTests extends BaseListTest {
 		list.add(createADate(2));
 		entity.setListDate1(list);
 		doCopy(mainField);
-		chkDateListValue(2, refDate1, refDate2);
+		chkDateListValue(3, refDate1, refDate2);
 
 		reset();
 		list = createDateList();
@@ -108,11 +108,9 @@ public class ListDateTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
-		copySrcFieldTo(mainField, "listInt1");
-		//TODO: fix bug. the above line works but the list contains strings not integers!!
-		//BeanUtils must simply be copying over the values
-		chkIntListValue(2, 44, 45);
+		copySrcFieldToFail(mainField, "listInt1");
 	}
+	
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
