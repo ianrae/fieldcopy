@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 
@@ -18,6 +19,16 @@ public class BaseListTest extends BaseScopeTest {
 		List<Integer> list = Arrays.asList(44, 45);
 		list = new ArrayList<>(list);
 		return list;
+	}
+	protected List<Date> createDateList() {
+		List<Date> list = new ArrayList<>();
+		list.add(createADate(0));
+		list.add(createADate(1));
+		return list;
+	}
+	protected Date createADate(int which) {
+		int year = 2015 + which;
+		return createDate(year,12,25);
 	}
 	
 	protected void chkValue(int expected, String s1, String s2) {
