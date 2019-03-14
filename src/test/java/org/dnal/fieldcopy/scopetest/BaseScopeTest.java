@@ -63,14 +63,14 @@ public class BaseScopeTest {
 		if (doReset) {
 			reset();
 		}
-		boolean failed = false;
+		boolean success = true;
 		try {
 			copySrcFieldTo(srcField, destField, true);
 		} catch (FieldCopyException e) {
-			failed = true;
+			success = false;
 			System.out.println(e.getMessage());
 		}
-		assertEquals(true, failed);
+		assertEquals(false, success);
 	}
 	
 	protected Date createDate(int year, int mon, int day) {

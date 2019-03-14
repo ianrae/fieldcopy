@@ -131,6 +131,12 @@ public class ListDateTests extends BaseListTest {
 		copier.copy(entity, dto).withConverters(new MyDateToStringListConverter()).field("listDate1", "listString1").execute();
 		chkValue(2, "2015-12-25", "2016-12-25");
 	}
+	@Test
+	@Scope("List<Date>")
+	public void testToListDate() {
+		copySrcFieldTo(mainField, "listDate1");
+		this.chkDateListValue(2, refDate1, refDate2);
+	}
 	
 	
 	private String formatDate(Date dt) {

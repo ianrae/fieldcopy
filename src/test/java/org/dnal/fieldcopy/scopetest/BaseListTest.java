@@ -28,6 +28,11 @@ public class BaseListTest extends BaseScopeTest {
 		list = new ArrayList<>(list);
 		return list;
 	}
+	protected List<Long> createLongList() {
+		List<Long> list = Arrays.asList(44L, 45L);
+		list = new ArrayList<>(list);
+		return list;
+	}
 	protected List<Date> createDateList() {
 		List<Date> list = new ArrayList<>();
 		list.add(createADate(0));
