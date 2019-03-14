@@ -131,6 +131,9 @@ public class ListColourTests extends BaseListTest {
 	public void testToListColour() {
 		copySrcFieldTo(mainField, "listColour1");
 		chkColourListValue(2, Colour.RED, Colour.BLUE);
+		
+		reset();
+		copySrcFieldToFail(mainField, "listProvince1");
 	}
 	
 	

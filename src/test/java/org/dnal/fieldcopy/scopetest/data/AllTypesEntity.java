@@ -26,6 +26,7 @@ public class AllTypesEntity {
 	private List<Date> listDate1;
 	private List<Long> listLong1;
 	private List<Colour> listColour1;
+	private List<Province> listProvince1;
 
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -161,5 +162,13 @@ public class AllTypesEntity {
 
 	public void setListColour1(List<Colour> listColour1) {
 		this.listColour1 = listColour1;
+	}
+
+	public List<Province> getListProvince1() {
+		return listProvince1;
+	}
+
+	public void setListProvince1(List<Province> listProvince1) {
+		this.listProvince1 = listProvince1;
 	}
 }
