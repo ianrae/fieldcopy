@@ -72,7 +72,7 @@ public class ListLongTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "bool1");
 	}
 	@Test
-	@Scope("Long")
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldToFail(mainField, "primitiveInt");
 		copySrcFieldToFail(mainField, "int1");

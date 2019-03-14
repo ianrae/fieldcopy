@@ -121,6 +121,12 @@ public class ListIntegerTests extends BaseListTest {
 	public void testToListDate() {
 		copySrcFieldToFail(mainField, "listDate1");
 	}
+	@Test
+	@Scope("List<Long>")
+	public void testToListLong() {
+		copySrcFieldTo(mainField, "listLong1");
+		chkLongListValue(2, 44L, 45L);
+	}
 	
 	
 	//---

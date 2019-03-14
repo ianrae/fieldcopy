@@ -147,6 +147,15 @@ public class ListStringTests extends BaseListTest {
 		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
 		this.chkDateListValue(2, refDate1, refDate2);
 	}
+	@Test
+	@Scope("List<Long>")
+	public void testToListLong() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listLong1", false);
+		chkLongListValue(2, 44L, 45L);
+	}
 	
 	
 	//---
