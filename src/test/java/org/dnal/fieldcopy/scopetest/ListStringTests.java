@@ -133,18 +133,19 @@ public class ListStringTests extends BaseListTest {
 	@Test
 	@Scope("List<Date>")
 	public void testToListDate() {
-//		reset();
-//		List<String> list = Arrays.asList("44", "45");
-//		entity.setListString1(list);
-//		copySrcFieldToFail(mainField, "listDate1", false);
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldToFail(mainField, "listDate1", false);
 		
 		reset();
-		List<String> list = Arrays.asList("Fri Dec 25 07:30:41 EST 2015", "Fri Dec 25 07:30:41 EST 2016");
-//		List<String> list = Arrays.asList("2015-12-25", "2016-12-25");
+		list = Arrays.asList("2015-12-25", "2016-12-25");
 		entity.setListString1(list);
 		copySrcFieldTo(mainField, "listDate1", false);
-//		copier.copy(entity, dto).withConverters(new MyStringToIntegerListConverter()).field("listString1", "listDate1").execute();
-		this.chkDateListValue(2, refDate1, refDate1);
+		
+		refDate1 = this.createDateNoHourMinue(2015, 12, 25);
+		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
+		this.chkDateListValue(2, refDate1, refDate2);
 	}
 	
 	

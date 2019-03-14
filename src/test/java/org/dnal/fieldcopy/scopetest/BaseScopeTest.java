@@ -85,6 +85,18 @@ public class BaseScopeTest {
 	    Date dt = cal.getTime();
 	    return dt;
 	}
+	protected Date createDateNoHourMinue(int year, int mon, int day) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.set(Calendar.YEAR, year);
+	    cal.set(Calendar.MONTH, mon - 1);
+	    cal.set(Calendar.DATE, day);
+	    cal.set(Calendar.HOUR_OF_DAY, 0);
+	    cal.set(Calendar.MINUTE, 00);
+	    cal.set(Calendar.SECOND, 00);
+	    cal.set(Calendar.MILLISECOND, 0);
+	    Date dt = cal.getTime();
+	    return dt;
+	}
 		
 
 	

@@ -48,9 +48,10 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			this.fieldFilter = fieldFilter;
 			this.fastSvc = new FastBeanUtilFieldCopyService(logger, fieldFilter);
 			
-			//customize Date converter
+			//customize Date converter.  There is no good defaut for date conversions
+			//so well just do yyyy-MM-dd
 			DateConverter dateConverter = new DateConverter();
-			dateConverter.setPattern("EEE MMM dd hh:mm:ss zzz yyyy");
+			dateConverter.setPattern("yyyy-MM-dd");
 			ConvertUtils.register(dateConverter, Date.class);
 		}
 

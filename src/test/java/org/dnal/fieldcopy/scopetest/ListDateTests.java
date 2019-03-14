@@ -125,7 +125,7 @@ public class ListDateTests extends BaseListTest {
 		String s = "Fri Dec 25 07:30:41 EST 2015";
 		assertEquals(s, refDate1.toString());
 //		copier.copy(entity, dto).withConverters(new MyIntegerToStringListConverter()).field("listInt1", "listString1").execute();
-		chkValue(2, refDate1.toString(), refDate2.toString());
+		chkValue(2, formatDate(refDate1), formatDate(refDate2));
 		
 		reset();
 		copier.copy(entity, dto).withConverters(new MyDateToStringListConverter()).field("listDate1", "listString1").execute();
@@ -133,6 +133,13 @@ public class ListDateTests extends BaseListTest {
 	}
 	
 	
+	private String formatDate(Date dt) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String s  = sdf.format(dt);
+		return s;
+	}
+
+
 	//---
 	private static final String mainField = "listDate1";
 	
