@@ -83,7 +83,7 @@ public class ListElementConverter implements ValueConverter {
 	 * @return
 	 */
 	private boolean isBean(Class<?> clazz) {
-		if (knownScalarsL.contains(clazz)) {
+		if (knownScalarsL.contains(clazz) || clazz.isEnum()) {
 			return false;
 		}
 		

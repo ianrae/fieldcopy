@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.scopetest.data.Colour;
+
 
 public class BaseListTest extends BaseScopeTest {
 	protected Date refDate1;
@@ -25,6 +27,11 @@ public class BaseListTest extends BaseScopeTest {
 	}
 	protected List<Integer> createIntList() {
 		List<Integer> list = Arrays.asList(44, 45);
+		list = new ArrayList<>(list);
+		return list;
+	}
+	protected List<Colour> createColourList() {
+		List<Colour> list = Arrays.asList(Colour.RED, Colour.BLUE);
 		list = new ArrayList<>(list);
 		return list;
 	}
@@ -86,6 +93,17 @@ public class BaseListTest extends BaseScopeTest {
 		}
 		if (expected > 1) {
 			assertEquals(dt2, list.get(1));
+		}
+	}
+	protected void chkColourListValue(int expected, Colour c1, Colour c2) {
+		List<Colour> list = dto.getListColour1();
+		assertEquals(expected, list.size());
+		
+		if (expected > 0) {
+			assertEquals(c1, list.get(0));
+		}
+		if (expected > 1) {
+			assertEquals(c2, list.get(1));
 		}
 	}
 }
