@@ -3,12 +3,16 @@ package org.dnal.fieldcopy.service.beanutils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.converters.DateConverter;
+import org.apache.commons.beanutils.converters.DateTimeConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -43,6 +47,11 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			this.propertyUtils =  new PropertyUtilsBean();
 			this.fieldFilter = fieldFilter;
 			this.fastSvc = new FastBeanUtilFieldCopyService(logger, fieldFilter);
+			
+			//customize Date converter
+			DateConverter dateConverter = new DateConverter();
+			dateConverter.setPattern("EEE MMM dd hh:mm:ss zzz yyyy");
+			ConvertUtils.register(dateConverter, Date.class);
 		}
 
 		@Override
