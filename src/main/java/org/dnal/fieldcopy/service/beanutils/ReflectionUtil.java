@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.service.beanutils;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Reflection helper
@@ -48,5 +49,40 @@ public class ReflectionUtil {
 
 		return null;
 	}
+	
+	public static boolean elementIsList(Object destObj, BeanUtilsFieldDescriptor fd2) {
+		String name = fd2.getName();
+		Field field = null;
+		try {
+			field = destObj.getClass().getDeclaredField(name);
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (field == null) {
+			return false;
+		}
+		
+		Type typ = field.getGenericType();
+		if (typ != null) {
+			if (typ instanceof ParameterizedType) {
+				ParameterizedType paramType = (ParameterizedType) typ;
+				Type[] argTypes = paramType.getActualTypeArguments();
+				Type target = argTypes[0];
+				
+				String s = target.getTypeName();
+				if (s.startsWith("java.util.List")) {
+					return true;
+				}
+			}		
+		}
+		
+		return false;
+	}
+	
 
 }

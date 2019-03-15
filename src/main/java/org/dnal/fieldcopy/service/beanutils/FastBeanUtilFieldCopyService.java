@@ -149,6 +149,11 @@ public class FastBeanUtilFieldCopyService {
 					return;
 				}
 			}
+			
+			if (ReflectionUtil.elementIsList(copySpec.sourceObj, fd1)) {
+				//TODO: also check destObj??
+				return;
+			}
 
 			//add one
 			String name = pair.srcProp.getName();
