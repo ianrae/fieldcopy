@@ -21,7 +21,7 @@ public class ListIntegerTests extends BaseListTest {
 	public static class MyIntegerToStringListConverter extends BaseListConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("listInt1");
+			return source.matches("listInt1");
 		}
 
 		@Override

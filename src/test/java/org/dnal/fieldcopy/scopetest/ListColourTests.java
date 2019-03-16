@@ -22,7 +22,7 @@ public class ListColourTests extends BaseListTest {
 	public static class MyStringToColourListConverter extends BaseListConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("listString1");
+			return source.matches("listString1");
 		}
 
 		@Override

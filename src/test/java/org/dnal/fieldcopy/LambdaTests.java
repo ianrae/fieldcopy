@@ -29,9 +29,9 @@ public class LambdaTests extends BaseTest {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
 			if (source.beanClass.equals(clazz)) {
-				if (srcFieldName != null && source.fieldName.equals(srcFieldName)) {
+				if (srcFieldName != null && source.matches(srcFieldName)) {
 					return true;
-				} else if (destFieldName != null && dest.fieldName.equals(destFieldName)) {
+				} else if (destFieldName != null && dest.matches(destFieldName)) {
 					return true;
 				}
 			}

@@ -23,7 +23,7 @@ public class ListDateTests extends BaseListTest {
 	public static class MyDateToStringListConverter extends BaseListConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("listDate1");
+			return source.matches("listDate1");
 		}
 
 		@Override

@@ -101,7 +101,7 @@ public class MapConverterTests extends BaseTest {
 	public static class MyMapValueConverter implements ValueConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("mapInner");
+			return source.matches("mapInner");
 		}
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
@@ -121,7 +121,7 @@ public class MapConverterTests extends BaseTest {
 	public static class MyOtherMapValueConverter implements ValueConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("mapInner");
+			return source.matches("mapInner");
 		}
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {

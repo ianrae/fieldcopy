@@ -22,7 +22,7 @@ public class ListLongTests extends BaseListTest {
 	public static class MyLongToStringListConverter extends BaseListConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("listLong1");
+			return source.matches("listLong1");
 		}
 
 		@Override

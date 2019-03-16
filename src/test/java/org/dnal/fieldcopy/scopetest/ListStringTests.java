@@ -23,7 +23,7 @@ public class ListStringTests extends BaseListTest {
 	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
 		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.fieldName.equals("listString1");
+			return source.matches("listString1");
 		}
 
 		@Override
