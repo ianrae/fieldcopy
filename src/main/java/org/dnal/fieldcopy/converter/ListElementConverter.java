@@ -49,7 +49,7 @@ public class ListElementConverter implements ValueConverter {
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
-		spec.options = new CopyOptions(); //TODO: should be propogated
+		spec.options = ctx.copyOptions;
 		spec.mappingL = null;
 		spec.converterL = null;
 

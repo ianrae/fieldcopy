@@ -164,7 +164,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
-                			value = transformIfPresent(pair, orig, value, copySpec.converterL);
+                			value = transformIfPresent(pair, orig, value, copySpec.converterL, copySpec.options);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -207,7 +207,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 
-		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueConverter> transformerL) {
+		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueConverter> transformerL, CopyOptions options) {
 			if (value == null) {
 				return null;
 			}
@@ -228,6 +228,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 						ctx.srcClass = srcFieldClass;
 						ctx.srcFieldName = pair.srcProp.getName();
 						ctx.copySvc = this;
+						ctx.copyOptions = options;
 						
 						return transformer.convertValue(orig, value, ctx);
 					}

@@ -1,10 +1,5 @@
 package org.dnal.fieldcopy;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.dnal.fieldcopy.converter.ValueConverter;
-
 /**
  * Various settings and flags to control the copy operation.
  * 
