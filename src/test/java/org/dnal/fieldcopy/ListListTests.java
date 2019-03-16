@@ -8,7 +8,12 @@ import java.util.List;
 
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.ListSpec;
+import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
 import org.junit.Test;
 
 
@@ -112,6 +117,22 @@ public class ListListTests {
 	}
 	
 	@Test
+	public void testListInfo() {
+		
+		FieldCopyService copySvc = DefaultCopyFactory.Factory().createCopyService();
+		List<FieldPair> pairL = copySvc.buildAutoCopyPairs(Taxi.class, TaxiDTO.class);
+		
+		Taxi taxi = new Taxi();
+		for(FieldPair pair: pairL) {
+			
+			BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+			ListSpec spec = ReflectionUtil.buildListSpec(taxi, fd);
+			log(String.format("%s: %d - %s", pair.srcProp.getName(), spec.depth, spec.elementClass));
+		}
+	}
+	
+	
+	@Test
 	public void testInteger() {
 		Taxi taxi = createTaxi();
 		taxi.setNestedSizes(null);
@@ -211,5 +232,8 @@ public class ListListTests {
 	private FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		return DefaultCopyFactory.Factory().createCopier();
+	}
+	private void log(String s) {
+		System.out.println(s);
 	}
 }

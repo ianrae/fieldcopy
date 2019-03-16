@@ -27,6 +27,7 @@ public class ListElementConverter implements ValueConverter {
 	private Class<?> destElClass;
 	private List<Class<?>> knownScalarsL;
 	private boolean useScalarCopy;
+	private int depth;
 	
 	public ListElementConverter(String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.srcFieldName = fieldName;
@@ -50,6 +51,21 @@ public class ListElementConverter implements ValueConverter {
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
+		if (depth == 0) {
+			return copyInnerMostList(list, ctx);
+		} else {
+//			for(int i = 0; i < depth; i++) {
+			List<Object> list2 = new ArrayList<>();
+			for(Object el: list) {
+				List<?> inner = (List<?>) el;
+				List<?> innerCopy = (List<?>) copyInnerMostList(inner, ctx);
+				list2.add(innerCopy);
+			}
+			return list2;
+		}
+	}
+	
+	private List<?> copyInnerMostList(List<?> list, ConverterContext ctx) {
 		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
@@ -71,11 +87,10 @@ public class ListElementConverter implements ValueConverter {
 		}
 		return list2;
 	}
-	
-	private Object copyScalarList(List<?> list, Class<?> srcElClass) {
+
+	private List<?> copyScalarList(List<?> list, Class<?> srcElClass) {
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {
-			
 			Object result = ConvertUtils.convert(el, destElClass);
 			list2.add(result);
 		}
@@ -116,6 +131,14 @@ public class ListElementConverter implements ValueConverter {
 			e.printStackTrace();
 		}
 		return obj;
+	}
+
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
 	}
 
 }
