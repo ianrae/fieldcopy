@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;

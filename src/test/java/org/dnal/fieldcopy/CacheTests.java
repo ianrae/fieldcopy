@@ -5,14 +5,12 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.junit.Test;
 
 
-public class CacheTests {
+public class CacheTests extends BaseTest {
 	
 	@Test
 	public void test() {
@@ -37,8 +35,4 @@ public class CacheTests {
 	}
 	
 	//--
-	private FieldCopier createCopier() {
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-
 }

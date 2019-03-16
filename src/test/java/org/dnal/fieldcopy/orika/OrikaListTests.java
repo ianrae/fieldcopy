@@ -5,10 +5,10 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dnal.fieldcopy.BeanUtilTests;
+import org.dnal.fieldcopy.FieldCopierTests;
 import org.dnal.fieldcopy.ListTests;
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.junit.Before;

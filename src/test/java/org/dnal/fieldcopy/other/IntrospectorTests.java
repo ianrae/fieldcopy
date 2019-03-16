@@ -6,8 +6,8 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 
-import org.dnal.fieldcopy.BeanUtilTests;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.junit.Test;
 
 public class IntrospectorTests {
