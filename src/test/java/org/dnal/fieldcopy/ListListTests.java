@@ -10,14 +10,13 @@ import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.ListSpec;
 import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
 import org.junit.Test;
 
 
-public class ListListTests {
+public class ListListTests extends BaseTest {
 	
 	public static class Taxi {
 		private int width;
@@ -226,14 +225,5 @@ public class ListListTests {
 		if (expected > 1) {
 			assertEquals(n2, list.get(1).intValue());
 		}
-	}
-
-	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-	private void log(String s) {
-		System.out.println(s);
 	}
 }

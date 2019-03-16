@@ -6,14 +6,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.FieldCopyException;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 
-public class BaseScopeTest {
+public class BaseScopeTest extends BaseTest {
 	
 	//--
 	protected AllTypesEntity entity;
@@ -38,11 +37,6 @@ public class BaseScopeTest {
 	}
 	protected void doCopy(String...fields) {
 		copier.copy(entity, dto).autoCopy().include(fields).execute();
-	}
-	
-	protected FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
 	}
 	
 	protected void copySrcFieldTo(String srcField, String destField) {

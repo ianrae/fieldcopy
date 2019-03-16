@@ -4,11 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class FluentAPITests {
+public class FluentAPITests extends BaseTest {
 	
 	@Test
 	public void test() {
@@ -31,12 +30,4 @@ public class FluentAPITests {
 		assertEquals(33, dest.getAge());
 	}
 	
-	
-	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-
-
 }

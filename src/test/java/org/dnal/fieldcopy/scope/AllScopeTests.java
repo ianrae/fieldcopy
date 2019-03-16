@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.MyScopeTestsBase;
 import org.dnal.fieldcopy.scope.core.ScopeResult;
@@ -24,7 +25,7 @@ import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 
-public class AllScopeTests {
+public class AllScopeTests extends BaseTest {
 	
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {
@@ -127,9 +128,5 @@ public class AllScopeTests {
 	private void runClass(Class<?> class1) {
 		junit.run(class1);	
 		allResults.executions.addAll(MyRunner.scopeResults.executions);
-	}
-
-	private static void log(String s) {
-		System.out.println(s);
 	}
 }

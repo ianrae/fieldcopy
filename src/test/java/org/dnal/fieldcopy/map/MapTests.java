@@ -6,9 +6,8 @@ import static org.junit.Assert.assertSame;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 /**
@@ -28,7 +27,7 @@ import org.junit.Test;
  * @author Ian Rae
  *
  */
-public class MapTests {
+public class MapTests extends BaseTest {
 	
 	public static class Inner {
 		private String name;
@@ -159,11 +158,6 @@ public class MapTests {
 	}
 	
 	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-
 	private Inner createInner() {
 		Inner inner = new Inner();
 		inner.setName("rob");

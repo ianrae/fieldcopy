@@ -2,15 +2,11 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class MappingTests {
+public class MappingTests extends BaseTest {
 	
 	public static class Combo1 {
 		private int size;
@@ -78,11 +74,5 @@ public class MappingTests {
 		assertEquals(null, combo2.source.getName());
 		assertEquals(33, combo2.source.getAge());
 		assertEquals(15, combo2.getSize());
-	}
-	
-	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
 	}
 }

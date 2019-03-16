@@ -2,15 +2,11 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.core.FieldCopyException;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class RunawayTests {
+public class RunawayTests extends BaseTest {
 	
 	public static class Node {
 		private String name;
@@ -72,9 +68,4 @@ public class RunawayTests {
 		assertEquals("node2", nodeDest.getNext().getName());
 	}
 	
-	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
 }

@@ -12,7 +12,7 @@ import org.dnal.fieldcopy.service.beanutils.ExecuteCopyPlan;
 import org.dnal.fieldcopy.service.beanutils.FastBeanUtilFieldCopyService;
 import org.junit.Test;
 
-public class StructTests {
+public class StructTests extends BaseTest {
 
 	@Test
 	public void test() {
