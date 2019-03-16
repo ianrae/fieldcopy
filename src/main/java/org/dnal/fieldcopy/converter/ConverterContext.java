@@ -7,6 +7,12 @@ import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 
+/**
+ * Context object used by ValueConverters
+ * 
+ * @author Ian Rae
+ *
+ */
 public class ConverterContext {
 	public String srcFieldName;
 	public Class<?>srcClass;

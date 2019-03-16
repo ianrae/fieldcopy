@@ -8,7 +8,6 @@ import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldCopyService;
-import org.dnal.fieldcopy.service.beanutils.OldBeanUtilFieldCopyService;
 
 /**
  * Creates a field copier that uses Apache BeanUtils (reflection-based),

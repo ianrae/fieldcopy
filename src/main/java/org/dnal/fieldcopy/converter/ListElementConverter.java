@@ -12,6 +12,12 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
 
+/**
+ * Converts the elements of a list.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class ListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
@@ -26,7 +32,7 @@ public class ListElementConverter implements ValueConverter {
 	}
 
 	@Override
-	public boolean canConvert(String fieldName, Class<?>srcClass, Class<?> destClass) {
+	public boolean canConvert(String fieldName, Class<?>srcClass, Class<?> targetClass) {
 		return this.srcFieldName.equals(fieldName);
 	}
 	

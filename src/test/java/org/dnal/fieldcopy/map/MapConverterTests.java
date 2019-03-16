@@ -100,7 +100,7 @@ public class MapConverterTests {
 	
 	public static class MyMapValueConverter implements ValueConverter {
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> destClass) {
+		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
 			return fieldName.equals("mapInner");
 		}
 		@Override
@@ -120,7 +120,7 @@ public class MapConverterTests {
 	}
 	public static class MyOtherMapValueConverter implements ValueConverter {
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> destClass) {
+		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
 			return fieldName.equals("mapInner");
 		}
 		@Override

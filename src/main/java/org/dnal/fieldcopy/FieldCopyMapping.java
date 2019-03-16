@@ -6,7 +6,7 @@ import org.dnal.fieldcopy.core.FieldPair;
 
 /**
  * Defines the copying of non-scalar child of the parent objects that will be copied.
- * For example, if you are copying a CustomerEntity object to CustomerDTO, and CustomerEntity
+ * For example, if you are copying a CustomerEntity object, and CustomerEntity
  * has a field of type AddressEntity, you can use a mapping to control how it will be copied.
  * 
  * Example:

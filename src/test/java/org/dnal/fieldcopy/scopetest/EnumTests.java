@@ -22,8 +22,8 @@ public class EnumTests extends BaseScopeTest {
 	public static class MyConverter implements ValueConverter {
 
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> destClass) {
-			if (fieldClass.equals(Colour.class) && destClass.equals(Province.class)) {
+		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
+			if (fieldClass.equals(Colour.class) && targetClass.equals(Province.class)) {
 				return true;
 			}
 			return false;

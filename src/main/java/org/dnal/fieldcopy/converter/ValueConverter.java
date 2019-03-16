@@ -14,15 +14,15 @@ package org.dnal.fieldcopy.converter;
  */
 public interface ValueConverter {
 	/**
-	 * FieldCopy is about to copy one field from the source object to the destination object.
+	 * FieldCopy is about to copy a field from a source object to a destination object.
 	 * It asks each registered converter if it wants to do the conversion. The first converter
 	 * to return true from its canConvert method is used.
 	 * 
 	 * @param fieldName Name of the field (aka. bean property) to be copied from the source object.
 	 * @param fieldClass Class of the field to be copied.
-	 * @param destClass Destination class that the field will be converted to.
+	 * @param targetClass Type of object that the field will be converted to.
 	 * @return true if this converter wants to do this conversion.
 	 */
-	boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> destClass);
+	boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass);
 	Object convertValue(Object srcBean, Object value, ConverterContext ctx);
 }

@@ -66,14 +66,6 @@ public class CopyBuilder1A {
 		this.converters.addAll(Arrays.asList(converters));
 		return this;
 	}
-//	public CopyBuilder1 listHint(String srcField, Class<?> destListElementClass) {
-//		if (this.converters == null) {
-//			this.converters = new ArrayList<>();
-//		}
-//		ListElementConverter converter = new ListElementConverter(srcField, destListElementClass);
-//		this.converters.add(converter);
-//		return this;
-//	}
 	
 	/**
 	 * if autocopy then copies matching fields

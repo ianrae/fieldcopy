@@ -23,7 +23,6 @@ public class FieldCopier {
 	Object sourceObj;
 	Object destObj;
 	CopyOptions options = new CopyOptions();
-	//List<FieldCopyMapping> mappingList = new ArrayList<>();
 
 	public FieldCopier(FieldCopyService copier) {
 		this.copier = copier;
