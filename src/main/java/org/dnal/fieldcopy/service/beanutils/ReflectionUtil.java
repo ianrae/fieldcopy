@@ -118,6 +118,11 @@ public class ReflectionUtil {
 			String targetStr = "java.util.List<";
 			if (typeName.startsWith(targetStr)) {
 				typeName = typeName.substring(targetStr.length(), typeName.length() - 1);
+				
+				while (typeName.startsWith(targetStr)) {
+					spec.depth++;
+					typeName = typeName.substring(targetStr.length(), typeName.length() - 1);
+				}
 				spec.elementClass = safeGetClass(typeName);
 				spec.depth++;
 				return buildListInfo(spec.elementClass, spec);
