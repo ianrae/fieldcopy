@@ -23,6 +23,6 @@ public interface ValueConverter {
 	 * @param targetClass Type of object that the field will be converted to.
 	 * @return true if this converter wants to do this conversion.
 	 */
-	boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass);
+	boolean canConvert(FieldInfo source, FieldInfo dest);
 	Object convertValue(Object srcBean, Object value, ConverterContext ctx);
 }

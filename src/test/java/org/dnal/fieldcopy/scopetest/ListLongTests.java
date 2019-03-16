@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -20,8 +21,8 @@ public class ListLongTests extends BaseListTest {
 	
 	public static class MyLongToStringListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listLong1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.fieldName.equals("listLong1");
 		}
 
 		@Override

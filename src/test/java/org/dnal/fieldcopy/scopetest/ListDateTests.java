@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -21,8 +22,8 @@ public class ListDateTests extends BaseListTest {
 	
 	public static class MyDateToStringListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listDate1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.fieldName.equals("listDate1");
 		}
 
 		@Override

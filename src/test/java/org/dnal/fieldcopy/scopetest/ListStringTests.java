@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -21,8 +22,8 @@ public class ListStringTests extends BaseListTest {
 	
 	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listString1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.fieldName.equals("listString1");
 		}
 
 		@Override

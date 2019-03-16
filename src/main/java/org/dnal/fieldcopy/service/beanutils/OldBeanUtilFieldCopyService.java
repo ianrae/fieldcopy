@@ -14,6 +14,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ListElementConverter;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -153,7 +154,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
                 		fillInDestPropIfNeeded(pair, destObj.getClass());
                 		
                 		Object value = propertyUtils.getSimpleProperty(orig, name);
-                		addListTransformerIfNeeded(pair, value, copySpec.converterL, sourceObj, destObj);
+                		addListTransformerIfNeeded(copySpec, pair, value, copySpec.converterL, sourceObj, destObj);
                 		
                 		if (applyMapping(pair, sourceObj, destObj, value, mappingL, options, runawayCounter)) {
                 			
@@ -164,7 +165,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
                 			}
                 			
                 			validateIsAllowed(pair, value, dest);
-                			value = transformIfPresent(pair, orig, value, copySpec.converterL, copySpec.options);
+                			value = transformIfPresent(copySpec, pair, orig, value, copySpec.converterL, copySpec.options);
                 			beanUtil.copyProperty(dest, pair.destFieldName, value);
                 		}
                 		
@@ -175,7 +176,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 		
-		private void addListTransformerIfNeeded(FieldPair pair, Object value, List<ValueConverter> transformerL, Object sourceObj, Object destObj) {
+		private void addListTransformerIfNeeded(CopySpec copySpec, FieldPair pair, Object value, List<ValueConverter> transformerL, Object sourceObj, Object destObj) {
 			if (value == null) {
 				return;
 			}
@@ -192,7 +193,17 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				}
 
 				for(ValueConverter transformer: transformerL) {
-					if (transformer.canConvert(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
+					FieldInfo sourceField = new FieldInfo();
+					sourceField.fieldName = pair.srcProp.getName();
+					sourceField.fieldClass = srcFieldClass;
+					sourceField.beanClass = copySpec.sourceObj.getClass();
+					
+					FieldInfo destField = new FieldInfo();
+					destField.fieldName = pair.destProp.getName();
+					destField.fieldClass = destFieldClass;
+					destField.beanClass = copySpec.destObj.getClass();
+					
+					if (transformer.canConvert(sourceField, destField)) {
 						//if already is a transform, nothing more to do
 						return;
 					}
@@ -207,7 +218,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 			}
 		}
 
-		private Object transformIfPresent(FieldPair pair, Object orig, Object value, List<ValueConverter> transformerL, CopyOptions options) {
+		private Object transformIfPresent(CopySpec copySpec, FieldPair pair, Object orig, Object value, List<ValueConverter> transformerL, CopyOptions options) {
 			if (value == null) {
 				return null;
 			}
@@ -221,7 +232,17 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				
 				//TODO: can we make this faster with a map??
 				for(ValueConverter transformer: transformerL) {
-					if (transformer.canConvert(pair.srcProp.getName(), srcFieldClass, destClass)) {
+					FieldInfo sourceField = new FieldInfo();
+					sourceField.fieldName = pair.srcProp.getName();
+					sourceField.fieldClass = srcFieldClass;
+					sourceField.beanClass = copySpec.sourceObj.getClass();
+					
+					FieldInfo destField = new FieldInfo();
+					destField.fieldName = pair.destProp.getName();
+					destField.fieldClass = destClass;
+					destField.beanClass = copySpec.destObj.getClass();
+					
+					if (transformer.canConvert(sourceField, destField)) {
 						
 						ConverterContext ctx = new ConverterContext();
 						ctx.destClass = destClass;

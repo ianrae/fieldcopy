@@ -38,8 +38,8 @@ public class ListElementConverter implements ValueConverter {
 	}
 
 	@Override
-	public boolean canConvert(String fieldName, Class<?>srcClass, Class<?> targetClass) {
-		return this.srcFieldName.equals(fieldName);
+	public boolean canConvert(FieldInfo source, FieldInfo dest) {
+		return this.srcFieldName.equals(source.fieldName);
 	}
 	
 	@Override

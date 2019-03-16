@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ListElementConverter;
 import org.dnal.fieldcopy.converter.ListElementConverterFactory;
 import org.dnal.fieldcopy.converter.ValueConverter;
@@ -99,7 +100,7 @@ public class FastBeanUtilFieldCopyService {
             			
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
-            			fspec.converter = convertIfPresent(pair, orig, copySpec.converterL);
+            			fspec.converter = convertIfPresent(copySpec, pair, orig, copySpec.converterL);
             			execspec.fieldL.add(fspec);
             		}
             		
@@ -161,7 +162,17 @@ public class FastBeanUtilFieldCopyService {
 			for(ValueConverter converter: copySpec.converterL) {
 				//a special use of converter. normally we pass field name and its class (and the dest class).
 				//Here we are passing the fieldName (which is a list) and source and destination *element* classes
-				if (converter.canConvert(pair.srcProp.getName(), srcElementClass, destElementClass)) {
+				FieldInfo sourceField = new FieldInfo();
+				sourceField.fieldName = pair.srcProp.getName();
+				sourceField.fieldClass = srcElementClass;
+				sourceField.beanClass = copySpec.sourceObj.getClass();
+				
+				FieldInfo destField = new FieldInfo();
+				destField.fieldName = pair.destProp.getName();
+				destField.fieldClass = destElementClass;
+				destField.beanClass = copySpec.destObj.getClass();
+				
+				if (converter.canConvert(sourceField, destField)) {
 					//if already is a converter, nothing more to do
 					return;
 				}
@@ -179,7 +190,7 @@ public class FastBeanUtilFieldCopyService {
 		}
 	}
 
-	private ValueConverter convertIfPresent(FieldPair pair, Object orig, List<ValueConverter> converterL) {
+	private ValueConverter convertIfPresent(CopySpec copySpec, FieldPair pair, Object orig, List<ValueConverter> converterL) {
 		if (CollectionUtils.isNotEmpty(converterL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
@@ -189,7 +200,17 @@ public class FastBeanUtilFieldCopyService {
 			//TODO: can we make this faster with a map??
 			for(ValueConverter converter: converterL) {
 				//TODO: fix value null issue
-				if (converter.canConvert(pair.srcProp.getName(), srcClass, destClass)) {
+				FieldInfo sourceField = new FieldInfo();
+				sourceField.fieldName = pair.srcProp.getName();
+				sourceField.fieldClass = srcClass;
+				sourceField.beanClass = copySpec.sourceObj.getClass();
+				
+				FieldInfo destField = new FieldInfo();
+				destField.fieldName = pair.destProp.getName();
+				destField.fieldClass = destClass;
+				destField.beanClass = copySpec.destObj.getClass();
+				
+				if (converter.canConvert(sourceField, destField)) {
 					return converter;
 				}
 			}
