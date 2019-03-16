@@ -68,7 +68,6 @@ public class DeeplyNestedListTests {
 		}
 	}
 	
-	
 	@Test
 	public void testNestedInteger() {
 		Taxi taxi = createTaxi();
@@ -87,7 +86,25 @@ public class DeeplyNestedListTests {
 		chkIntListValue(3, 210, 211, list2.get(1));
 	}
 	
+	@Test
+	public void testNestedSource() {
+		Taxi taxi = createTaxiWithSources();
+		TaxiDTO dto = new TaxiDTO();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(taxi, dto).autoCopy().execute();
+		assertEquals(55, dto.getWidth());
+		assertEquals(2, dto.getNestedSources().size());
+		
+		List<List<Dest>> list2 = dto.getNestedSources().get(0);
+		chkDestListValue(3, 100, 101, list2.get(0));
+		chkDestListValue(3, 110, 111, list2.get(1));
+		list2 = dto.getNestedSources().get(1);
+		chkDestListValue(3, 200, 201, list2.get(0));
+		chkDestListValue(3, 210, 211, list2.get(1));
+	}
 	
+	//--
 	private Taxi createTaxi() {
 		Taxi taxi = new Taxi();
 		taxi.setWidth(55);
@@ -111,6 +128,30 @@ public class DeeplyNestedListTests {
 		taxi.setNestedSizes(list3);
 		return taxi;
 	}
+	private Taxi createTaxiWithSources() {
+		Taxi taxi = new Taxi();
+		taxi.setWidth(55);
+		
+		List<Source> list1A = Arrays.asList(new Source("1A", 100), new Source("b", 101), new Source("c,", 102));
+		List<Source> list1B = Arrays.asList(new Source("1B", 110), new Source("b", 111), new Source("c,", 112));
+		List<Source> list2A = Arrays.asList(new Source("2A", 200), new Source("b", 201), new Source("c,", 202));
+		List<Source> list2B = Arrays.asList(new Source("2B", 210), new Source("b", 211), new Source("c,", 212));
+		
+		List<List<List<Source>>> list3 = new ArrayList<>();
+		List<List<Source>> list2 = new ArrayList<>();
+		list2.add(list1A);
+		list2.add(list1B);
+		list3.add(list2);
+		
+		list2 = new ArrayList<>();
+		list2.add(list2A);
+		list2.add(list2B);
+		list3.add(list2);
+		
+		taxi.setNestedSources(list3);
+		return taxi;
+	}
+	
 	protected void chkIntListValue(int expected, int n1, int n2, List<Integer> list) {
 		assertEquals(expected, list.size());
 		
@@ -122,7 +163,6 @@ public class DeeplyNestedListTests {
 		}
 	}
 
-	//--
 	private FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		return DefaultCopyFactory.Factory().createCopier();
@@ -130,4 +170,19 @@ public class DeeplyNestedListTests {
 	private void log(String s) {
 		System.out.println(s);
 	}
+	
+	private void chkDestListValue(int expected, int n1, int n2, List<Dest> list) {
+		assertEquals(expected, list.size());
+		
+		if (expected > 0) {
+			Dest dest = list.get(0);
+			assertEquals(n1, dest.getAge());
+		}
+		if (expected > 1) {
+			Dest dest = list.get(1);
+			assertEquals(n2, dest.getAge());
+		}
+	}
+
+	
 }
