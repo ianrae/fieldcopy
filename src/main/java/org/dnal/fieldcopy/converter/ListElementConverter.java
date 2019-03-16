@@ -54,28 +54,25 @@ public class ListElementConverter implements ValueConverter {
 		if (depth == 0) {
 			return copyInnerMostList(list, ctx);
 		} else {
-			List<Object> list2 = null;
-			for(int i = 0; i < depth; i++) {
-				list2 = new ArrayList<>();
-				for(Object el: list) {
-					List<?> inner = (List<?>) el;
-					List<?> innerCopy = copyNextLevelNestedList(inner, ctx, i);
-					list2.add(innerCopy);
-				}
+			List<Object> list2 = new ArrayList<>();
+			for(Object el: list) {
+				List<?> inner = (List<?>) el;
+				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, 0);
+				list2.add(innerCopy);
 			}
 			return list2;
 		}
 	}
 	
-	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int i) {
-		boolean isInnermost = (i == depth - 1);
+	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int currentDepth) {
+		boolean isInnermost = (currentDepth == depth - 1);
 		if (isInnermost) {
 			return copyInnerMostList(list, ctx);
 		} else {
 			List<Object> list2 = new ArrayList<>();
 			for(Object el: list) {
 				List<?> inner = (List<?>) el;
-				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, i + 1);
+				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, currentDepth + 1);
 				list2.add(innerCopy);
 			}
 			return list2;

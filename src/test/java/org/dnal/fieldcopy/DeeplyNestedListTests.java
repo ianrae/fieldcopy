@@ -80,8 +80,11 @@ public class DeeplyNestedListTests {
 		assertEquals(2, dto.getNestedSizes().size());
 		
 		List<List<Integer>> list2 = dto.getNestedSizes().get(0);
-		chkIntListValue(3, 100, 200, list2.get(0));
-//		chkIntListValue(2, 44, 45, dto.getNestedSizes().get(1));
+		chkIntListValue(3, 100, 101, list2.get(0));
+		chkIntListValue(3, 110, 111, list2.get(1));
+		list2 = dto.getNestedSizes().get(1);
+		chkIntListValue(3, 200, 201, list2.get(0));
+		chkIntListValue(3, 210, 211, list2.get(1));
 	}
 	
 	
