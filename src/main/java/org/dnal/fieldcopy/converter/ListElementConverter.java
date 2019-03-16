@@ -26,12 +26,14 @@ public class ListElementConverter implements ValueConverter {
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
 	private List<Class<?>> knownScalarsL;
+	private boolean useScalarCopy;
 	
 	public ListElementConverter(String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
 		this.knownScalarsL = Arrays.asList(String.class, Date.class);
+		this.useScalarCopy = ! isBean(srcElClass) && ! isBean(destElClass);
 	}
 
 	@Override
@@ -48,9 +50,7 @@ public class ListElementConverter implements ValueConverter {
 		@SuppressWarnings("unchecked")
 		List<?> list = (List<?>) value;
 		
-		//TODO: why can't we determine srcElClass during generation?
-		//Class<?> srcElClass = this.detectSrcElementClass(srcBean);
-		if (! isBean(srcElClass) && ! isBean(destElClass)) {
+		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
 		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
