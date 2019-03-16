@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
-import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
 

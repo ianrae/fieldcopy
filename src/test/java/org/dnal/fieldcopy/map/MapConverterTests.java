@@ -2,13 +2,17 @@ package org.dnal.fieldcopy.map;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
@@ -98,12 +102,10 @@ public class MapConverterTests {
 	}
 	
 	public static class MyMapValueConverter implements ValueConverter {
-
 		@Override
 		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("mapInner");
 		}
-
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
 			Map<String,Inner> srcMap = (Map<String, Inner>) value;
@@ -119,7 +121,38 @@ public class MapConverterTests {
 			return destMap;
 		}
 	}
-	
+	public static class MyOtherMapValueConverter implements ValueConverter {
+		@Override
+		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
+			return srcFieldName.equals("mapInner");
+		}
+		@Override
+		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
+			Map<String,Inner> srcMap = (Map<String, Inner>) value;
+			Map<String,InnerDTO> destMap = new HashMap<String, InnerDTO>();
+			
+			//use FieldCopy to copy Inner to InnerDTO objects
+			List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(Inner.class, InnerDTO.class);
+
+			CopySpec spec = new CopySpec();
+			spec.fieldPairs = fieldPairs;
+			spec.options = ctx.copyOptions;
+			spec.mappingL = null;
+			spec.converterL = null;
+			
+			for(String key: srcMap.keySet()) {
+				Inner inner = srcMap.get(key);
+				InnerDTO dto = new InnerDTO();
+				
+				spec.sourceObj = inner;
+				spec.destObj = dto;
+				ctx.copySvc.copyFields(spec);
+				
+				destMap.put(key, dto);
+			}
+			return destMap;
+		}
+	}
 	
 	@Test
 	public void testInnerWithConverter() {
@@ -131,6 +164,25 @@ public class MapConverterTests {
 		
 		FieldCopier copier = createCopier();
 		copier.copy(user, dto).withConverters(new MyMapValueConverter()).autoCopy().execute();
+		assertEquals("bill", dto.getName());
+		assertEquals(1, dto.mapInner.size());
+		
+		//hmm. so beanutils simply copied the map values. no cloning or mapping done
+		InnerDTO inner2 = dto.mapInner.get("B");
+		assertEquals("rob", inner2.getName());
+		assertEquals(10, inner2.getPoints().intValue());
+	}
+	
+	@Test
+	public void testInnerWithOtherConverter() {
+		User user = new User();
+		user.setName("bill");
+		Inner inner = createInner();
+		user.mapInner.put("B", inner);
+		UserDTO dto = new UserDTO();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(user, dto).withConverters(new MyOtherMapValueConverter()).autoCopy().execute();
 		assertEquals("bill", dto.getName());
 		assertEquals(1, dto.mapInner.size());
 		

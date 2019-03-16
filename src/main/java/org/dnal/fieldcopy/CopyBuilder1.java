@@ -7,7 +7,6 @@ import java.util.List;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
 
 /**
@@ -99,26 +98,12 @@ public class CopyBuilder1 {
 		spec.mappingL = mappingList;
 		spec.options = root.options;
 		spec.converterL = this.converters;
-		spec.executionPlanCacheKey = generateCacheKey(); //executionPlanCacheKey;
+		spec.executionPlanCacheKey = this.executionPlanCacheKey;
 		FieldCopyService copySvc = root.getCopyService();
 		copySvc.copyFields(spec);
 		return null;
 	}
 	
-	private String generateCacheKey() {
-		if (executionPlanCacheKey == null) {
-			//NOTE. the following key will not work if you have multiple conversions of the
-			//same pair of source,destObj but with different fields, mappings, and converters.
-			//If that is the case, you MUST key cacheKey and provide a unique value.
-			
-			//if source or destObj are null we will catch it during copy
-			String class1Name = root.sourceObj == null ? "" : root.sourceObj.getClass().getName();
-			String class2Name = root.destObj == null ? "" : root.destObj.getClass().getName();
-			executionPlanCacheKey = String.format("%s--%s", class1Name, class2Name);
-		}
-		return executionPlanCacheKey;
-	}
-
 	public CopyBuilder2 field(String srcFieldName) {
 		return new CopyBuilder2(this, srcFieldName, srcFieldName);
 	}
