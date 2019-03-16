@@ -20,13 +20,8 @@ public class DefaultValueTests extends BaseTest {
 		assertEquals(-1, dest.getAge());
 		
 		dest = new Dest(null, -1);
-		copier.copy(src, dest).cacheKey("key2").field("age", "age").execute();
+		copier.copy(src, dest).cacheKey("key2").field("name", "name", "sam").execute();
 		assertEquals(null, dest.getName());
-		assertEquals(33, dest.getAge());
-		
-		dest = new Dest(null, -1);
-		copier.copy(src, dest).cacheKey("key3").field("age", "age").field("name").execute();
-		assertEquals("bob", dest.getName());
 		assertEquals(33, dest.getAge());
 	}
 	

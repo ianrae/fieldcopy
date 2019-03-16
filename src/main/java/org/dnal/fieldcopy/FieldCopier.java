@@ -52,7 +52,7 @@ public class FieldCopier {
 	}
 	
 	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
-			 List<String> excludeList, List<String> srcList, List<String> destList) {
+			 List<String> excludeList, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
 		if (destObj == null) {
@@ -86,10 +86,12 @@ public class FieldCopier {
 			for(int i = 0; i < srcList.size(); i++) {
 				String srcField = srcList.get(i);
 				String destField = destList.get(i);
+				Object defaultValue = (defaultValueList == null) ? null : defaultValueList.get(i);
 				
 				FieldPair pair = new FieldPair();
 				pair.srcProp = findInPairs(srcField, fieldPairs);
 				pair.destFieldName = destField;
+				pair.defaultValue = defaultValue;
 				
 				fieldsToCopy.add(pair);
 			}

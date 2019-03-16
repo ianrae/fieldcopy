@@ -88,7 +88,7 @@ public class MappingBuilder1 {
 			for(int i = 0; i < srcList.size(); i++) {
 				String srcField = srcList.get(i);
 				String destField = destList.get(i);
-				Object defaultValue = defaultValueList.get(i);
+				Object defaultValue = (defaultValueList == null) ? null : defaultValueList.get(i);
 				
 				FieldPair pair = new FieldPair();
 				pair.srcProp = findInPairs(srcField, fieldPairs);

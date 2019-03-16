@@ -49,7 +49,7 @@ public class CopyBuilder1 {
 	}
 	
 	public void execute() {
-		doExecute(null, null, null);
+		doExecute(null, null, null, null);
 	}
 	
 	public CopyBuilder1 withMappings(FieldCopyMapping... mappings) {
@@ -77,11 +77,12 @@ public class CopyBuilder1 {
 	 * 
 	 * @param srcList
 	 * @param destList
+	 * @param defaultValueList 
 	 */
 	
-	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList) {
+	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy = root.buildFieldsToCopy(destClass, doAutoCopy, includeList, 
-				excludeList, srcList, destList);
+				excludeList, srcList, destList, defaultValueList);
 			
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = root.sourceObj;
@@ -97,9 +98,12 @@ public class CopyBuilder1 {
 	}
 	
 	public CopyBuilder2 field(String srcFieldName) {
-		return new CopyBuilder2(this, srcFieldName, srcFieldName);
+		return new CopyBuilder2(this, srcFieldName, srcFieldName, null);
 	}
 	public CopyBuilder2 field(String srcFieldName, String destFieldName) {
-		return new CopyBuilder2(this, srcFieldName, destFieldName);
+		return new CopyBuilder2(this, srcFieldName, destFieldName, null);
+	}
+	public CopyBuilder2 field(String srcFieldName, String destFieldName, Object defaultValue) {
+		return new CopyBuilder2(this, srcFieldName, destFieldName, defaultValue);
 	}
 }
