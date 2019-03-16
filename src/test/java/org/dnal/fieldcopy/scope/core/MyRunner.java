@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.scope;
+package org.dnal.fieldcopy.scope.core;
 
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;

@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.scope;
+package org.dnal.fieldcopy.scope.core;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.other;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,6 +6,7 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 
+import org.dnal.fieldcopy.BeanUtilTests;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
 import org.junit.Test;
 

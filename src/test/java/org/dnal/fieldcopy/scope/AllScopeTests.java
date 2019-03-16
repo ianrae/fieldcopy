@@ -1,13 +1,13 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.scope;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import org.dnal.fieldcopy.scope.MyRunner;
-import org.dnal.fieldcopy.scope.MyScopeTestsBase;
-import org.dnal.fieldcopy.scope.ScopeResult;
-import org.dnal.fieldcopy.scope.ScopeTestRunResults;
+import org.dnal.fieldcopy.scope.core.MyRunner;
+import org.dnal.fieldcopy.scope.core.MyScopeTestsBase;
+import org.dnal.fieldcopy.scope.core.ScopeResult;
+import org.dnal.fieldcopy.scope.core.ScopeTestRunResults;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 
-public class ReqScopeTests {
+public class AllScopeTests {
 	
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {

@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.Date;
 import java.util.List;
 
-import org.dnal.fieldcopy.scope.MyRunner;
-import org.dnal.fieldcopy.scope.Scope;
+import org.dnal.fieldcopy.scope.core.MyRunner;
+import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
 import org.junit.Before;

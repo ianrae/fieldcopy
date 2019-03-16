@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy;
+package org.dnal.fieldcopy.other;
 
 import static org.junit.Assert.assertEquals;
 

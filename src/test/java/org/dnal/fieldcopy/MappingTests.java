@@ -10,7 +10,7 @@ import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class BeanUtilMappingTests {
+public class MappingTests {
 	
 	public static class Combo1 {
 		private int size;

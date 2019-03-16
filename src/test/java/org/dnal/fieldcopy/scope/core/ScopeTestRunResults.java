@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.scope;
+package org.dnal.fieldcopy.scope.core;
 
 import java.util.ArrayList;
 import java.util.List;
