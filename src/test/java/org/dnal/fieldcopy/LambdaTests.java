@@ -10,12 +10,21 @@ import org.junit.Test;
 
 public class LambdaTests extends BaseTest {
 	
+	public static class FooService {
+		public String doSomething(String input) {
+			return input.toUpperCase();
+		}
+	}
+	
 	@Test
 	public void test() {
 		Source src = new Source("bob", 11);
 		Dest dest = new Dest(null, 0);
 		
-		ValueConverter conv = ConverterBuilder.whenSource(src.getClass(), "name").thenDo(p -> p.getName() + "Suffix").build();
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class, "name")
+				.thenDo(p -> p.getName() + "Suffix")
+				.build();
+		
 		FieldCopier copier = createCopier();
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("bobSuffix", dest.getName());
@@ -30,7 +39,11 @@ public class LambdaTests extends BaseTest {
 		Source src = new Source("bob", 11);
 		Dest dest = new Dest(null, 0);
 		
-		ValueConverter conv = ConverterBuilder.whenSource(src.getClass(), "name").andNotNull().thenDo(p -> p.getName() + "Suffix").build();
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class, "name")
+				.andNotNull()
+				.thenDo(p -> p.getName() + "Suffix")
+				.build();
+		
 		FieldCopier copier = createCopier();
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("bobSuffix", dest.getName());
@@ -46,7 +59,11 @@ public class LambdaTests extends BaseTest {
 		Source src = new Source("bob", 11);
 		Dest dest = new Dest(null, 0);
 		
-		ValueConverter conv = ConverterBuilder.whenSource(src.getClass()).andDestinationField("name").thenDo(p -> p.getName() + "Suffix").build();
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class)
+				.andDestinationField("name")
+				.thenDo(p -> p.getName() + "Suffix")
+				.build();
+		
 		FieldCopier copier = createCopier();
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("bobSuffix", dest.getName());
@@ -61,7 +78,12 @@ public class LambdaTests extends BaseTest {
 		Source src = new Source("bob", 11);
 		Dest dest = new Dest(null, 0);
 		
-		ValueConverter conv = ConverterBuilder.whenSource(src.getClass()).andDestinationField("name").andNotNull().thenDo(p -> p.getName() + "Suffix").build();
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class)
+				.andDestinationField("name")
+				.andNotNull()
+				.thenDo(p -> p.getName() + "Suffix")
+				.build();
+		
 		FieldCopier copier = createCopier();
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("bobSuffix", dest.getName());
@@ -72,6 +94,40 @@ public class LambdaTests extends BaseTest {
 		assertEquals(null, dest.getName());
 	}
 	
+	@Test
+	public void testLambdaScope() {
+		Source src = new Source("bob", 11);
+		Dest dest = new Dest(null, 0);
+		
+		final FooService fooSvc = new FooService();
+		
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class, "name")
+				.thenDo(p -> fooSvc.doSomething(p.getName()))
+				.build();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+		assertEquals("BOB", dest.getName());
+	}
+	
+	@Test
+	public void testLambdaScope2() {
+		Source src = new Source("bob", 11);
+		Dest dest = new Dest(null, 0);
+		
+		ValueConverter conv = buildConverterWithFoo();
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+		assertEquals("BOB", dest.getName());
+	}
+	private ValueConverter buildConverterWithFoo() {
+		final FooService fooSvc = new FooService();
+		
+		ValueConverter conv = ConverterBuilder.whenSource(Source.class, "name")
+				.thenDo(p -> fooSvc.doSomething(p.getName()))
+				.build();
+		return conv;
+	}
 	
 	//--
 }
