@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyException;
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -36,10 +35,6 @@ public class EnumTests extends BaseScopeTest {
 			
 			Province prov = Province.valueOf(col.name());
 			return prov;
-		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	

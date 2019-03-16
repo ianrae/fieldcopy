@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Date;
 import java.util.List;
 
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -29,10 +28,6 @@ public class ListLongTests extends BaseListTest {
 		protected Object copyElement(Object el) {
 			Long n = (Long) el;
 			return n.toString();
-		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	

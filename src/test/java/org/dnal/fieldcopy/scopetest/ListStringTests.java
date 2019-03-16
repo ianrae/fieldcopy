@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -30,10 +29,6 @@ public class ListStringTests extends BaseListTest {
 		protected Object copyElement(Object el) {
 			Integer n = Integer.parseInt(el.toString());
 			return n;
-		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	

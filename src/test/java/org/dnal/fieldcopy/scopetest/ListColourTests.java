@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -29,10 +28,6 @@ public class ListColourTests extends BaseListTest {
 		protected Object copyElement(Object el) {
 			String str = el.toString();
 			return Colour.valueOf(str);
-		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	

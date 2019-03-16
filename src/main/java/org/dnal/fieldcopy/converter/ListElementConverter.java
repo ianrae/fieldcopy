@@ -160,9 +160,9 @@ public class ListElementConverter implements ValueConverter {
 		return copySvc;
 	}
 
-
-	@Override
-	public void setCopySvc(FieldCopyService copySvc) {
-		this.copySvc = copySvc;
-	}
+//
+//	@Override
+//	public void setCopySvc(FieldCopyService copySvc) {
+//		this.copySvc = copySvc;
+//	}
 }

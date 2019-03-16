@@ -119,10 +119,6 @@ public class MapConverterTests {
 			}
 			return destMap;
 		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
-		}
 	}
 	
 	

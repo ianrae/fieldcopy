@@ -222,12 +222,12 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				//TODO: can we make this faster with a map??
 				for(ValueConverter transformer: transformerL) {
 					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destClass)) {
-						transformer.setCopySvc(this);
 						
 						ConverterContext ctx = new ConverterContext();
 						ctx.destClass = destClass;
 						ctx.srcClass = srcFieldClass;
 						ctx.srcFieldName = pair.srcProp.getName();
+						ctx.copySvc = this;
 						
 						return transformer.convertValue(orig, value, ctx);
 					}

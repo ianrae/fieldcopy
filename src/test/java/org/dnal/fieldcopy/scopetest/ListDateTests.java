@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.scope.MyRunner;
 import org.dnal.fieldcopy.scope.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -31,10 +30,6 @@ public class ListDateTests extends BaseListTest {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date dt = (Date) el;
 			return sdf.format(dt);
-		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
 		}
 	}
 	
