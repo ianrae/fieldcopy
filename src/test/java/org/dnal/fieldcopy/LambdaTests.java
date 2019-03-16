@@ -11,14 +11,14 @@ import org.junit.Test;
 
 public class LambdaTests extends BaseTest {
 	
-	public static class ZConverter<T> implements ValueConverter {
+	public static class LambdaConverter<T> implements ValueConverter {
 		private Class<T> clazz;
-		private ZZ<T> zz;
+		private LambdaCallback<T> zz;
 		private String srcFieldName;
 		private boolean notNullFlag;
 		private String destFieldName;
 
-		public ZConverter(Class<T> clazz, String srcFieldName, String destFieldName, boolean notNullFlag, ZZ<T> zz) {
+		public LambdaConverter(Class<T> clazz, String srcFieldName, String destFieldName, boolean notNullFlag, LambdaCallback<T> zz) {
 			this.clazz = clazz;
 			this.srcFieldName = srcFieldName;
 			this.destFieldName = destFieldName;
@@ -45,19 +45,19 @@ public class LambdaTests extends BaseTest {
 			if (value == null && notNullFlag) {
 				return null;
 			}
-			Object result = zz.zzz(bean);
+			Object result = zz.exec(bean);
 			return result;
 		}
 		
 	}
 	
-	public interface ZZ<T> {
-		Object zzz(T t);
+	public interface LambdaCallback<T> {
+		Object exec(T t);
 	}
 	
 	public static class ConvBuilder1<T> {
 		private Class<T> clazz;
-		private ZZ<T> zz;
+		private LambdaCallback<T> callback;
 		private String srcFieldName;
 		private boolean notNullFlag = false;
 		
@@ -71,13 +71,13 @@ public class LambdaTests extends BaseTest {
 			return this;
 		}
 		
-		public ConvBuilder1<T> thenDo(ZZ<T> zz) {
-			this.zz = zz;
+		public ConvBuilder1<T> thenDo(LambdaCallback<T> callback) {
+			this.callback = callback;
 			return this;
 		}
 		
-		public ZConverter<T> build() {
-			return new ZConverter<T>(clazz, srcFieldName, null, notNullFlag, zz);
+		public LambdaConverter<T> build() {
+			return new LambdaConverter<T>(clazz, srcFieldName, null, notNullFlag, callback);
 		}
 	}
 	public static class ConvBuilder2<T> {
@@ -93,7 +93,7 @@ public class LambdaTests extends BaseTest {
 	}
 	public static class ConvBuilder2A<T> {
 		private Class<T> clazz;
-		private ZZ<T> zz;
+		private LambdaCallback<T> callback;
 		private String destFieldName;
 		private boolean notNullFlag = false;
 		
@@ -112,13 +112,13 @@ public class LambdaTests extends BaseTest {
 			return this;
 		}
 		
-		public ConvBuilder2A<T> thenDo(ZZ<T> zz) {
-			this.zz = zz;
+		public ConvBuilder2A<T> thenDo(LambdaCallback<T> callback) {
+			this.callback = callback;
 			return this;
 		}
 		
-		public ZConverter<T> build() {
-			return new ZConverter<T>(clazz, null, destFieldName, notNullFlag, zz);
+		public LambdaConverter<T> build() {
+			return new LambdaConverter<T>(clazz, null, destFieldName, notNullFlag, callback);
 		}
 	}
 	
