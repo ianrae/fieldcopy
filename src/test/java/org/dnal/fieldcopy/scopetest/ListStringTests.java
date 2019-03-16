@@ -2,37 +2,26 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.ValueTransformer;
+import org.dnal.fieldcopy.scope.core.MyRunner;
+import org.dnal.fieldcopy.scope.core.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
+import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
+import org.dnal.fieldcopy.scopetest.data.Colour;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
-public class ListStringTests extends BaseScopeTest {
+@RunWith(MyRunner.class)
+@Scope("List<String>")
+public class ListStringTests extends BaseListTest {
 	
-	public static abstract class BaseListTransformer implements ValueTransformer {
+	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
-		public Object transformValue(String srcFieldName, Object bean, Object value, Class<?> destClass) {
-			@SuppressWarnings("unchecked")
-			List<?> list = (List<?>) value;
-			
-			List<Object> list2 = new ArrayList<>();
-			for(Object el: list) {
-				Object copy = copyElement(el);
-				list2.add(copy);
-			}
-			return list2;
-		}
-
-		protected abstract Object copyElement(Object el);
-	}
-	public static class MyListTransformer extends BaseListTransformer {
-		@Override
-		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
+		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
 		}
 
@@ -41,33 +30,31 @@ public class ListStringTests extends BaseScopeTest {
 			Integer n = Integer.parseInt(el.toString());
 			return n;
 		}
-
-		@Override
-		public void setCopySvc(FieldCopyService copySvc) {
-		}
 	}
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy(mainField);
 		chkValue(2, "abc", "def");
 		
 		reset();
-		List<String> list = testList();
+		List<String> list = createStringList();
 		list.add("x");
 		entity.setListString1(list);;
 		doCopy(mainField);
 		chkValue(3, "abc", "def");
 
 		reset();
-		list = testList();
+		list = createStringList();
 		list.clear();
-		entity.setListString1(list);;
+		entity.setListString1(list);
 		doCopy(mainField);
 		chkValue(0, null, null);
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setListString1(null);
 		doCopy(mainField);
@@ -75,50 +62,109 @@ public class ListStringTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
+		copySrcFieldToFail(mainField, "bool1");
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldToFail(mainField, "primitiveInt");
 		copySrcFieldToFail(mainField, "int1");
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldToFail(mainField, "primitiveLong");
 		copySrcFieldToFail(mainField, "long1");
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldToFail(mainField, "primitiveDouble");
 		copySrcFieldToFail(mainField, "double1");
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldToFail(mainField, "string1");
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 	}
 	
 	@Test
-	public void testToList() {
-		copySrcFieldTo(mainField, "listInt1");
-		//TODO: fix bug. the above line works but the list contains strings not integers!!
-		//BeanUtils must simply be copying over the values
-//		chkIntListValue(2, 0, 0);
-		
+	@Scope("List<Integer>")
+	public void testToListInt() {
 		reset();
 		List<String> list = Arrays.asList("44", "45");
 		entity.setListString1(list);
-		copier.copy(entity, dto).withTransformers(new MyListTransformer()).field("listString1", "listInt1").execute();
+		copySrcFieldTo(mainField, "listInt1", false);
 		chkIntListValue(2, 44, 45);
 		
+		reset();
+		copySrcFieldTo(mainField, "listInt1");
+		//TODO: fix bug. converts to 0. should really be a conversion error
+		//since "abc" can't be converted to 0
+		chkIntListValue(2, 0, 0);
+	}
+	@Test
+	@Scope("List<String>")
+	public void testToListString() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).withConverters(new MyStringToIntegerListConverter()).field("listString1", "listInt1").execute();
+		chkIntListValue(2, 44, 45);
+	}
+	@Test
+	@Scope("List<Date>")
+	public void testToListDate() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldToFail(mainField, "listDate1", false);
+		
+		reset();
+		list = Arrays.asList("2015-12-25", "2016-12-25");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listDate1", false);
+		
+		refDate1 = this.createDateNoHourMinue(2015, 12, 25);
+		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
+		this.chkDateListValue(2, refDate1, refDate2);
+	}
+	@Test
+	@Scope("List<Long>")
+	public void testToListLong() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copySrcFieldTo(mainField, "listLong1", false);
+		chkLongListValue(2, 44L, 45L);
+	}
+	@Test
+	@Scope("List<Colour>")
+	public void testToListColour() {
+		reset();
+		List<String> list = Arrays.asList("RED", "BLUE");
+		entity.setListString1(list);
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "listColour1", false);
+		
+		reset();
+		Arrays.asList("RED", "BLUE");
+		entity.setListString1(list);
+		copier.copy(entity, dto).withConverters(new ListColourTests.MyStringToColourListConverter()).field("listString1", "listColour1").execute();
+		chkColourListValue(2, Colour.RED, Colour.BLUE);
 	}
 	
 	
@@ -133,42 +179,9 @@ public class ListStringTests extends BaseScopeTest {
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
 		
-		List<String> list = testList();
+		List<String> list = createStringList();
 		entity.setListString1(list);
 		
 		return entity;
-	}
-	private List<String> testList() {
-		List<String> list = Arrays.asList("abc", "def");
-		list = new ArrayList<>(list);
-		return list;
-	}
-	private List<Integer> testIntList() {
-		List<Integer> list = Arrays.asList(44, 45);
-		list = new ArrayList<>(list);
-		return list;
-	}
-	
-	protected void chkValue(int expected, String s1, String s2) {
-		List<String> list = dto.getListString1();
-		assertEquals(expected, list.size());
-		
-		if (expected > 0) {
-			assertEquals(s1, list.get(0));
-		}
-		if (expected > 1) {
-			assertEquals(s2, list.get(1));
-		}
-	}
-	protected void chkIntListValue(int expected, int n1, int n2) {
-		List<Integer> list = dto.getListInt1();
-		assertEquals(expected, list.size());
-		
-		if (expected > 0) {
-			assertEquals(n1, list.get(0).intValue());
-		}
-		if (expected > 1) {
-			assertEquals(n2, list.get(1).intValue());
-		}
 	}
 }

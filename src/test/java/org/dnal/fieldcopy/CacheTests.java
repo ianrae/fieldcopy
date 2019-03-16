@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
 import org.junit.Test;

@@ -2,13 +2,19 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.scope.core.MyRunner;
+import org.dnal.fieldcopy.scope.core.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-
+@RunWith(MyRunner.class)
+@Scope("Double")
 public class DoubleTests extends BaseScopeTest {
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy("primitiveDouble","double1");
 		chkValue(123.456, -123.456);
@@ -33,6 +39,7 @@ public class DoubleTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setDouble1(null);
 		doCopy("double1");
@@ -41,11 +48,13 @@ public class DoubleTests extends BaseScopeTest {
 	
 	//----------- primitive ------------
 	@Test
+	@Scope(target="double", value="Boolean")
 	public void testPrimitiveToBoolean() {
 		copySrcFieldToFail(primitiveField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope(target="double", value="Integer")
 	public void testPrimitiveToInt() {
 		copySrcFieldTo(primitiveField, "int1");
 		//TODO: fix this. it simply truncates. should probably fail
@@ -63,11 +72,13 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals(0, dto.getInt1().intValue());
 	}
 	@Test
+	@Scope(target="double", value="Long")
 	public void testPrimitiveToLong() {
 		copySrcFieldTo(primitiveField, "long1");
 		assertEquals(123L, dto.getLong1().longValue());
 	}
 	@Test
+	@Scope(target="double", value="Double")
 	public void testPrimitiveToDouble() {
 		copySrcFieldTo(primitiveField, "primitiveDouble");
 		assertEquals(123.456, dto.getPrimitiveDouble(), 0.001);
@@ -76,16 +87,19 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals(123.456, dto.getDouble1(), 0.001);
 	}
 	@Test
+	@Scope(target="double", value="String")
 	public void testPrimitiveToString() {
 		copySrcFieldTo(primitiveField, "string1");
 		assertEquals("123.456", dto.getString1());
 	}
 	@Test
+	@Scope(target="double", value="Date")
 	public void testPrimitiveToDate() {
 		copySrcFieldToFail(primitiveField, "date1");
 		assertEquals(null, dto.getDate1());
 	}
 	@Test
+	@Scope(target="double", value="enum")
 	public void testPrimitiveToEnum() {
 		//TODO: if enum has int value, perhaps we can copy then
 		
@@ -95,11 +109,13 @@ public class DoubleTests extends BaseScopeTest {
 	
 	//----------- Double ------------
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldToFail(mainField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldTo(mainField, "primitiveInt");
 		assertEquals(-123, dto.getPrimitiveInt());
@@ -108,6 +124,7 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals(-123, dto.getInt1().longValue());
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldTo(mainField, "primitiveLong");
 		assertEquals(-123L, dto.getPrimitiveLong());
@@ -116,6 +133,7 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals(-123L, dto.getLong1().longValue());
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldTo(mainField, "primitiveDouble");
 		assertEquals(-123.456, dto.getPrimitiveDouble(), 0.001);
@@ -124,6 +142,7 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals(-123.456, dto.getDouble1(), 0.001);
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		assertEquals("-123.456", dto.getString1());
@@ -134,11 +153,13 @@ public class DoubleTests extends BaseScopeTest {
 		assertEquals("-200.0", dto.getString1());
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 		assertEquals(null, dto.getDate1());
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 		assertEquals(null, dto.getColour1());

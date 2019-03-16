@@ -4,13 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Date;
 
+import org.dnal.fieldcopy.scope.core.MyRunner;
+import org.dnal.fieldcopy.scope.core.Scope;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
-
+@RunWith(MyRunner.class)
+@Scope("String")
 public class StringTests extends BaseScopeTest {
 	
 	@Test
+	@Scope("values")
 	public void test() {
 		doCopy("string1");
 		chkValue("abc");
@@ -27,6 +33,7 @@ public class StringTests extends BaseScopeTest {
 	}
 	
 	@Test
+	@Scope("null")
 	public void testNull() {
 		entity.setString1(null);
 		doCopy("string1");
@@ -35,11 +42,13 @@ public class StringTests extends BaseScopeTest {
 	
 	
 	@Test
+	@Scope("Boolean")
 	public void testToBoolean() {
 		copySrcFieldTo(mainField, "primitiveBool");
 		assertEquals(false, dto.isPrimitiveBool());
 	}
 	@Test
+	@Scope("Integer")
 	public void testToInt() {
 		copySrcFieldTo(mainField, "primitiveInt");
 		//TODO: this should really fail. "abc" to int
@@ -58,6 +67,7 @@ public class StringTests extends BaseScopeTest {
 		assertEquals(45, dto.getInt1().intValue());
 	}
 	@Test
+	@Scope("Long")
 	public void testToLong() {
 		copySrcFieldTo(mainField, "primitiveLong");
 		//TODO: this should really fail. "abc" to long
@@ -76,6 +86,7 @@ public class StringTests extends BaseScopeTest {
 		assertEquals(45, dto.getLong1().longValue());
 	}
 	@Test
+	@Scope("Double")
 	public void testToDouble() {
 		copySrcFieldTo(mainField, "primitiveDouble");
 		//TODO: this should really fail. "abc" to long
@@ -94,6 +105,7 @@ public class StringTests extends BaseScopeTest {
 		assertEquals(45.2, dto.getDouble1().doubleValue(), 0.0001);
 	}
 	@Test
+	@Scope("String")
 	public void testToString() {
 		copySrcFieldTo(mainField, "string1");
 		//TODO: need a date-to-string string converter
@@ -105,6 +117,7 @@ public class StringTests extends BaseScopeTest {
 		assertEquals(45.2, dto.getDouble1().doubleValue(), 0.0001);
 	}
 	@Test
+	@Scope("Date")
 	public void testToDate() {
 		copySrcFieldToFail(mainField, "date1");
 		Date dt = createDate(2015,12,25);
@@ -116,6 +129,7 @@ public class StringTests extends BaseScopeTest {
 //		assertEquals(dt, dto.getDate1());
 	}
 	@Test
+	@Scope("enum")
 	public void testToEnum() {
 		copySrcFieldToFail(mainField, "colour1");
 		assertEquals(null, dto.getColour1());

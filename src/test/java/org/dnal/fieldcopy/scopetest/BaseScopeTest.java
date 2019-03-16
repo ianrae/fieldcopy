@@ -6,10 +6,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fieldcopy.FieldCopyException;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;
+import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 
 public class BaseScopeTest {
 	
@@ -29,8 +31,8 @@ public class BaseScopeTest {
 	}
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
-		entity.primitiveBool = true;
-		entity.bool1 = true;
+		entity.setPrimitiveBool(true);
+		entity.setBool1(true);
 		
 		return entity;
 	}
@@ -61,14 +63,14 @@ public class BaseScopeTest {
 		if (doReset) {
 			reset();
 		}
-		boolean failed = false;
+		boolean success = true;
 		try {
 			copySrcFieldTo(srcField, destField, true);
 		} catch (FieldCopyException e) {
-			failed = true;
+			success = false;
 			System.out.println(e.getMessage());
 		}
-		assertEquals(true, failed);
+		assertEquals(false, success);
 	}
 	
 	protected Date createDate(int year, int mon, int day) {
@@ -79,6 +81,18 @@ public class BaseScopeTest {
 	    cal.set(Calendar.HOUR_OF_DAY, 7);
 	    cal.set(Calendar.MINUTE, 30);
 	    cal.set(Calendar.SECOND, 41);
+	    cal.set(Calendar.MILLISECOND, 0);
+	    Date dt = cal.getTime();
+	    return dt;
+	}
+	protected Date createDateNoHourMinue(int year, int mon, int day) {
+	    Calendar cal = Calendar.getInstance();
+	    cal.set(Calendar.YEAR, year);
+	    cal.set(Calendar.MONTH, mon - 1);
+	    cal.set(Calendar.DATE, day);
+	    cal.set(Calendar.HOUR_OF_DAY, 0);
+	    cal.set(Calendar.MINUTE, 00);
+	    cal.set(Calendar.SECOND, 00);
 	    cal.set(Calendar.MILLISECOND, 0);
 	    Date dt = cal.getTime();
 	    return dt;

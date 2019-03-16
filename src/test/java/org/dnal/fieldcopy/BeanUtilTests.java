@@ -5,15 +5,14 @@ import static org.junit.Assert.assertSame;
 
 import java.util.List;
 
-import org.dnal.fc.CopyOptions;
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fc.core.CopySpec;
-import org.dnal.fc.core.FieldCopyService;
-import org.dnal.fc.core.FieldPair;
+import org.dnal.fieldcopy.CopyOptions;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
-
 
 public class BeanUtilTests {
 	public static class Source {

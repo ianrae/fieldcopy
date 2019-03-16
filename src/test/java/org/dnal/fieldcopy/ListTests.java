@@ -10,11 +10,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dnal.fc.DefaultCopyFactory;
-import org.dnal.fc.FieldCopier;
-import org.dnal.fc.core.ListElementTransformer;
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.BeanUtilTests.Dest;
 import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.converter.ListElementConverter;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
@@ -94,32 +94,32 @@ public class ListTests {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		ListElementTransformer transformer = new ListElementTransformer("listSource1", Dest.class);
+		ListElementConverter converter = new ListElementConverter("listSource1", Source.class, Dest.class);
 		
-		copier.copy(holder, holder2).withTransformers(transformer).autoCopy().execute();
+		copier.copy(holder, holder2).withConverters(converter).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
 		assertEquals(1, holder2.getListSource1().size());
 	}
 	
-	@Test
-	public void test3() {
-		Source src = new Source("bob", 33);
-		Holder holder = new Holder();
-		holder.setWidth(55);
-		
-		List<Source> list = new ArrayList<>();
-		list.add(src);
-		holder.setListSource1(list);
-		
-		HolderDest holder2 = new HolderDest();
-		FieldCopier copier = createCopier();
-		
-		//OPTIONAL declare listHint for each field where you are converting list element types
-		//If the source and destination list elements are the same type, listHint is not needed.
-		copier.copy(holder, holder2).listHint("listSource1", Dest.class).autoCopy().execute();
-		assertEquals(55, holder2.getWidth());
-		assertEquals(1, holder2.getListSource1().size());
-	}
+//	@Test
+//	public void test3() {
+//		Source src = new Source("bob", 33);
+//		Holder holder = new Holder();
+//		holder.setWidth(55);
+//		
+//		List<Source> list = new ArrayList<>();
+//		list.add(src);
+//		holder.setListSource1(list);
+//		
+//		HolderDest holder2 = new HolderDest();
+//		FieldCopier copier = createCopier();
+//		
+//		//OPTIONAL declare listHint for each field where you are converting list element types
+//		//If the source and destination list elements are the same type, listHint is not needed.
+//		copier.copy(holder, holder2).listHint("listSource1", Dest.class).autoCopy().execute();
+//		assertEquals(55, holder2.getWidth());
+//		assertEquals(1, holder2.getListSource1().size());
+//	}
 	
 	@Test
 	public void test3a() {
@@ -134,7 +134,7 @@ public class ListTests {
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
 		
-		//will automatically create transformer
+		//will automatically create converter
 		copier.copy(holder, holder2).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
 		assertEquals(1, holder2.getListSource1().size());
