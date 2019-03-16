@@ -38,25 +38,6 @@ public class FastBeanUtilFieldCopyService {
 		this.converterFactory = new ListElementConverterFactory();
 	}
 
-	private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
-		if (pair.destProp != null) {
-			return;
-		}
-        final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
-		
-        for (int i = 0; i < arDest.length; i++) {
-        	PropertyDescriptor pd = arDest[i];
-        	if (! fieldFilter.shouldProcess(class2, pd.getName())) {
-        		continue; // No point in trying to set an object's class
-            }
-
-        	if (pd.getName().equals(pair.destFieldName)) {
-        		pair.destProp = new BeanUtilsFieldDescriptor(pd);
-        		return;
-        	}
-        }
-	}
-
 	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec)  {
 		ExecuteCopyPlan result = null;
 		try {
@@ -129,6 +110,25 @@ public class FastBeanUtilFieldCopyService {
 		}
 		return execspec;
 	}
+	private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
+		if (pair.destProp != null) {
+			return;
+		}
+        final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+		
+        for (int i = 0; i < arDest.length; i++) {
+        	PropertyDescriptor pd = arDest[i];
+        	if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+        		continue; // No point in trying to set an object's class
+            }
+
+        	if (pd.getName().equals(pair.destFieldName)) {
+        		pair.destProp = new BeanUtilsFieldDescriptor(pd);
+        		return;
+        	}
+        }
+	}
+
 	
 	private void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;

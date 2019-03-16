@@ -84,12 +84,5 @@ public class BeanUtilMappingTests {
 	private FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		return DefaultCopyFactory.Factory().createCopier();
-//		SimpleLogger logger = new SimpleConsoleLogger();
-//		FieldRegistry registry = new FieldRegistry();
-//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-//		FieldCopier builder = new FieldCopier(registry, copySvc, logger);
-//		return builder;
 	}
-
-
 }
