@@ -47,8 +47,8 @@ public class FieldCopier {
 		return options;
 	}
 	
-	public MapBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
-		return new MapBuilder1(this, srcClass, destClass);
+	public MappingBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
+		return new MappingBuilder1(this, srcClass, destClass);
 	}
 	
 	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
