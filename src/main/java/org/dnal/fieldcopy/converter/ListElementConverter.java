@@ -11,14 +11,12 @@ import java.util.List;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.core.CopySpec;
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 
 public class ListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
-	private FieldCopyService copySvc;
 	private List<Class<?>> knownScalarsL;
 	
 	public ListElementConverter(String srcFieldName, Class<?> srcElementClass, Class<?> destElementClass) {
@@ -47,7 +45,7 @@ public class ListElementConverter implements ValueConverter {
 		if (! isBean(srcElClass) && ! isBean(destElClass)) {
 			return copyScalarList(list, srcElClass);
 		}
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(srcElClass, destElClass);
+		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
@@ -59,7 +57,7 @@ public class ListElementConverter implements ValueConverter {
 		for(Object el: list) {
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
-			copySvc.copyFields(spec);
+			ctx.copySvc.copyFields(spec);
 			
 			list2.add(spec.destObj);
 		}
@@ -112,57 +110,4 @@ public class ListElementConverter implements ValueConverter {
 		return obj;
 	}
 
-//	private Class<?> detectSrcElementClass(Object bean) {
-//		Class<?> clazz = null;
-//		try {
-//			clazz = doDetectSrcElementClass(bean);
-//		} catch (Exception e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return clazz;
-//	}
-//	
-//	private Class<?> doDetectSrcElementClass(Object bean) throws Exception {
-//		
-//		//TODO: fix. getField only works with public fields, but getDeclaredField won't handle inheritance
-//		Field field = bean.getClass().getDeclaredField(srcFieldName);
-//
-//		//determine type of list element
-//		System.out.println(field.getName());
-//		Class<?> c2 = List.class;
-//		if (c2.isAssignableFrom(field.getType())) {
-//			System.out.println("sdf");
-//			field.setAccessible(true);
-//			Collection<?> col = (Collection<?>) field.get(bean);
-//
-//			if (col.isEmpty()) {
-//				System.out.println("empty");
-//			} else {
-//				Iterator<?> it = col.iterator();
-//
-//				while(it.hasNext()) {
-//					Object element = it.next();
-//					if (element == null) {
-//						continue;
-//					}
-//					Class<?> elclazz = element.getClass();
-//					System.out.println("!!! " + elclazz);
-//					return elclazz;
-//				}
-//			}
-//		}
-//		return null;
-//	}
-
-
-	public FieldCopyService getCopySvc() {
-		return copySvc;
-	}
-
-//
-//	@Override
-//	public void setCopySvc(FieldCopyService copySvc) {
-//		this.copySvc = copySvc;
-//	}
 }
