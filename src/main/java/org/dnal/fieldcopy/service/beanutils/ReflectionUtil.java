@@ -1,5 +1,6 @@
 package org.dnal.fieldcopy.service.beanutils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -131,6 +132,39 @@ public class ReflectionUtil {
 			}
 		}		
 		
+		return spec;
+	}
+	
+	public static ListSpec buildArraySpec(Object destObj, BeanUtilsFieldDescriptor fd2) {
+		String name = fd2.getName();
+		Field field = null;
+		try {
+			field = destObj.getClass().getDeclaredField(name);
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if (field == null) {
+			return null;
+		}
+		
+		Class<?> typ = field.getType();
+		if (typ == null || !typ.isArray()) {
+			return null;
+		}
+		ListSpec spec = new ListSpec();
+		return buildArrayInfo(typ, spec);
+	}
+
+	private static ListSpec buildArrayInfo(Class<?> typ, ListSpec spec) {
+		spec.depth = 0;
+		spec.elementClass = typ.getComponentType();
+		
+		//TODO handle arrays of arrays
 		return spec;
 	}
 	
