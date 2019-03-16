@@ -11,7 +11,23 @@ import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
-
+/**
+ * Maps are key-value pairs.  FieldCopy simply copies the key-value pairs of a source map to a
+ * destination map.  In fact, BeanUtils doesn't even copy; it simply assigns dest.someMapField = source.someMapField.
+ * 
+ * This can lead to several problems:
+ * - if the destination map is of different type, we have a problem. For example a source Map<String,String>
+ *  and a destination Map<String,Double> will encounter problems since bean utils simply assigns
+ *  the source map object to the destination map. This will lead to run-time errors.
+ *  
+ * - keys and values in the map are not converted using any of the registered FieldCopy converters or mappings.
+ * 
+ * If the objects you are copying contain maps, and you want conversion done on the keys and/or values
+ * in the maps, use a converter.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class MapTests {
 	
 	public static class Inner {

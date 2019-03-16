@@ -15,6 +15,9 @@ import org.dnal.fieldcopy.core.FieldPair;
 /**
  * Converts the elements of a list.
  * 
+ * This is a special converter where the fieldName passed to canConvert is the name of the
+ * field that is a list, but the srcClass is the type of the elements of the list.
+ * 
  * @author Ian Rae
  *
  */

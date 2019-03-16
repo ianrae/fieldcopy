@@ -25,7 +25,8 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * copying.
  * 
  * This version operates in two steps. First it generates a plan, and then
- * it executes the plan.
+ * it executes the plan.  The plan is cached so that on subsequent copies it doesn't need to 
+ * be re-generated.
  * 
  * @author Ian Rae
  *

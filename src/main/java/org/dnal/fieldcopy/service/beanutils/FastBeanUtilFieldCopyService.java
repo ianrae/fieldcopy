@@ -129,25 +129,17 @@ public class FastBeanUtilFieldCopyService {
         }
 	}
 
-	
 	private void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
 		Class<?> srcFieldClass = fd1.pd.getPropertyType();
-		Class<?> destFieldClass = fd2.pd.getPropertyType();
+//		Class<?> destFieldClass = fd2.pd.getPropertyType();
 		if (Collection.class.isAssignableFrom(srcFieldClass) && 
 				Collection.class.isAssignableFrom(srcFieldClass)) {
 			
 			if (copySpec.converterL == null) {
 				copySpec.converterL = new ArrayList<>();
-			}
-
-			for(ValueConverter converter: copySpec.converterL) {
-				if (converter.canConvert(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
-					//if already is a converter, nothing more to do
-					return;
-				}
 			}
 			
 			if (ReflectionUtil.elementIsList(copySpec.sourceObj, fd1)) {
@@ -155,10 +147,19 @@ public class FastBeanUtilFieldCopyService {
 				return;
 			}
 
-			//add one
-			String name = pair.srcProp.getName();
 			Class<?> srcElementClass = ReflectionUtil.detectElementClass(copySpec.sourceObj, fd1);
 			Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
+			for(ValueConverter converter: copySpec.converterL) {
+				//a special use of converter. normally we pass field name and its class (and the dest class).
+				//Here we are passing the fieldName (which is a list) and source and destination *element* classes
+				if (converter.canConvert(pair.srcProp.getName(), srcElementClass, destElementClass)) {
+					//if already is a converter, nothing more to do
+					return;
+				}
+			}
+			
+			//add one
+			String name = pair.srcProp.getName();
 			ListElementConverter converter = converterFactory.createConverter(name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
