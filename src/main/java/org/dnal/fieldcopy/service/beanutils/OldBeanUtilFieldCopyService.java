@@ -192,7 +192,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				}
 
 				for(ValueConverter transformer: transformerL) {
-					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
+					if (transformer.canConvert(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
 						//if already is a transform, nothing more to do
 						return;
 					}
@@ -221,7 +221,7 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 				
 				//TODO: can we make this faster with a map??
 				for(ValueConverter transformer: transformerL) {
-					if (transformer.canHandle(pair.srcProp.getName(), srcFieldClass, destClass)) {
+					if (transformer.canConvert(pair.srcProp.getName(), srcFieldClass, destClass)) {
 						
 						ConverterContext ctx = new ConverterContext();
 						ctx.destClass = destClass;

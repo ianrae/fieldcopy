@@ -18,16 +18,16 @@ public class ListElementConverter implements ValueConverter {
 	private Class<?> destElClass;
 	private List<Class<?>> knownScalarsL;
 	
-	public ListElementConverter(String srcFieldName, Class<?> srcElementClass, Class<?> destElementClass) {
-		this.srcFieldName = srcFieldName;
+	public ListElementConverter(String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
+		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
 		this.knownScalarsL = Arrays.asList(String.class, Date.class);
 	}
 
 	@Override
-	public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-		return this.srcFieldName.equals(srcFieldName);
+	public boolean canConvert(String fieldName, Class<?>srcClass, Class<?> destClass) {
+		return this.srcFieldName.equals(fieldName);
 	}
 	
 	@Override

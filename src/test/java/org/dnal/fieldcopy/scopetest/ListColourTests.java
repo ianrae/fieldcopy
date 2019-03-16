@@ -20,7 +20,7 @@ public class ListColourTests extends BaseListTest {
 	
 	public static class MyStringToColourListConverter extends BaseListConverter {
 		@Override
-		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
+		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
 		}
 

@@ -21,7 +21,7 @@ public class ListStringTests extends BaseListTest {
 	
 	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
-		public boolean canHandle(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
+		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
 			return srcFieldName.equals("listString1");
 		}
 

@@ -144,7 +144,7 @@ public class FastBeanUtilFieldCopyService {
 			}
 
 			for(ValueConverter converter: copySpec.converterL) {
-				if (converter.canHandle(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
+				if (converter.canConvert(pair.srcProp.getName(), srcFieldClass, destFieldClass)) {
 					//if already is a converter, nothing more to do
 					return;
 				}
@@ -179,7 +179,7 @@ public class FastBeanUtilFieldCopyService {
 			//TODO: can we make this faster with a map??
 			for(ValueConverter converter: converterL) {
 				//TODO: fix value null issue
-				if (converter.canHandle(pair.srcProp.getName(), srcClass, destClass)) {
+				if (converter.canConvert(pair.srcProp.getName(), srcClass, destClass)) {
 					return converter;
 				}
 			}
