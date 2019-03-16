@@ -2,6 +2,8 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Array;
+
 import org.junit.Test;
 
 public class ArrayTests extends BaseTest {
@@ -70,6 +72,22 @@ public class ArrayTests extends BaseTest {
 		assertEquals("a", dest.getNames()[0]);
 		assertEquals("c", dest.getNames()[2]);
 	}
+	
+	@Test
+	public void test3() {
+		String[] ar=  {"33", "34", "35"};
+		
+		Object obj = ar;
+		assertEquals(true, obj.getClass().isArray());
+		//http://tutorials.jenkov.com/java-reflection/arrays.html
+//		Class<?> elClass = String.class;
+		Class<?> elClass = obj.getClass().getComponentType();
+		assertEquals(String.class, elClass);
+		
+		String s = (String) Array.get(obj, 1);
+		assertEquals("34", s);
+	}
+	
 	
 	//--
 }

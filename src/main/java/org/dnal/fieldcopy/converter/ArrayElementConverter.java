@@ -3,7 +3,7 @@ package org.dnal.fieldcopy.converter;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
-import java.util.ArrayList;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -48,40 +48,40 @@ public class ArrayElementConverter implements ValueConverter {
 			return null;
 		}
 		
-		@SuppressWarnings("unchecked")
-		List<?> list = (List<?>) value;
+		Object srcArray = value;
 		
 		if (depth == 0) {
-			return copyInnerMostList(list, ctx);
+			return copyInnerMostArray(srcArray, ctx);
 		} else {
-			List<Object> list2 = new ArrayList<>();
-			for(Object el: list) {
-				List<?> inner = (List<?>) el;
-				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, 0);
-				list2.add(innerCopy);
-			}
-			return list2;
+//			List<Object> list2 = new ArrayList<>();
+//			for(Object el: list) {
+//				List<?> inner = (List<?>) el;
+//				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, 0);
+//				list2.add(innerCopy);
+//			}
+//			return list2;
+			return null; //TODO FIX
 		}
 	}
 	
-	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int currentDepth) {
-		boolean isInnermost = (currentDepth == depth - 1);
-		if (isInnermost) {
-			return copyInnerMostList(list, ctx);
-		} else {
-			List<Object> list2 = new ArrayList<>();
-			for(Object el: list) {
-				List<?> inner = (List<?>) el;
-				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, currentDepth + 1);
-				list2.add(innerCopy);
-			}
-			return list2;
-		}
-	}
+//	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int currentDepth) {
+//		boolean isInnermost = (currentDepth == depth - 1);
+//		if (isInnermost) {
+//			return copyInnerMostList(list, ctx);
+//		} else {
+//			List<Object> list2 = new ArrayList<>();
+//			for(Object el: list) {
+//				List<?> inner = (List<?>) el;
+//				List<?> innerCopy = copyNextLevelNestedList(inner, ctx, currentDepth + 1);
+//				list2.add(innerCopy);
+//			}
+//			return list2;
+//		}
+//	}
 
-	private List<?> copyInnerMostList(List<?> list, ConverterContext ctx) {
+	private Object copyInnerMostArray(Object srcArray, ConverterContext ctx) {
 		if (useScalarCopy) {
-			return copyScalarList(list, srcElClass);
+			return copyScalarArray(srcArray, srcElClass);
 		}
 		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
@@ -91,24 +91,30 @@ public class ArrayElementConverter implements ValueConverter {
 		spec.mappingL = null;
 		spec.converterL = null;
 
-		List<Object> list2 = new ArrayList<>();
-		for(Object el: list) {
+		Object arrayObj2 = Array.newInstance(destElClass, 0);
+		int n = Array.getLength(srcArray);
+		for(int i = 0; i < n; i++) {
+			Object el = Array.get(srcArray, i);
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
 			ctx.copySvc.copyFields(spec);
 			
-			list2.add(spec.destObj);
+			Array.set(arrayObj2, i, spec.destObj);
 		}
-		return list2;
+		return arrayObj2;
 	}
 
-	private List<?> copyScalarList(List<?> list, Class<?> srcElClass) {
-		List<Object> list2 = new ArrayList<>();
-		for(Object el: list) {
+	private Object copyScalarArray(Object srcArray, Class<?> srcElClass) {
+		Object arrayObj2 = Array.newInstance(destElClass, 0);
+		
+		int n = Array.getLength(srcArray);
+		for(int i = 0; i < n; i++) {
+			Object el = Array.get(srcArray, i);
 			Object result = ConvertUtils.convert(el, destElClass);
-			list2.add(result);
+			
+			Array.set(arrayObj2, i, result);
 		}
-		return list2;
+		return arrayObj2;
 	}
 
 	/**
