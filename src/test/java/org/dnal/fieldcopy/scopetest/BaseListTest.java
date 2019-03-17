@@ -38,6 +38,10 @@ public class BaseListTest extends BaseScopeTest {
 		Long[] ar = {44L, 45L};
 		return ar;
 	}
+	protected String[] createStringArray() {
+		String[] ar = {"abc", "def"};
+		return ar;
+	}
 	protected List<Colour> createColourList() {
 		List<Colour> list = Arrays.asList(Colour.RED, Colour.BLUE);
 		list = new ArrayList<>(list);
@@ -126,7 +130,7 @@ public class BaseListTest extends BaseScopeTest {
 		}
 	}
 	
-	protected void chkArrayStringValue(int expected, String s1, String s2) {
+	protected void chkStringArrayValue(int expected, String s1, String s2) {
 		String[] ar = dto.getArrayString1();
 		assertEquals(expected, ar.length);
 		

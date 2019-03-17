@@ -128,7 +128,7 @@ public class ArrayLongTests extends BaseListTest {
 	@Scope("String[]")
 	public void testToArrayString() {
 		copier.copy(entity, dto).field("arrayLong1", "arrayString1").execute();
-		chkArrayStringValue(2, "44", "45");
+		chkStringArrayValue(2, "44", "45");
 	}
 	@Test
 	@Scope("Date[]")

@@ -2,6 +2,9 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -12,33 +15,33 @@ import org.junit.runner.RunWith;
 
 @RunWith(MyRunner.class)
 @Scope("Integer[]")
-public class ArrayIntegerTests extends BaseListTest {
+public class ArrayStringTests extends BaseListTest {
 	
 	@Test
 	@Scope("values")
 	public void test() {
 		doCopy(mainField);
-		chkIntArrayValue(2, 44, 45);
+		chkStringArrayValue(2, "abc", "def");
 		
 		reset();
-		Integer[] ar = {44, 45, 46};
-		entity.setArrayInt1(ar);
+		String[] ar = {"abc", "def", "hij"};
+		entity.setArrayString1(ar);
 		doCopy(mainField);
-		chkIntArrayValue(3, 44, 45);
+		chkStringArrayValue(3, "abc", "def");
 
 		reset();
-		ar = new Integer[]{};
-		entity.setArrayInt1(ar);
+		ar = new String[]{};
+		entity.setArrayString1(ar);
 		doCopy(mainField);
-		chkIntArrayValue(0, 0, 0);
+		chkStringArrayValue(0, null, null);
 	}
 	
 	@Test
 	@Scope("null")
 	public void testNull() {
-		entity.setArrayInt1(null);
+		entity.setArrayString1(null);
 		doCopy(mainField);
-		assertEquals(null, dto.getArrayInt1());
+		assertEquals(null, dto.getArrayString1());
 	}
 	
 	@Test
@@ -84,15 +87,24 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
-		copySrcFieldTo(mainField, "listInt1");
+		reset();
+		String[] ar = {"44", "45"};
+		entity.setArrayString1(ar);
+		copySrcFieldTo(mainField, "listInt1", false);
 		chkIntListValue(2, 44, 45);
+		
+		reset();
+		copySrcFieldTo(mainField, "listInt1");
+		//TODO: fix bug. converts to 0. should really be a conversion error
+		//since "abc" can't be converted to 0
+		chkIntListValue(2, 0, 0);
 	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
 //		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
-		copier.copy(entity, dto).field("arrayInt1", "listString1").execute();
-		chkValue(2, "44", "45");
+		copier.copy(entity, dto).field("arrayString1", "listString1").execute();
+		chkValue(2, "abc", "def");
 	}
 	@Test
 	@Scope("List<Date>")
@@ -102,7 +114,10 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("List<Long>")
 	public void testToListLong() {
-		copySrcFieldTo(mainField, "listLong1");
+		reset();
+		String[] ar = {"44", "45"};
+		entity.setArrayString1(ar);
+		copySrcFieldTo(mainField, "listLong1", false);
 		chkLongListValue(2, 44L, 45L);
 	}
 	@Test
@@ -116,14 +131,23 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("Integer[]")
 	public void testToArrayInt() {
-		copySrcFieldTo(mainField, "arrayInt1");
+		reset();
+		String[] ar = {"44", "45"};
+		entity.setArrayString1(ar);
+		copySrcFieldTo(mainField, "arrayInt1", false);
 		chkIntArrayValue(2, 44, 45);
+		
+		reset();
+		copySrcFieldTo(mainField, "arrayInt1");
+		//TODO: fix bug. converts to 0. should really be a conversion error
+		//since "abc" can't be converted to 0
+		chkIntArrayValue(2, 0, 0);
 	}
 	@Test
 	@Scope("String[]")
 	public void testToArrayString() {
 //		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
-		copier.copy(entity, dto).field("arrayInt1", "arrayString1").execute();
+		copier.copy(entity, dto).field("arrayString1", "arrayString1").execute();
 		chkStringArrayValue(2, "44", "45");
 	}
 	@Test
@@ -144,7 +168,7 @@ public class ArrayIntegerTests extends BaseListTest {
 	}
 	
 	//---
-	private static final String mainField = "arrayInt1";
+	private static final String mainField = "arrayString1";
 	
 	@Before
 	public void init() {
@@ -154,8 +178,8 @@ public class ArrayIntegerTests extends BaseListTest {
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
 		
-		Integer[] ar = createIntArray();
-		entity.setArrayInt1(ar);
+		String[] ar = createStringArray();
+		entity.setArrayString1(ar);
 		
 		return entity;
 	}
