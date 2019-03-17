@@ -40,7 +40,8 @@ public class FastBeanUtilFieldCopyService {
 		try {
 			result = doGenerateExecutePlan(copySpec, 1);
 		} catch (Exception e) {
-			throw new FieldCopyException(e.getMessage());
+			String msg = String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage());
+			throw new FieldCopyException(msg);
 		}
 		return result;
 	}
@@ -254,7 +255,8 @@ public class FastBeanUtilFieldCopyService {
 		try {
 			b = doExecutePlan(spec, execPlan, outerSvc, runawayCounter);
 		} catch (Exception e) {
-			throw new FieldCopyException(e.getMessage());
+			String msg = String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage());
+			throw new FieldCopyException(msg);
 		}
 		return b;
 	}

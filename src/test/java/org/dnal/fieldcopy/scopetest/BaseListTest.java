@@ -62,6 +62,11 @@ public class BaseListTest extends BaseScopeTest {
 		list.add(createADate(1));
 		return list;
 	}
+	protected Date[] createDateArray() {
+		List<Date> list = createDateList();
+		Date[] ar = { list.get(0), list.get(1) };
+		return ar;
+	}
 	protected Date createADate(int which) {
 		int year = 2015 + which;
 		return createDate(year,12,25);
