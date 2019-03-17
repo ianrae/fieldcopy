@@ -2,9 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.FieldInfo;
-import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -16,20 +13,6 @@ import org.junit.runner.RunWith;
 @RunWith(MyRunner.class)
 @Scope("Integer[]")
 public class ArrayIntegerTests extends BaseListTest {
-	
-	public static class MyIntegerToStringArrayConverter implements ValueConverter {
-		@Override
-		public boolean canConvert(FieldInfo source, FieldInfo dest) {
-			return source.matches("arrayInt1");
-		}
-
-
-		@Override
-		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
 	
 	@Test
 	@Scope("values")
@@ -101,13 +84,14 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
-		copySrcFieldTo(mainField, "arrayInt1");
+		copySrcFieldTo(mainField, "listInt1");
 		chkIntListValue(2, 44, 45);
 	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
-		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
+//		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
+		copier.copy(entity, dto).field("arrayInt1", "listString1").execute();
 		chkValue(2, "44", "45");
 	}
 	@Test

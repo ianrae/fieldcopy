@@ -175,12 +175,12 @@ public class FastBeanUtilFieldCopyService {
 				return type;
 			}
 		} else if (Collection.class.isAssignableFrom(srcType)) {
-			if (Collection.class.isAssignableFrom(type)) {
+			if (Collection.class.isAssignableFrom(type) || type.isArray()) {
 			} else {
 				return type;
 			}
 		} else if (srcType.isArray()) {
-			if (type.isArray()) {
+			if (type.isArray() || Collection.class.isAssignableFrom(type)) {
 			} else {
 				return type;
 			}
