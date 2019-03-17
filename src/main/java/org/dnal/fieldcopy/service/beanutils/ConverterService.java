@@ -41,22 +41,13 @@ public class ConverterService {
 			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
-				String error = String.format("copyFields. field '%s' has list depth %d, but field '%s' has different depth %d",
-						fd1.getName(), listSpec1.depth, fd2.getName(), listSpec2.depth);
-				throw new FieldCopyException(error);
+				throwDepthError("list", fd1, listSpec1, fd2, listSpec2);
 			}
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			FieldInfo sourceField = new FieldInfo();
-			sourceField.fieldName = pair.srcProp.getName();
-			sourceField.fieldClass = srcElementClass;
-			sourceField.beanClass = copySpec.sourceObj.getClass();
-			
-			FieldInfo destField = new FieldInfo();
-			destField.fieldName = pair.destProp.getName();
-			destField.fieldClass = destElementClass;
-			destField.beanClass = copySpec.destObj.getClass();
+			FieldInfo sourceField = buildSourceFieldInfo(pair, srcElementClass, copySpec);
+			FieldInfo destField = buildDestFieldInfo(pair, destElementClass, copySpec);
 			
 			for(ValueConverter converter: copySpec.converterL) {
 				//a special use of converter. normally we pass field name and its class (and the dest class).
@@ -79,6 +70,13 @@ public class ConverterService {
 		}
 	}
 	
+	private void throwDepthError(String title, BeanUtilsFieldDescriptor fd1, ListSpec listSpec1, BeanUtilsFieldDescriptor fd2,
+			ListSpec listSpec2) {
+		String error = String.format("copyFields. field '%s' has %s depth %d, but field '%s' has different depth %d",
+				fd1.getName(), title, listSpec1.depth, fd2.getName(), listSpec2.depth);
+		throw new FieldCopyException(error);
+	}
+
 	public void addArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
@@ -95,24 +93,15 @@ public class ConverterService {
 			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
-				String error = String.format("copyFields. field '%s' has array depth %d, but field '%s' has different depth %d",
-						fd1.getName(), listSpec1.depth, fd2.getName(), listSpec2.depth);
-				throw new FieldCopyException(error);
-
+				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
 			}
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			FieldInfo sourceField = new FieldInfo();
-			sourceField.fieldName = pair.srcProp.getName();
-			sourceField.fieldClass = srcElementClass;
-			sourceField.beanClass = copySpec.sourceObj.getClass();
+			FieldInfo sourceField = buildSourceFieldInfo(pair, srcElementClass, copySpec);
 			sourceField.isArray = true;
 			
-			FieldInfo destField = new FieldInfo();
-			destField.fieldName = pair.destProp.getName();
-			destField.fieldClass = destElementClass;
-			destField.beanClass = copySpec.destObj.getClass();
+			FieldInfo destField = buildDestFieldInfo(pair, destElementClass, copySpec);
 			destField.isArray = true;
 			
 			for(ValueConverter converter: copySpec.converterL) {
@@ -135,6 +124,23 @@ public class ConverterService {
 			copySpec.converterL.add(converter);
 		}
 	}
+
+	private FieldInfo buildSourceFieldInfo(FieldPair pair, Class<?> srcElementClass,
+			CopySpec copySpec) {
+		FieldInfo sourceField = new FieldInfo();
+		sourceField.fieldName = pair.srcProp.getName();
+		sourceField.fieldClass = srcElementClass;
+		sourceField.beanClass = copySpec.sourceObj.getClass();
+		return sourceField;
+	}
+	private FieldInfo buildDestFieldInfo(FieldPair pair, Class<?> destElementClass, CopySpec copySpec) {
+		FieldInfo destField = new FieldInfo();
+		destField.fieldName = pair.destProp.getName();
+		destField.fieldClass = destElementClass;
+		destField.beanClass = copySpec.destObj.getClass();
+		return destField;
+	}
+
 
 	public ValueConverter useConverterIfPresent(CopySpec copySpec, FieldPair pair, Object orig, List<ValueConverter> converterL) {
 		if (CollectionUtils.isNotEmpty(converterL)) {
