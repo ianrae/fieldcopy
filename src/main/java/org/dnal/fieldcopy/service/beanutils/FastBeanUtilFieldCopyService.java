@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -264,6 +265,8 @@ public class FastBeanUtilFieldCopyService {
 			String name = fieldPlan.pair.srcProp.getName();
     		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
     		
+    		logger.log("  field %s: %s", name, getLoggableString(value));
+    		
 			if (fieldPlan.converter != null) {
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 				Class<?> destClass = fd2.pd.getPropertyType();
@@ -290,6 +293,22 @@ public class FastBeanUtilFieldCopyService {
 			}
 		}
 		return ok;
+	}
+
+	private Object getLoggableString(Object value) {
+		if (value == null || ! logger.isEnabled()) {
+			return null;
+		}
+		
+		if (value.getClass().isArray()) {
+			return String.format("array %d elements", Array.getLength(value));
+		} else {
+			String s = value.toString();
+			if (s.length() > 100) {
+				s = s.substring(0, 100);
+			}
+			return s;
+		}
 	}
 	
 	

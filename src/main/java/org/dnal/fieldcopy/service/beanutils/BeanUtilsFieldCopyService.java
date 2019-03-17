@@ -119,6 +119,8 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 				execSpec = fastSvc.generateExecutePlan(copySpec);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
 			}
+			logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
+					copySpec.destObj.getClass(), execSpec.fieldL.size());
 			fastSvc.executePlan(copySpec, execSpec, this, runawayCounter);
 		}
 

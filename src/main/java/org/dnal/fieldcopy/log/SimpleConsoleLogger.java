@@ -4,6 +4,11 @@ public class SimpleConsoleLogger implements SimpleLogger {
 	private boolean enabled = true;
 
 	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	@Override
 	public void enableLogging(boolean b) {
 		enabled = b;
 	}
