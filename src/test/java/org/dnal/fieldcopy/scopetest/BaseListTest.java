@@ -34,6 +34,10 @@ public class BaseListTest extends BaseScopeTest {
 		Integer[] ar = {44, 45};
 		return ar;
 	}
+	protected Long[] createLongArray() {
+		Long[] ar = {44L, 45L};
+		return ar;
+	}
 	protected List<Colour> createColourList() {
 		List<Colour> list = Arrays.asList(Colour.RED, Colour.BLUE);
 		list = new ArrayList<>(list);
@@ -142,6 +146,17 @@ public class BaseListTest extends BaseScopeTest {
 		}
 		if (expected > 1) {
 			assertEquals(n2, ar[1].longValue());
+		}
+	}
+	protected void chkDateArrayValue(int expected, Date dt1, Date dt2) {
+		Date[] ar = dto.getArrayDate1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(dt1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(dt2, ar[1]);
 		}
 	}
 	
