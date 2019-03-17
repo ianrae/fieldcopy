@@ -7,12 +7,12 @@ import java.util.List;
 public class ListElementConverterFactory {
 
 	
-	public ListElementConverter createListConverter(String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public ListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
 		
-		return new ListElementConverter(name, srcElementClass, destElementClass);
+		return new ListElementConverter(beanClass, name, srcElementClass, destElementClass);
 	}
 	public ArrayElementConverter createArrayConverter(String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
