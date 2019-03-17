@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
+import org.dnal.fieldcopy.converter.ArrayElementConverter;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ListElementConverter;
@@ -178,7 +179,7 @@ public class FastBeanUtilFieldCopyService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ListElementConverter converter = converterFactory.createConverter(name, srcElementClass, destElementClass);
+			ListElementConverter converter = converterFactory.createListConverter(name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -235,15 +236,15 @@ public class FastBeanUtilFieldCopyService {
 				}
 			}
 			
-//			//add one
-//			String name = pair.srcProp.getName();
-//			ListElementConverter converter = converterFactory.createConverter(name, srcElementClass, destElementClass);
-//			if (converter == null) {
-//				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
-//				throw new FieldCopyException(error);
-//			}
-//			converter.setDepth(listSpec1.depth);
-//			copySpec.converterL.add(converter);
+			//add one
+			String name = pair.srcProp.getName();
+			ArrayElementConverter converter = converterFactory.createArrayConverter(name, srcElementClass, destElementClass);
+			if (converter == null) {
+				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
+				throw new FieldCopyException(error);
+			}
+			converter.setDepth(listSpec1.depth);
+			copySpec.converterL.add(converter);
 		}
 	}
 

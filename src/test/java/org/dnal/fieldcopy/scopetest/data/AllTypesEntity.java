@@ -27,6 +27,9 @@ public class AllTypesEntity {
 	private List<Long> listLong1;
 	private List<Colour> listColour1;
 	private List<Province> listProvince1;
+	
+	//arrays of all types
+	private Integer[] arrayInt1;
 
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -170,5 +173,13 @@ public class AllTypesEntity {
 
 	public void setListProvince1(List<Province> listProvince1) {
 		this.listProvince1 = listProvince1;
+	}
+
+	public Integer[] getArrayInt1() {
+		return arrayInt1;
+	}
+
+	public void setArrayInt1(Integer[] arrayInt1) {
+		this.arrayInt1 = arrayInt1;
 	}
 }
