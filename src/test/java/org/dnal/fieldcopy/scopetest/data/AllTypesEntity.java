@@ -30,6 +30,11 @@ public class AllTypesEntity {
 	
 	//arrays of all types
 	private Integer[] arrayInt1;
+	private Long[] arrayLong1;
+	private String[] arrayString1;
+	private Date[] arrayDate1;
+	private Colour[] arrayColour1;
+	private Province[] arrayProvince1;
 
 	public boolean isPrimitiveBool() {
 		return primitiveBool;
@@ -181,5 +186,45 @@ public class AllTypesEntity {
 
 	public void setArrayInt1(Integer[] arrayInt1) {
 		this.arrayInt1 = arrayInt1;
+	}
+
+	public Long[] getArrayLong1() {
+		return arrayLong1;
+	}
+
+	public void setArrayLong1(Long[] arrayLong1) {
+		this.arrayLong1 = arrayLong1;
+	}
+
+	public String[] getArrayString1() {
+		return arrayString1;
+	}
+
+	public void setArrayString1(String[] arrayString1) {
+		this.arrayString1 = arrayString1;
+	}
+
+	public Date[] getArrayDate1() {
+		return arrayDate1;
+	}
+
+	public void setArrayDate1(Date[] arrayDate1) {
+		this.arrayDate1 = arrayDate1;
+	}
+
+	public Colour[] getArrayColour1() {
+		return arrayColour1;
+	}
+
+	public void setArrayColour1(Colour[] arrayColour1) {
+		this.arrayColour1 = arrayColour1;
+	}
+
+	public Province[] getArrayProvince1() {
+		return arrayProvince1;
+	}
+
+	public void setArrayProvince1(Province[] arrayProvince1) {
+		this.arrayProvince1 = arrayProvince1;
 	}
 }

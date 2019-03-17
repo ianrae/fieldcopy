@@ -111,6 +111,37 @@ public class ArrayIntegerTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listColour1");
 	}
 	
+
+	//--array--
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldTo(mainField, "arrayInt1");
+		chkIntArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+//		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
+		copier.copy(entity, dto).field("arrayInt1", "arrayString1").execute();
+		chkArrayStringValue(2, "44", "45");
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldToFail(mainField, "arrayDate1");
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copySrcFieldTo(mainField, "arrayLong1");
+		chkLongArrayValue(2, 44L, 45L);
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		copySrcFieldToFail(mainField, "arrayColour1");
+	}
 	
 	//---
 	private static final String mainField = "arrayInt1";

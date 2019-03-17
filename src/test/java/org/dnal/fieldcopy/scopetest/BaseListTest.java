@@ -121,4 +121,28 @@ public class BaseListTest extends BaseScopeTest {
 			assertEquals(c2, list.get(1));
 		}
 	}
+	
+	protected void chkArrayStringValue(int expected, String s1, String s2) {
+		String[] ar = dto.getArrayString1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(s1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(s2, ar[1]);
+		}
+	}
+	protected void chkLongArrayValue(int expected, long n1, long n2) {
+		Long[] ar = dto.getArrayLong1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(n1, ar[0].longValue());
+		}
+		if (expected > 1) {
+			assertEquals(n2, ar[1].longValue());
+		}
+	}
+	
 }
