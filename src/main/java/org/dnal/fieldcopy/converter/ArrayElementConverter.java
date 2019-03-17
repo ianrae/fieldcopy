@@ -81,7 +81,7 @@ public class ArrayElementConverter implements ValueConverter {
 
 	private Object copyInnerMostArray(Object srcArray, ConverterContext ctx) {
 		if (useScalarCopy) {
-			return copyScalarArray(srcArray, srcElClass);
+			return copyScalarArray(srcArray);
 		}
 		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
@@ -104,7 +104,7 @@ public class ArrayElementConverter implements ValueConverter {
 		return arrayObj2;
 	}
 
-	private Object copyScalarArray(Object srcArray, Class<?> srcElClass) {
+	private Object copyScalarArray(Object srcArray) {
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);
 		

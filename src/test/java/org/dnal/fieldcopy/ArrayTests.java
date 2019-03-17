@@ -132,7 +132,7 @@ public class ArrayTests extends BaseTest {
 	@Test
 	public void testConverter2() {
 		String fieldName = "names";
-		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, String.class);
+		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, Integer.class);
 		
 		FieldInfo sourceInfo = new FieldInfo();
 		sourceInfo.beanClass = Home.class;
@@ -161,10 +161,10 @@ public class ArrayTests extends BaseTest {
 		assertEquals(true, result.getClass().isArray());
 		//http://tutorials.jenkov.com/java-reflection/arrays.html
 		Class<?> elClass = result.getClass().getComponentType();
-		assertEquals(String.class, elClass);
+		assertEquals(Integer.class, elClass);
 		
-		String s = (String) Array.get(result, 1);
-		assertEquals("34", s);
+		Integer n = (Integer) Array.get(result, 1);
+		assertEquals(34, n.intValue());
 	}
 	
 	//--
