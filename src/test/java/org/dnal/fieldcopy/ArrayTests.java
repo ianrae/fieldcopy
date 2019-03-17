@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Array;
 
+import org.dnal.fieldcopy.converter.ArrayElementConverter;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.junit.Test;
 
 public class ArrayTests extends BaseTest {
@@ -69,8 +72,8 @@ public class ArrayTests extends BaseTest {
 		FieldCopier copier = createCopier();
 		copier.copy(src, dest).field("names", "sizes").execute();
 		assertEquals(3, dest.getSizes().length);
-		assertEquals("a", dest.getNames()[0]);
-		assertEquals("c", dest.getNames()[2]);
+		assertEquals(33, dest.getSizes()[0].intValue());
+		assertEquals(35, dest.getSizes()[2].intValue());
 	}
 	
 	@Test
@@ -88,6 +91,81 @@ public class ArrayTests extends BaseTest {
 		assertEquals("34", s);
 	}
 	
+	@Test
+	public void testConverter() {
+		String fieldName = "names";
+		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, String.class);
+		
+		FieldInfo sourceInfo = new FieldInfo();
+		sourceInfo.beanClass = Home.class;
+		sourceInfo.fieldClass = String.class;
+		sourceInfo.fieldName = fieldName;
+		
+		FieldInfo destInfo = new FieldInfo();
+		destInfo.beanClass = HomeDTO.class;
+		destInfo.fieldClass = String.class;
+		destInfo.fieldName = fieldName;
+		
+		assertEquals(true, conv.canConvert(sourceInfo, destInfo));
+		
+		Home src = new Home();
+		String[] ar=  {"33", "34", "35"};
+		src.setNames(ar);
+		
+		ConverterContext ctx = new ConverterContext();
+		ctx.copyOptions = new CopyOptions();
+		ctx.copySvc = this.createCopyService();
+		ctx.destClass = HomeDTO.class;
+		ctx.srcClass = Home.class;
+		
+		Object result = conv.convertValue(src, src.getNames(), ctx);
+		
+		assertEquals(true, result.getClass().isArray());
+		//http://tutorials.jenkov.com/java-reflection/arrays.html
+		Class<?> elClass = result.getClass().getComponentType();
+		assertEquals(String.class, elClass);
+		
+		String s = (String) Array.get(result, 1);
+		assertEquals("34", s);
+	}
+	
+	@Test
+	public void testConverter2() {
+		String fieldName = "names";
+		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, String.class);
+		
+		FieldInfo sourceInfo = new FieldInfo();
+		sourceInfo.beanClass = Home.class;
+		sourceInfo.fieldClass = String.class;
+		sourceInfo.fieldName = fieldName;
+		
+		FieldInfo destInfo = new FieldInfo();
+		destInfo.beanClass = HomeDTO.class;
+		destInfo.fieldClass = Integer.class;
+		destInfo.fieldName = "sizes";
+		
+		assertEquals(true, conv.canConvert(sourceInfo, destInfo));
+		
+		Home src = new Home();
+		String[] ar=  {"33", "34", "35"};
+		src.setNames(ar);
+		
+		ConverterContext ctx = new ConverterContext();
+		ctx.copyOptions = new CopyOptions();
+		ctx.copySvc = this.createCopyService();
+		ctx.destClass = HomeDTO.class;
+		ctx.srcClass = Home.class;
+		
+		Object result = conv.convertValue(src, src.getNames(), ctx);
+		
+		assertEquals(true, result.getClass().isArray());
+		//http://tutorials.jenkov.com/java-reflection/arrays.html
+		Class<?> elClass = result.getClass().getComponentType();
+		assertEquals(String.class, elClass);
+		
+		String s = (String) Array.get(result, 1);
+		assertEquals("34", s);
+	}
 	
 	//--
 }

@@ -14,7 +14,6 @@ import org.dnal.fieldcopy.core.FieldPair;
  *
  */
 public class ConverterContext {
-	public String srcFieldName;
 	public Class<?>srcClass;
 	public Class<?> destClass;
 	public FieldCopyService copySvc;

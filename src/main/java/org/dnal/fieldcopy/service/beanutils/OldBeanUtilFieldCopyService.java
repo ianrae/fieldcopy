@@ -247,7 +247,6 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 						ConverterContext ctx = new ConverterContext();
 						ctx.destClass = destClass;
 						ctx.srcClass = srcFieldClass;
-						ctx.srcFieldName = pair.srcProp.getName();
 						ctx.copySvc = this;
 						ctx.copyOptions = options;
 						

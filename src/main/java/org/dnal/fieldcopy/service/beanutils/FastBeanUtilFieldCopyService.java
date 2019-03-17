@@ -417,7 +417,6 @@ public class FastBeanUtilFieldCopyService {
 				ConverterContext ctx = new ConverterContext();
 				ctx.destClass = destClass;
 				ctx.srcClass = srcClass;
-				ctx.srcFieldName = name;
 				ctx.copySvc = outerSvc;
 				ctx.copyOptions = spec.options;
 				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);

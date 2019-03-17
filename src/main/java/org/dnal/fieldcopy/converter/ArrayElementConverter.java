@@ -91,8 +91,8 @@ public class ArrayElementConverter implements ValueConverter {
 		spec.mappingL = null;
 		spec.converterL = null;
 
-		Object arrayObj2 = Array.newInstance(destElClass, 0);
 		int n = Array.getLength(srcArray);
+		Object arrayObj2 = Array.newInstance(destElClass, n);
 		for(int i = 0; i < n; i++) {
 			Object el = Array.get(srcArray, i);
 			spec.sourceObj = el;
@@ -105,9 +105,9 @@ public class ArrayElementConverter implements ValueConverter {
 	}
 
 	private Object copyScalarArray(Object srcArray, Class<?> srcElClass) {
-		Object arrayObj2 = Array.newInstance(destElClass, 0);
-		
 		int n = Array.getLength(srcArray);
+		Object arrayObj2 = Array.newInstance(destElClass, n);
+		
 		for(int i = 0; i < n; i++) {
 			Object el = Array.get(srcArray, i);
 			Object result = ConvertUtils.convert(el, destElClass);
