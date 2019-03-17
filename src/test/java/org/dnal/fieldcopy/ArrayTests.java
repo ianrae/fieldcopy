@@ -94,7 +94,7 @@ public class ArrayTests extends BaseTest {
 	@Test
 	public void testConverter() {
 		String fieldName = "names";
-		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, String.class);
+		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, String.class);
 		
 		FieldInfo sourceInfo = new FieldInfo();
 		sourceInfo.beanClass = Home.class;
@@ -132,7 +132,7 @@ public class ArrayTests extends BaseTest {
 	@Test
 	public void testConverter2() {
 		String fieldName = "names";
-		ArrayElementConverter conv = new ArrayElementConverter(fieldName, String.class, Integer.class);
+		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, Integer.class);
 		
 		FieldInfo sourceInfo = new FieldInfo();
 		sourceInfo.beanClass = Home.class;

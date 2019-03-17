@@ -14,12 +14,12 @@ public class ListElementConverterFactory {
 		
 		return new ListElementConverter(beanClass, name, srcElementClass, destElementClass);
 	}
-	public ArrayElementConverter createArrayConverter(String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public ArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
 		
-		return new ArrayElementConverter(name, srcElementClass, destElementClass);
+		return new ArrayElementConverter(beanClass, name, srcElementClass, destElementClass);
 	}
 
 	private boolean isSupported(Class<?> srcElementClass, Class<?> destElementClass) {

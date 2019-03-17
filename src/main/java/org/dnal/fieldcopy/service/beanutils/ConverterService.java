@@ -125,7 +125,7 @@ public class ConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ArrayElementConverter converter = converterFactory.createArrayConverter(name, srcElementClass, destElementClass);
+			ArrayElementConverter converter = converterFactory.createArrayConverter(copySpec.sourceObj.getClass(), name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);

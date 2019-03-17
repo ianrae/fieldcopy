@@ -28,8 +28,10 @@ public class ArrayElementConverter implements ValueConverter {
 	private List<Class<?>> knownScalarsL;
 	private boolean useScalarCopy;
 	private int depth;
+	private Class<?> beanClass;
 	
-	public ArrayElementConverter(String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
+	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
+		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
@@ -39,7 +41,7 @@ public class ArrayElementConverter implements ValueConverter {
 
 	@Override
 	public boolean canConvert(FieldInfo source, FieldInfo dest) {
-		return source.matches(srcFieldName);
+		return source.matches(beanClass, srcFieldName);
 	}
 	
 	@Override
