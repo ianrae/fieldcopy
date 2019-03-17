@@ -148,7 +148,7 @@ public class ArrayStringTests extends BaseListTest {
 	public void testToArrayString() {
 //		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
 		copier.copy(entity, dto).field("arrayString1", "arrayString1").execute();
-		chkStringArrayValue(2, "44", "45");
+		chkStringArrayValue(2, "abc", "def");
 	}
 	@Test
 	@Scope("Date[]")
@@ -158,7 +158,10 @@ public class ArrayStringTests extends BaseListTest {
 	@Test
 	@Scope("Long[]")
 	public void testToArrayLong() {
-		copySrcFieldTo(mainField, "arrayLong1");
+		reset();
+		String[] ar = {"44", "45"};
+		entity.setArrayString1(ar);
+		copySrcFieldTo(mainField, "arrayLong1", false);
 		chkLongArrayValue(2, 44L, 45L);
 	}
 	@Test
