@@ -29,7 +29,8 @@ public class ArrayElementConverter implements ValueConverter {
 	private boolean useScalarCopy;
 	private int depth;
 	private Class<?> beanClass;
-	
+	private boolean sourceIsList;
+
 	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
@@ -50,7 +51,7 @@ public class ArrayElementConverter implements ValueConverter {
 			return null;
 		}
 		
-		Object srcArray = value;
+		Object srcArray = getAsArray(value);
 		
 		if (depth == 0) {
 			return copyInnerMostArray(srcArray, ctx);
@@ -80,6 +81,15 @@ public class ArrayElementConverter implements ValueConverter {
 //			return list2;
 //		}
 //	}
+
+	private Object getAsArray(Object value) {
+		if (sourceIsList) {
+			List<?> list = (List<?>) value;
+			return list.toArray();
+		} else {
+			return value;
+		}
+	}
 
 	private Object copyInnerMostArray(Object srcArray, ConverterContext ctx) {
 		if (useScalarCopy) {
@@ -161,6 +171,14 @@ public class ArrayElementConverter implements ValueConverter {
 
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+
+	public boolean isSourceIsList() {
+		return sourceIsList;
+	}
+
+	public void setSourceIsList(boolean sourceIsList) {
+		this.sourceIsList = sourceIsList;
 	}
 
 }

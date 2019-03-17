@@ -24,6 +24,7 @@ public class ConverterService {
 		this.converterFactory = new ListElementConverterFactory();
 	}
 
+	// List -> List
 	public void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
@@ -61,6 +62,8 @@ public class ConverterService {
 			copySpec.converterL.add(converter);
 		}
 	}
+	
+	// Array -> List
 	public void addArrayListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
@@ -94,10 +97,12 @@ public class ConverterService {
 				throw new FieldCopyException(error);
 			}
 			converter.setDepth(listSpec1.depth);
+			converter.setSourceIsArray(true);
 			copySpec.converterL.add(converter);
 		}
 	}
 	
+	// Array -> Array
 	public void addArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
@@ -135,6 +140,44 @@ public class ConverterService {
 		}
 	}
 
+	// List -> Array
+	public void addListArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
+		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+		
+		Class<?> srcFieldClass = fd1.pd.getPropertyType();
+		Class<?> destFieldClass = fd2.pd.getPropertyType();
+		if (Collection.class.isAssignableFrom(srcFieldClass) && destFieldClass.isArray()) { 
+			
+			if (copySpec.converterL == null) {
+				copySpec.converterL = new ArrayList<>();
+			}
+			
+			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj, fd1);
+			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj, fd2);
+			
+			if (listSpec1.depth != listSpec2.depth) {
+				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
+			}
+
+			Class<?> srcElementClass = listSpec1.elementClass;
+			Class<?> destElementClass = listSpec2.elementClass;
+			if (matchingConverterAlreadyExists(copySpec, pair, srcElementClass, destElementClass)) {
+				return;
+			}
+			
+			//add one
+			String name = pair.srcProp.getName();
+			ArrayElementConverter converter = converterFactory.createArrayConverter(copySpec.sourceObj.getClass(), name, srcElementClass, destElementClass);
+			if (converter == null) {
+				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
+				throw new FieldCopyException(error);
+			}
+			converter.setDepth(listSpec1.depth);
+			converter.setSourceIsList(true);
+			copySpec.converterL.add(converter);
+		}
+	}
 	
 	private boolean matchingConverterAlreadyExists(CopySpec copySpec, FieldPair pair, Class<?> srcElementClass, Class<?> destElementClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;

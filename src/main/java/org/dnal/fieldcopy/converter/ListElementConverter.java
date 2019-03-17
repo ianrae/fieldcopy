@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.converter;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -29,6 +30,7 @@ public class ListElementConverter implements ValueConverter {
 	private boolean useScalarCopy;
 	private int depth;
 	private Class<?> beanClass;
+	private boolean sourceIsArray;
 	
 	public ListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
 		this.beanClass = beanClass;
@@ -51,7 +53,7 @@ public class ListElementConverter implements ValueConverter {
 		}
 		
 		@SuppressWarnings("unchecked")
-		List<?> list = (List<?>) value;
+		List<?> list = (List<?>) getAsList(value); 
 		
 		if (depth == 0) {
 			return copyInnerMostList(list, ctx);
@@ -66,6 +68,20 @@ public class ListElementConverter implements ValueConverter {
 		}
 	}
 	
+	private List<?> getAsList(Object value) {
+		if (sourceIsArray) {
+			List<Object> list = new ArrayList<>();
+			int n = Array.getLength(value);
+			for(int i = 0; i < n; i++) {
+				Object el = Array.get(value, i);
+				list.add(el);
+			}
+			return list;
+		} else {
+			return (List<?>) value;
+		}
+	}
+
 	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int currentDepth) {
 		boolean isInnermost = (currentDepth == depth - 1);
 		if (isInnermost) {
@@ -155,6 +171,14 @@ public class ListElementConverter implements ValueConverter {
 
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+
+	public boolean isSourceIsArray() {
+		return sourceIsArray;
+	}
+
+	public void setSourceIsArray(boolean sourceIsArray) {
+		this.sourceIsArray = sourceIsArray;
 	}
 
 }
