@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Random;
 
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;

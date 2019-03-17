@@ -2,43 +2,60 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
+import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
+import org.dnal.fieldcopy.scopetest.data.Colour;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @RunWith(MyRunner.class)
-@Scope("Integer[]")
-public class ArrayIntegerTests extends BaseListTest {
+@Scope("Colour[]")
+public class ArrayColourTests extends BaseListTest {
+	
+	public static class MyStringToColourListConverter extends BaseListConverter {
+		@Override
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("listString1");
+		}
+
+		@Override
+		protected Object copyElement(Object el) {
+			String str = el.toString();
+			return Colour.valueOf(str);
+		}
+	}
 	
 	@Test
 	@Scope("values")
 	public void test() {
 		doCopy(mainField);
-		chkIntArrayValue(2, 44, 45);
+		chkColourArrayValue(2, Colour.RED, Colour.BLUE);
 		
 		reset();
-		Integer[] ar = {44, 45, 46};
-		entity.setArrayInt1(ar);
+		Colour[] ar = { Colour.RED, Colour.BLUE, Colour.GREEN };
+		entity.setArrayColour1(ar);
 		doCopy(mainField);
-		chkIntArrayValue(3, 44, 45);
+		chkColourArrayValue(3, Colour.RED, Colour.BLUE);
 
 		reset();
-		ar = new Integer[]{};
-		entity.setArrayInt1(ar);
+		ar = new Colour[]{};
+		entity.setArrayColour1(ar);
 		doCopy(mainField);
-		chkIntArrayValue(0, 0, 0);
+		chkColourArrayValue(0, null, null);
 	}
 	
 	@Test
 	@Scope("null")
 	public void testNull() {
-		entity.setArrayInt1(null);
+		entity.setArrayColour1(null);
 		doCopy(mainField);
-		assertEquals(null, dto.getArrayInt1());
+		assertEquals(null, dto.getArrayColour1());
 	}
 	
 	@Test
@@ -84,15 +101,18 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("List<Integer>")
 	public void testToListInt() {
-		copySrcFieldTo(mainField, "listInt1");
-		chkIntListValue(2, 44, 45);
+		copySrcFieldToFail(mainField, "listInt1");
+	}
+	@Test
+	@Scope("List<Long>")
+	public void testToListLong() {
+		copySrcFieldToFail(mainField, "listLong1");
 	}
 	@Test
 	@Scope("List<String>")
 	public void testToListString() {
-//		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
-		copier.copy(entity, dto).field("arrayInt1", "listString1").execute();
-		chkValue(2, "44", "45");
+		copySrcFieldTo(mainField, "listString1");
+		chkValue(2, "RED", "BLUE");
 	}
 	@Test
 	@Scope("List<Date>")
@@ -100,30 +120,28 @@ public class ArrayIntegerTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listDate1");
 	}
 	@Test
-	@Scope("List<Long>")
-	public void testToListLong() {
-		copySrcFieldTo(mainField, "listLong1");
-		chkLongListValue(2, 44L, 45L);
-	}
-	@Test
 	@Scope("List<Colour>")
-	public void testToLisColour() {
-		copySrcFieldToFail(mainField, "listColour1");
+	public void testToListColour() {
+		copySrcFieldTo(mainField, "listColour1");
+		chkColourListValue(2, Colour.RED, Colour.BLUE);
+		
+		reset();
+		copySrcFieldToFail(mainField, "listProvince1");
 	}
-
+	
 	//--array--
 	@Test
 	@Scope("Integer[]")
 	public void testToArrayInt() {
-		copySrcFieldTo(mainField, "arrayInt1");
-		chkIntArrayValue(2, 44, 45);
+		copySrcFieldToFail(mainField, "arrayInt1");
 	}
 	@Test
 	@Scope("String[]")
 	public void testToArrayString() {
+		enableLogging();
 //		copier.copy(entity, dto).withConverters(new MyIntegerToStringArrayConverter()).field("arrayInt1", "listString1").execute();
-		copier.copy(entity, dto).field("arrayInt1", "arrayString1").execute();
-		chkStringArrayValue(2, "44", "45");
+		copier.copy(entity, dto).field("arrayColour1", "arrayString1").execute();
+		chkStringArrayValue(2, "RED", "BLUE");
 	}
 	@Test
 	@Scope("Date[]")
@@ -133,17 +151,17 @@ public class ArrayIntegerTests extends BaseListTest {
 	@Test
 	@Scope("Long[]")
 	public void testToArrayLong() {
-		copySrcFieldTo(mainField, "arrayLong1");
-		chkLongArrayValue(2, 44L, 45L);
+		copySrcFieldToFail(mainField, "arrayLong1");
 	}
 	@Test
 	@Scope("Colour[]")
 	public void testToArrayColour() {
-		copySrcFieldToFail(mainField, "arrayColour1");
+		copySrcFieldTo(mainField, "arrayColour1");
+		chkColourArrayValue(2, Colour.RED, Colour.BLUE);
 	}
 	
 	//---
-	private static final String mainField = "arrayInt1";
+	private static final String mainField = "arrayColour1";
 	
 	@Before
 	public void init() {
@@ -153,8 +171,8 @@ public class ArrayIntegerTests extends BaseListTest {
 	protected AllTypesEntity createEntity() {
 		AllTypesEntity entity = new AllTypesEntity();
 		
-		Integer[] ar = createIntArray();
-		entity.setArrayInt1(ar);
+		Colour[] ar = createColourArray();
+		entity.setArrayColour1(ar);
 		
 		return entity;
 	}

@@ -47,6 +47,10 @@ public class BaseListTest extends BaseScopeTest {
 		list = new ArrayList<>(list);
 		return list;
 	}
+	protected Colour[] createColourArray() {
+		Colour[] ar = {Colour.RED, Colour.BLUE};
+		return ar;
+	}
 	protected List<Long> createLongList() {
 		List<Long> list = Arrays.asList(44L, 45L);
 		list = new ArrayList<>(list);
@@ -161,6 +165,17 @@ public class BaseListTest extends BaseScopeTest {
 		}
 		if (expected > 1) {
 			assertEquals(dt2, ar[1]);
+		}
+	}
+	protected void chkColourArrayValue(int expected, Colour c1, Colour c2) {
+		Colour[] ar = dto.getArrayColour1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(c1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(c2, ar[1]);
 		}
 	}
 	

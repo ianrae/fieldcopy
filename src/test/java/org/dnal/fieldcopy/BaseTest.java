@@ -9,6 +9,9 @@ public class BaseTest {
 	protected void log(String s) {
 		System.out.println(s);
 	}
+	protected void enableLogging() {
+		DefaultCopyFactory.Factory().createLogger().enableLogging(true);
+	}
 
 	protected FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
