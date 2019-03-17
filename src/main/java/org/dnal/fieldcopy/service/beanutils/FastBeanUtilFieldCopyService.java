@@ -152,7 +152,6 @@ public class FastBeanUtilFieldCopyService {
 				String error = String.format("copyFields. field '%s' has list depth %d, but field '%s' has different depth %d",
 						fd1.getName(), listSpec1.depth, fd2.getName(), listSpec2.depth);
 				throw new FieldCopyException(error);
-
 			}
 
 			Class<?> srcElementClass = listSpec1.elementClass;
@@ -166,7 +165,6 @@ public class FastBeanUtilFieldCopyService {
 			destField.fieldName = pair.destProp.getName();
 			destField.fieldClass = destElementClass;
 			destField.beanClass = copySpec.destObj.getClass();
-			
 			
 			for(ValueConverter converter: copySpec.converterL) {
 				//a special use of converter. normally we pass field name and its class (and the dest class).
@@ -201,8 +199,6 @@ public class FastBeanUtilFieldCopyService {
 				copySpec.converterL = new ArrayList<>();
 			}
 			
-			
-			//NOT YET WORKING
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj, fd1);
 			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj, fd2);
 			
@@ -325,6 +321,11 @@ public class FastBeanUtilFieldCopyService {
 			}
 		} else if (Collection.class.isAssignableFrom(srcType)) {
 			if (Collection.class.isAssignableFrom(type)) {
+			} else {
+				return type;
+			}
+		} else if (srcType.isArray()) {
+			if (type.isArray()) {
 			} else {
 				return type;
 			}
