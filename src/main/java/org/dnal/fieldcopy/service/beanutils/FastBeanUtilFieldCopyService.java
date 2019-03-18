@@ -37,17 +37,23 @@ public class FastBeanUtilFieldCopyService {
 
 	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec)  {
 		ExecuteCopyPlan result = null;
+		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
 		try {
-			result = doGenerateExecutePlan(copySpec, 1);
+			result = doGenerateExecutePlan(copySpec, execspec, 1);
 		} catch (Exception e) {
-			String msg = String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage());
-			throw new FieldCopyException(msg);
+			String s = " while generating execution plan:";
+			String className = String.format("'%s'", copySpec.sourceObj.getClass().getSimpleName());
+			String field = execspec.currentFieldName == null ? "" : " field '" + execspec.currentFieldName + "'";
+			String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+					e.getClass().getSimpleName(), s, e.getMessage());
+			throw new FieldCopyException(msg, e);
 		}
+		
+		result.currentFieldName = null; //reset
 		return result;
 	}
 	
-	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, int runawayCounter) throws Exception {
-		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
+	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, ExecuteCopyPlan execspec, int runawayCounter) throws Exception {
 		
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
@@ -78,6 +84,8 @@ public class FastBeanUtilFieldCopyService {
 		for(FieldPair pair: fieldPairs) {
             final FieldDescriptor origDescriptor = pair.srcProp;
             final String name = origDescriptor.getName();
+            execspec.currentFieldName = name;
+            
             if (propertyUtils.isReadable(orig, name) &&
             		propertyUtils.isWriteable(dest, pair.destFieldName)) {
             	try {
