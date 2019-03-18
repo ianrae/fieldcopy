@@ -66,9 +66,13 @@ public class AllScopeTests extends BaseTest {
 			for(String arrayType: allArrayTypes) {
 				ensureHappenedArray("values");
 				ensureHappenedArray("null");
-//				checkListType(listType);
-//				checkListToListType(listType);
+				checkArrayType(arrayType);
+				checkArrayToArrayType(arrayType);
 			}
+			
+			//todo
+			//list to array
+			//array to list
 			
 			//checkListAll();
 			checkObserved();
@@ -103,6 +107,22 @@ public class AllScopeTests extends BaseTest {
 			for(String type: allArrayTypes) {
 				ScopeResult res = find(type, testName);
 				addErrorIfFailed("", res, type, testName);
+			}
+		}
+		protected void checkArrayType(String arrayType) {
+			for(String type: allTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayType", res, target, type);
+			}
+		}
+		protected void checkArrayToArrayType(String arrayType) {
+			for(String type: allArrayTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToArrayListType", res, target, type);
 			}
 		}
 	}
