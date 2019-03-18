@@ -100,6 +100,8 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		public void copyFields(CopySpec copySpec)  {
 			try {
 				doCopyFields(copySpec, 1);
+			} catch (FieldCopyException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}

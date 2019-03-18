@@ -255,8 +255,12 @@ public class FastBeanUtilFieldCopyService {
 		try {
 			b = doExecutePlan(spec, execPlan, outerSvc, runawayCounter);
 		} catch (Exception e) {
-			String msg = String.format("%s: %s", e.getClass().getSimpleName(), e.getMessage());
-			throw new FieldCopyException(msg);
+			String s = execPlan.inConverter ? " in converter:" : ":";
+			String className = String.format("'%s'", spec.sourceObj.getClass().getSimpleName());
+			String field = execPlan.currentFieldName == null ? "" : " field '" + execPlan.currentFieldName + "'";
+			String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+					e.getClass().getSimpleName(), s, e.getMessage());
+			throw new FieldCopyException(msg, e);
 		}
 		return b;
 	}
@@ -265,6 +269,7 @@ public class FastBeanUtilFieldCopyService {
 		boolean ok = true;
 		for(FieldPlan fieldPlan: execPlan.fieldL) {
 			String name = fieldPlan.pair.srcProp.getName();
+			execPlan.currentFieldName = name;
     		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
     		
     		logger.log("  field %s: %s", name, getLoggableString(value));
@@ -281,7 +286,9 @@ public class FastBeanUtilFieldCopyService {
 				ctx.srcClass = srcClass;
 				ctx.copySvc = outerSvc;
 				ctx.copyOptions = spec.options;
+				execPlan.inConverter = true;
 				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
+				execPlan.inConverter = false;
 			}
 			
 			if (value == null) {
