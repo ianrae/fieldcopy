@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(MyRunner.class)
-@Scope("Integer[]")
+@Scope("String[]")
 public class ArrayStringTests extends BaseListTest {
 	
 	@Test

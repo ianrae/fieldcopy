@@ -3,12 +3,18 @@ package org.dnal.fieldcopy.scope;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.MyScopeTestsBase;
 import org.dnal.fieldcopy.scope.core.ScopeResult;
 import org.dnal.fieldcopy.scope.core.ScopeTestRunResults;
+import org.dnal.fieldcopy.scopetest.ArrayColourTests;
+import org.dnal.fieldcopy.scopetest.ArrayDateTests;
+import org.dnal.fieldcopy.scopetest.ArrayIntegerTests;
+import org.dnal.fieldcopy.scopetest.ArrayLongTests;
+import org.dnal.fieldcopy.scopetest.ArrayStringTests;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
@@ -34,6 +40,9 @@ public class AllScopeTests extends BaseTest {
 			
 			this.allListTypes = Arrays.asList("List<String>", "List<Integer>", "List<Date>", 
 					"List<Long>", "List<Colour>");
+			
+			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]", 
+					"Long[]", "Colour[]");
 		}
 		
 		@Override
@@ -52,6 +61,13 @@ public class AllScopeTests extends BaseTest {
 				ensureHappenedList("null");
 				checkListType(listType);
 				checkListToListType(listType);
+			}
+			
+			for(String arrayType: allArrayTypes) {
+				ensureHappenedArray("values");
+				ensureHappenedArray("null");
+//				checkListType(listType);
+//				checkListToListType(listType);
 			}
 			
 			//checkListAll();
@@ -81,6 +97,14 @@ public class AllScopeTests extends BaseTest {
 				addErrorIfFailed("checkListToListType", res, target, type);
 			}
 		}
+		
+		//--array
+		protected void ensureHappenedArray(String testName) {
+			for(String type: allArrayTypes) {
+				ScopeResult res = find(type, testName);
+				addErrorIfFailed("", res, type, testName);
+			}
+		}
 	}
 	
 	//--
@@ -105,6 +129,12 @@ public class AllScopeTests extends BaseTest {
 		runClass(ListDateTests.class);	
 		runClass(ListLongTests.class);	
 		runClass(ListColourTests.class);	
+		
+		runClass(ArrayColourTests.class);
+		runClass(ArrayDateTests.class);
+		runClass(ArrayIntegerTests.class);
+		runClass(ArrayLongTests.class);
+		runClass(ArrayStringTests.class);
 
 		afterRunning();
 	}
