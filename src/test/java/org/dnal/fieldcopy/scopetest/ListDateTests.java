@@ -140,13 +140,15 @@ public class ListDateTests extends BaseListTest {
 	}
 	
 	
-	private String formatDate(Date dt) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String s  = sdf.format(dt);
-		return s;
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		copier.copy(entity, dto).field("listLong1", "arrayDate1").execute();
+		chkValue(2, formatDate(refDate1), formatDate(refDate2));
 	}
-
-
+	
+	
 	//---
 	private static final String mainField = "listDate1";
 	
@@ -162,5 +164,10 @@ public class ListDateTests extends BaseListTest {
 		entity.setListDate1(list);
 		
 		return entity;
+	}
+	private String formatDate(Date dt) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String s  = sdf.format(dt);
+		return s;
 	}
 }

@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.dnal.fieldcopy.converter.FieldInfo;
@@ -127,6 +128,17 @@ public class ListIntegerTests extends BaseListTest {
 	@Scope("List<Colour>")
 	public void testToLisColour() {
 		copySrcFieldToFail(mainField, "listColour1");
+	}
+	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		List<Integer> list = createIntList();
+		entity.setListInt1(list);
+		copier.copy(entity, dto).field("listInt1", "arrayString1").execute();
+		chkStringArrayValue(2, "44", "45");
 	}
 	
 	

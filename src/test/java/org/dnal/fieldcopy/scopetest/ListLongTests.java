@@ -133,6 +133,16 @@ public class ListLongTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listColour1");
 	}
 	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		List<Long> list = createLongList();
+		entity.setListLong1(list);
+		copier.copy(entity, dto).field("listLong1", "arrayString1").execute();
+		chkStringArrayValue(2, "44", "45");
+	}
 	
 	//---
 	private static final String mainField = "listLong1";

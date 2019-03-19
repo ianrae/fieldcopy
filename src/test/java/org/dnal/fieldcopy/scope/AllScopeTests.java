@@ -41,8 +41,8 @@ public class AllScopeTests extends BaseTest {
 			this.allListTypes = Arrays.asList("List<String>", "List<Integer>", "List<Date>", 
 					"List<Long>", "List<Colour>");
 			
-			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]", 
-					"Long[]", "Colour[]");
+			this.allArrayTypes = Arrays.asList("String[]"); //"Integer[]", "Date[]", 
+//					"Long[]", "Colour[]");
 		}
 		
 		@Override
@@ -61,6 +61,7 @@ public class AllScopeTests extends BaseTest {
 				ensureHappenedList("null");
 				checkListType(listType);
 				checkListToListType(listType);
+				checkListToArrayType(listType);
 			}
 			
 			for(String arrayType: allArrayTypes) {
@@ -68,11 +69,8 @@ public class AllScopeTests extends BaseTest {
 				ensureHappenedArray("null");
 				checkArrayType(arrayType);
 				checkArrayToArrayType(arrayType);
+				checkArrayToListType(arrayType);
 			}
-			
-			//todo
-			//list to array
-			//array to list
 			
 			//checkListAll();
 			checkObserved();
@@ -101,6 +99,14 @@ public class AllScopeTests extends BaseTest {
 				addErrorIfFailed("checkListToListType", res, target, type);
 			}
 		}
+		protected void checkArrayToListType(String arrayType) {
+			for(String type: allListTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToListType", res, target, type);
+			}
+		}
 		
 		//--array
 		protected void ensureHappenedArray(String testName) {
@@ -120,6 +126,14 @@ public class AllScopeTests extends BaseTest {
 		protected void checkArrayToArrayType(String arrayType) {
 			for(String type: allArrayTypes) {
 				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToArrayListType", res, target, type);
+			}
+		}
+		protected void checkListToArrayType(String listType) {
+			for(String type: allArrayTypes) {
+				String target = String.format("%s:: %s", listType, type);
 				
 				ScopeResult res = findTarget(target);
 				addErrorIfFailed("checkArrayToArrayListType", res, target, type);
@@ -150,10 +164,10 @@ public class AllScopeTests extends BaseTest {
 		runClass(ListLongTests.class);	
 		runClass(ListColourTests.class);	
 		
-		runClass(ArrayColourTests.class);
-		runClass(ArrayDateTests.class);
-		runClass(ArrayIntegerTests.class);
-		runClass(ArrayLongTests.class);
+//		runClass(ArrayColourTests.class);
+//		runClass(ArrayDateTests.class);
+//		runClass(ArrayIntegerTests.class);
+//		runClass(ArrayLongTests.class);
 		runClass(ArrayStringTests.class);
 
 		afterRunning();

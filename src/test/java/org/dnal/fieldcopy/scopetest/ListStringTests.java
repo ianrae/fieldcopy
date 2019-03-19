@@ -168,6 +168,17 @@ public class ListStringTests extends BaseListTest {
 		chkColourListValue(2, Colour.RED, Colour.BLUE);
 	}
 	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayString1").execute();
+		chkStringArrayValue(2, "44", "45");
+	}
+	
 	
 	//---
 	private static final String mainField = "listString1";
