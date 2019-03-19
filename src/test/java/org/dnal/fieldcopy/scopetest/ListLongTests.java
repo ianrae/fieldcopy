@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -148,6 +149,14 @@ public class ListLongTests extends BaseListTest {
 	public void testToArrayInt() {
 		copier.copy(entity, dto).field("listLong1", "arrayInt1").execute();
 		chkIntArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copier.copy(entity, dto).field("listLong1", "arrayDate1").execute();
+		refDate1 = new Date(44L);
+		refDate2 = new Date(45L);
+		this.chkDateArrayValue(2, refDate1, refDate2);
 	}
 	
 	//---

@@ -187,6 +187,18 @@ public class ListStringTests extends BaseListTest {
 		copier.copy(entity, dto).field("listString1", "arrayInt1").execute();
 		chkIntArrayValue(2, 44, 45);
 	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		reset();
+		List<String> list = Arrays.asList("2015-12-25", "2016-12-25");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayDate1").execute();
+		
+		refDate1 = this.createDateNoHourMinue(2015, 12, 25);
+		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
 	
 	
 	//---

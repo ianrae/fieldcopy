@@ -145,6 +145,11 @@ public class ListColourTests extends BaseListTest {
 	public void testToArrayInt() {
 		copySrcFieldToFail(mainField, "arrayInt1");
 	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldToFail(mainField, "listDate1");
+	}
 	
 	
 	//---

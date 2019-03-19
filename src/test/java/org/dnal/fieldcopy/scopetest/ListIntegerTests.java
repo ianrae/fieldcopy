@@ -146,6 +146,11 @@ public class ListIntegerTests extends BaseListTest {
 		copier.copy(entity, dto).field("listInt1", "arrayInt1").execute();
 		chkIntArrayValue(2, 44, 45);
 	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldToFail(mainField, "listDate1");
+	}
 	
 	
 	//---
