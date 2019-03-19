@@ -143,6 +143,12 @@ public class ListLongTests extends BaseListTest {
 		copier.copy(entity, dto).field("listLong1", "arrayString1").execute();
 		chkStringArrayValue(2, "44", "45");
 	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copier.copy(entity, dto).field("listLong1", "arrayInt1").execute();
+		chkIntArrayValue(2, 44, 45);
+	}
 	
 	//---
 	private static final String mainField = "listLong1";

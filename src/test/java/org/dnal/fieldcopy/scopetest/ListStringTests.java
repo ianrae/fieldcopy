@@ -178,6 +178,15 @@ public class ListStringTests extends BaseListTest {
 		copier.copy(entity, dto).field("listString1", "arrayString1").execute();
 		chkStringArrayValue(2, "44", "45");
 	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayInt1").execute();
+		chkIntArrayValue(2, 44, 45);
+	}
 	
 	
 	//---

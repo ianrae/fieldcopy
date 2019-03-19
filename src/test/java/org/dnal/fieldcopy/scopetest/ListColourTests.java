@@ -140,6 +140,11 @@ public class ListColourTests extends BaseListTest {
 		copier.copy(entity, dto).field("listColour1", "arrayString1").execute();
 		chkStringArrayValue(2, "RED", "BLUE");
 	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldToFail(mainField, "arrayInt1");
+	}
 	
 	
 	//---

@@ -148,6 +148,11 @@ public class ListDateTests extends BaseListTest {
 		copier.copy(entity, dto).field("listDate1", "arrayString1").execute();
 		chkStringArrayValue(2, formatDate(refDate1), formatDate(refDate2));
 	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldToFail(mainField, "arrayInt1");
+	}
 	
 	
 	//---
