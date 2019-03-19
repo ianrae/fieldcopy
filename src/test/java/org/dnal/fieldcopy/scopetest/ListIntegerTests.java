@@ -157,6 +157,12 @@ public class ListIntegerTests extends BaseListTest {
 		copier.copy(entity, dto).field("listInt1", "arrayLong1").execute();
 		chkLongArrayValue(2, 44, 45);
 	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "arrayColour1", false);
+	}
 	
 	
 	//---

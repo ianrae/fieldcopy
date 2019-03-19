@@ -155,6 +155,15 @@ public class ListColourTests extends BaseListTest {
 	public void testToArrayLong() {
 		copySrcFieldToFail(mainField, "arrayLong1");
 	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		copySrcFieldTo(mainField, "arrayColour1");
+		chkColourArrayValue(2, Colour.RED, Colour.BLUE);
+		
+		reset();
+		copySrcFieldToFail(mainField, "arrayProvince1");
+	}
 	
 	
 	//---

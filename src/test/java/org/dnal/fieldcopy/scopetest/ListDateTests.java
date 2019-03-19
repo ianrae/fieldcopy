@@ -165,6 +165,12 @@ public class ListDateTests extends BaseListTest {
 		copier.copy(entity, dto).field("listDate1", "arrayLong1").execute();
 		chkLongArrayValue(2, refDate1.getTime(), refDate2.getTime());
 	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "arrayColour1", false);
+	}
 	
 	
 	//---

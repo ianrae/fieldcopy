@@ -42,7 +42,7 @@ public class AllScopeTests extends BaseTest {
 					"List<Long>", "List<Colour>");
 			
 			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]",
-					"Long[]"); //, "Colour[]");
+					"Long[]", "Colour[]");
 		}
 		
 		@Override
@@ -164,7 +164,7 @@ public class AllScopeTests extends BaseTest {
 		runClass(ListLongTests.class);	
 		runClass(ListColourTests.class);	
 		
-//		runClass(ArrayColourTests.class);
+		runClass(ArrayColourTests.class);
 		runClass(ArrayDateTests.class);
 		runClass(ArrayIntegerTests.class);
 		runClass(ArrayLongTests.class);
