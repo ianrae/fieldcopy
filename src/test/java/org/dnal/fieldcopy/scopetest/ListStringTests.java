@@ -199,6 +199,15 @@ public class ListStringTests extends BaseListTest {
 		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
 		this.chkDateArrayValue(2, refDate1, refDate2);
 	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayLong1").execute();
+		chkLongArrayValue(2, 44, 45);
+	}
 	
 	
 	//---

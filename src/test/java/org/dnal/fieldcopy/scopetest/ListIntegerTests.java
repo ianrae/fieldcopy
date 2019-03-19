@@ -151,6 +151,12 @@ public class ListIntegerTests extends BaseListTest {
 	public void testToArrayDate() {
 		copySrcFieldToFail(mainField, "listDate1");
 	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copier.copy(entity, dto).field("listInt1", "arrayLong1").execute();
+		chkLongArrayValue(2, 44, 45);
+	}
 	
 	
 	//---

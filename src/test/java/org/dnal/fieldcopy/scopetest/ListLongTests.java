@@ -158,6 +158,12 @@ public class ListLongTests extends BaseListTest {
 		refDate2 = new Date(45L);
 		this.chkDateArrayValue(2, refDate1, refDate2);
 	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copier.copy(entity, dto).field("listLong1", "arrayLong1").execute();
+		chkLongArrayValue(2, 44, 45);
+	}
 	
 	//---
 	private static final String mainField = "listLong1";

@@ -41,8 +41,8 @@ public class AllScopeTests extends BaseTest {
 			this.allListTypes = Arrays.asList("List<String>", "List<Integer>", "List<Date>", 
 					"List<Long>", "List<Colour>");
 			
-			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]" ); // 
-//					"Long[]", "Colour[]");
+			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]",
+					"Long[]"); //, "Colour[]");
 		}
 		
 		@Override
@@ -167,7 +167,7 @@ public class AllScopeTests extends BaseTest {
 //		runClass(ArrayColourTests.class);
 		runClass(ArrayDateTests.class);
 		runClass(ArrayIntegerTests.class);
-//		runClass(ArrayLongTests.class);
+		runClass(ArrayLongTests.class);
 		runClass(ArrayStringTests.class);
 
 		afterRunning();
