@@ -132,6 +132,15 @@ public class ListColourTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listProvince1");
 	}
 	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+//		enableLogging();
+		copier.copy(entity, dto).field("listColour1", "arrayString1").execute();
+		chkStringArrayValue(2, "RED", "BLUE");
+	}
+	
 	
 	//---
 	private static final String mainField = "listColour1";

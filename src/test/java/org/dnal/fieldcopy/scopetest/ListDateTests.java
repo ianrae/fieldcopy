@@ -144,8 +144,9 @@ public class ListDateTests extends BaseListTest {
 	@Test
 	@Scope("String[]")
 	public void testToArrayString() {
-		copier.copy(entity, dto).field("listLong1", "arrayDate1").execute();
-		chkValue(2, formatDate(refDate1), formatDate(refDate2));
+//		enableLogging();
+		copier.copy(entity, dto).field("listDate1", "arrayString1").execute();
+		chkStringArrayValue(2, formatDate(refDate1), formatDate(refDate2));
 	}
 	
 	
