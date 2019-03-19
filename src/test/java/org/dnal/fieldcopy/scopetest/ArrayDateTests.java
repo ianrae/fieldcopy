@@ -146,13 +146,36 @@ public class ArrayDateTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listColour1");
 	}
 	
-	
-	private String formatDate(Date dt) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String s  = sdf.format(dt);
-		return s;
+	//--array--
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldToFail(mainField, "arrayInt1");
 	}
-
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		copier.copy(entity, dto).withConverters(new MyDateToStringArrayConverter()).field("arrayDate1", "arrayString1").execute();
+		chkStringArrayValue(2, "2015-12-25", "2016-12-25");
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldTo(mainField, "arrayDate1");
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copySrcFieldTo(mainField, "arrayLong1");
+		chkLongArrayValue(2, refDate1.getTime(), refDate2.getTime());
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		copySrcFieldToFail(mainField, "arrayColour1");
+	}
 
 	//---
 	private static final String mainField = "arrayDate1";
@@ -169,5 +192,11 @@ public class ArrayDateTests extends BaseListTest {
 		entity.setArrayDate1(ar);
 		
 		return entity;
+	}
+	
+	private String formatDate(Date dt) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String s  = sdf.format(dt);
+		return s;
 	}
 }

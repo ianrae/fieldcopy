@@ -153,6 +153,12 @@ public class ListDateTests extends BaseListTest {
 	public void testToArrayInt() {
 		copySrcFieldToFail(mainField, "arrayInt1");
 	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldTo(mainField, "arrayDate1");
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
 	
 	
 	//---

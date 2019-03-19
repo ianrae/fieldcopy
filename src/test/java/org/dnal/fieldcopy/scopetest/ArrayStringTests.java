@@ -126,7 +126,6 @@ public class ArrayStringTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listColour1");
 	}
 	
-
 	//--array--
 	@Test
 	@Scope("Integer[]")
