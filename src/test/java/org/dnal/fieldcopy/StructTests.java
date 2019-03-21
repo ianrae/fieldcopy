@@ -32,7 +32,7 @@ public class StructTests extends BaseTest {
 		spec.options = new CopyOptions();
 		spec.converterL = null;;
 		
-		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec);
+		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec, null); //TODO: fix null later
 		assertEquals(2, execSpec.fieldL.size());
 		
 		boolean b = execSvc.executePlan(spec, execSpec, null, 1);

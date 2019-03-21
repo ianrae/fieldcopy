@@ -26,6 +26,7 @@ public class FastBeanUtilFieldCopyService {
 	private PropertyUtilsBean propertyUtils;
 	private FieldFilter fieldFilter;
 	private ConverterService converterSvc;
+	private BeanUtilsBeanDetectorService beanDetectorSvc;
 	
 	public FastBeanUtilFieldCopyService(SimpleLogger logger, FieldFilter fieldFilter) {
 		this.logger = logger;
@@ -33,13 +34,14 @@ public class FastBeanUtilFieldCopyService {
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
 		this.converterSvc = new ConverterService(logger);
+		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
 	}
 
-	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec)  {
+	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec, FieldCopyService outerSvc)  {
 		ExecuteCopyPlan result = null;
 		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
 		try {
-			result = doGenerateExecutePlan(copySpec, execspec, 1);
+			result = doGenerateExecutePlan(copySpec, outerSvc, execspec, 1);
 		} catch (Exception e) {
 			String s = " while generating execution plan:";
 			String className = String.format("'%s'", copySpec.sourceObj.getClass().getSimpleName());
@@ -53,7 +55,7 @@ public class FastBeanUtilFieldCopyService {
 		return result;
 	}
 	
-	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, ExecuteCopyPlan execspec, int runawayCounter) throws Exception {
+	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, FieldCopyService outerSvc, ExecuteCopyPlan execspec, int runawayCounter) throws Exception {
 		
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
@@ -97,7 +99,7 @@ public class FastBeanUtilFieldCopyService {
             		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj);
             		
             		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
-            		FieldCopyMapping mapping = generateMapping(pair, mappingL);
+            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc);
             		if (mapping != null) {
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
@@ -209,7 +211,7 @@ public class FastBeanUtilFieldCopyService {
 		return false;
 	}
 
-	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
+	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
 		
 		for(FieldCopyMapping mapping: mappingL) {
@@ -223,8 +225,63 @@ public class FastBeanUtilFieldCopyService {
 				}
 			}
 		}
+		
+		//auto-generate mappings for sub-objects
+		//-first, detect that we are in a sub-obj (not in main obj)
+		//-then determinine if any transitive features are active
+		//-create mapping for src,dest (so that sub-obj gets converters, etc)
+		return autoGenerateMapping(pair, outerSvc);
+	}
+	private FieldCopyMapping autoGenerateMapping(FieldPair pair, FieldCopyService outerSvc) {
+		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+		Class<?> srcClass = fd.pd.getPropertyType();
+		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+		Class<?> destClass = fd2.pd.getPropertyType();
+		
+		if (beanDetectorSvc.isBeanClass(srcClass)) {
+			BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
+			List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
+			
+			for(FieldPair xpair: fieldPairs) {
+	            final FieldDescriptor origDescriptor = pair.srcProp;
+	            final String name = origDescriptor.getName();
+//	            execspec.currentFieldName = name;
+	            
+//	            if (propertyUtils.isReadable(orig, name) &&
+//	            		propertyUtils.isWriteable(dest, pair.destFieldName)) {
+//	            	try {
+//	            		fillInDestPropIfNeeded(pair, destObj.getClass());
+//	            		
+//	            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj);
+//	            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj);
+//	            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj);
+//	            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj);
+//	            		
+//	            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
+//	            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc);
+//	            		if (mapping != null) {
+//	            			FieldPlan fspec = new FieldPlan();
+//	            			fspec.pair = pair;
+//	            			fspec.mapping = mapping;
+//	            			execspec.fieldL.add(fspec);
+//	            		} else {
+//	            			validateIsAllowed(pair);
+//	            			
+//	            			FieldPlan fspec = new FieldPlan();
+//	            			fspec.pair = pair;
+//	            			fspec.converter = converterSvc.useConverterIfPresent(copySpec, pair, orig, copySpec.converterL);
+//	            			execspec.fieldL.add(fspec);
+//	            		}
+//	            		
+//	            	} catch (final NoSuchMethodException e) {
+//	            		// Should not happen
+//	            	}
+//	            }
+			}
+		}		
 		return null;
 	}
+
 	private boolean applyMapping(FieldCopyService outerSvc, CopySpec copySpec,  
 			FieldPair pair, Object sourceObj, Object destObj, Object srcValue, 
 			FieldCopyMapping mapping, int runawayCounter) throws Exception {
@@ -307,13 +364,6 @@ public class FastBeanUtilFieldCopyService {
 			if (fieldPlan.mapping != null) {
 				applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 			} else {
-				//auto-generate mappings for sub-objects
-				//-first, detect that we are in a sub-obj (not in main obj)
-				//-then determinine if any transitive features are active
-				//-create mapping for src,dest (so that sub-obj gets converters, etc)
-				
-				
-				
 				beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 			}
 		}

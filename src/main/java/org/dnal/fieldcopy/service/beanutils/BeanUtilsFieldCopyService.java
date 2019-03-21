@@ -62,10 +62,16 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 				return fieldPairs;
 			}
 			
+            fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
+			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+            return fieldPairs;
+		}
+		
+		public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
             final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
             final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
     		
-            fieldPairs = new ArrayList<>();
+            List<FieldPair> fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
             	if (! fieldFilter.shouldProcess(class1, pd.getName())) {
@@ -80,8 +86,6 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
             	pair.destProp = new BeanUtilsFieldDescriptor(targetPd);
             	fieldPairs.add(pair);
             }
-			
-			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
             return fieldPairs;
 		}
 		
@@ -118,7 +122,7 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			}
 			ExecuteCopyPlan execSpec = executionPlanMap.get(copySpec.executionPlanCacheKey);
 			if (execSpec == null) {
-				execSpec = fastSvc.generateExecutePlan(copySpec);
+				execSpec = fastSvc.generateExecutePlan(copySpec, this);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
 			}
 			logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
@@ -188,5 +192,9 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			String class1Name = spec.sourceObj == null ? "" : spec.sourceObj.getClass().getName();
 			String class2Name = spec.destObj == null ? "" : spec.destObj.getClass().getName();
 			return String.format("%s--%s", class1Name, class2Name);
+		}
+
+		public FastBeanUtilFieldCopyService getFastSvc() {
+			return fastSvc;
 		}
 	}
