@@ -211,6 +211,7 @@ public class FastBeanUtilFieldCopyService {
 
 	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+		
 		for(FieldCopyMapping mapping: mappingL) {
 			if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
 				if (pair.destProp == null) {
@@ -306,6 +307,13 @@ public class FastBeanUtilFieldCopyService {
 			if (fieldPlan.mapping != null) {
 				applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 			} else {
+				//auto-generate mappings for sub-objects
+				//-first, detect that we are in a sub-obj (not in main obj)
+				//-then determinine if any transitive features are active
+				//-create mapping for src,dest (so that sub-obj gets converters, etc)
+				
+				
+				
 				beanUtil.copyProperty(spec.destObj, fieldPlan.pair.destFieldName, value);
 			}
 		}
