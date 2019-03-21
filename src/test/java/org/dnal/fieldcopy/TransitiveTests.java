@@ -16,6 +16,8 @@ import org.junit.Test;
  * -builtInConveters
  * -bean detector service
  *   -everthing that isn't gets a mapping automatically
+ * -only transitive stuff if needed (don't create sub-obj mapping for example)
+ * 
  * 
  * Transitive features
  * -features such as built-in converters apply 'globally'.
