@@ -99,7 +99,7 @@ public class FastBeanUtilFieldCopyService {
             		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj);
             		
             		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
-            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc);
+            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc, copySpec);
             		if (mapping != null) {
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
@@ -211,7 +211,7 @@ public class FastBeanUtilFieldCopyService {
 		return false;
 	}
 
-	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc) throws Exception {
+	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
 		
 		for(FieldCopyMapping mapping: mappingL) {
@@ -230,25 +230,31 @@ public class FastBeanUtilFieldCopyService {
 		//-first, detect that we are in a sub-obj (not in main obj)
 		//-then determinine if any transitive features are active
 		//-create mapping for src,dest (so that sub-obj gets converters, etc)
-		return autoGenerateMapping(pair, outerSvc);
+		return autoGenerateMapping(pair, outerSvc, copySpec);
 	}
-	private FieldCopyMapping autoGenerateMapping(FieldPair pair, FieldCopyService outerSvc) {
-		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+	private FieldCopyMapping autoGenerateMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam) {
+		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) zpair.srcProp;
 		Class<?> srcClass = fd.pd.getPropertyType();
-		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) zpair.destProp;
 		Class<?> destClass = fd2.pd.getPropertyType();
+		Object destObj = copySpecParam.destObj;
+		Object orig = copySpecParam.sourceObj;
 		
 		if (beanDetectorSvc.isBeanClass(srcClass)) {
 			BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
 			List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
 			
-			for(FieldPair xpair: fieldPairs) {
-	            final FieldDescriptor origDescriptor = pair.srcProp;
-	            final String name = origDescriptor.getName();
-//	            execspec.currentFieldName = name;
-	            
+			CopySpec innerSpec = new CopySpec();
+			//how populate innerSpec!!
+			
+			
+//			for(FieldPair pair: fieldPairs) {
+//	            final FieldDescriptor origDescriptor = pair.srcProp;
+//	            final String name = origDescriptor.getName();
+////	            execspec.currentFieldName = name;
+//	            
 //	            if (propertyUtils.isReadable(orig, name) &&
-//	            		propertyUtils.isWriteable(dest, pair.destFieldName)) {
+//	            		propertyUtils.isWriteable(destObj, pair.destFieldName)) {
 //	            	try {
 //	            		fillInDestPropIfNeeded(pair, destObj.getClass());
 //	            		
@@ -277,7 +283,7 @@ public class FastBeanUtilFieldCopyService {
 //	            		// Should not happen
 //	            	}
 //	            }
-			}
+//			}
 		}		
 		return null;
 	}
