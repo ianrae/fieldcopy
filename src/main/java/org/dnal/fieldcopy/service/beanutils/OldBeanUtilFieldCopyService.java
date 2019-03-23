@@ -211,8 +211,8 @@ public class OldBeanUtilFieldCopyService implements FieldCopyService {
 
 				//add one
 				String name = pair.srcProp.getName();
-				Class<?> srcElementClass = ReflectionUtil.detectElementClass(sourceObj, fd1);
-				Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj, fd2);
+				Class<?> srcElementClass = ReflectionUtil.detectElementClass(sourceObj.getClass(), fd1);
+				Class<?> destElementClass = ReflectionUtil.detectElementClass(destObj.getClass(), fd2);
 				ListElementConverter transformer = new ListElementConverter(copySpec.sourceObj.getClass(), name, srcElementClass, destElementClass);
 				transformerL.add(transformer);
 			}

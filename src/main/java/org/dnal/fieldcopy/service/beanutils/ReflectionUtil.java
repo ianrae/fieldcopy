@@ -14,11 +14,11 @@ import java.lang.reflect.Type;
 public class ReflectionUtil {
 
 
-	public static Class<?> detectElementClass(Object destObj, BeanUtilsFieldDescriptor fd2) {
+	public static Class<?> detectElementClass(Class<?> clazz, BeanUtilsFieldDescriptor fd2) {
 		String name = fd2.getName();
 		Field field = null;
 		try {
-			field = destObj.getClass().getDeclaredField(name);
+			field = clazz.getDeclaredField(name);
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -50,11 +50,11 @@ public class ReflectionUtil {
 		return null;
 	}
 	
-	public static boolean elementIsList(Object destObj, BeanUtilsFieldDescriptor fd2) {
+	public static boolean elementIsList(Class<?> clazz, BeanUtilsFieldDescriptor fd2) {
 		String name = fd2.getName();
 		Field field = null;
 		try {
-			field = destObj.getClass().getDeclaredField(name);
+			field = clazz.getDeclaredField(name);
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,11 +84,11 @@ public class ReflectionUtil {
 		return false;
 	}
 
-	public static ListSpec buildListSpec(Object destObj, BeanUtilsFieldDescriptor fd2) {
+	public static ListSpec buildListSpec(Class<?> clazz, BeanUtilsFieldDescriptor fd2) {
 		String name = fd2.getName();
 		Field field = null;
 		try {
-			field = destObj.getClass().getDeclaredField(name);
+			field = clazz.getDeclaredField(name);
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -135,11 +135,11 @@ public class ReflectionUtil {
 		return spec;
 	}
 	
-	public static ListSpec buildArraySpec(Object destObj, BeanUtilsFieldDescriptor fd2) {
+	public static ListSpec buildArraySpec(Class<?> clazz, BeanUtilsFieldDescriptor fd2) {
 		String name = fd2.getName();
 		Field field = null;
 		try {
-			field = destObj.getClass().getDeclaredField(name);
+			field = clazz.getDeclaredField(name);
 		} catch (NoSuchFieldException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

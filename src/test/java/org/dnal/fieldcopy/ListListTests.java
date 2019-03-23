@@ -125,7 +125,7 @@ public class ListListTests extends BaseTest {
 		for(FieldPair pair: pairL) {
 			
 			BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
-			ListSpec spec = ReflectionUtil.buildListSpec(taxi, fd);
+			ListSpec spec = ReflectionUtil.buildListSpec(taxi.getClass(), fd);
 			log(String.format("%s: %d - %s", pair.srcProp.getName(), spec.depth, spec.elementClass));
 		}
 	}

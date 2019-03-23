@@ -38,8 +38,8 @@ public class ConverterService {
 				copySpec.converterL = new ArrayList<>();
 			}
 			
-			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj, fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj, fd2);
+			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
+			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj.getClass(), fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("list", fd1, listSpec1, fd2, listSpec2);
@@ -76,8 +76,8 @@ public class ConverterService {
 				copySpec.converterL = new ArrayList<>();
 			}
 			
-			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj, fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj, fd2);
+			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
+			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj.getClass(), fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("list", fd1, listSpec1, fd2, listSpec2);
@@ -115,8 +115,8 @@ public class ConverterService {
 				copySpec.converterL = new ArrayList<>();
 			}
 			
-			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj, fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj, fd2);
+			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
+			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj.getClass(), fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
@@ -153,8 +153,8 @@ public class ConverterService {
 				copySpec.converterL = new ArrayList<>();
 			}
 			
-			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj, fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj, fd2);
+			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
+			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj.getClass(), fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
