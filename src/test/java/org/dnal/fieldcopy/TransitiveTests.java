@@ -126,7 +126,7 @@ public class TransitiveTests extends BaseTest {
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("BOB", dest.getName());
 		assertEquals("TITLE1", dest.getTitle());
-		assertEquals("sue", dest.getSource().getName()); //should be SUE. TODO-fix
+		assertEquals("SUE", dest.getSource().getName()); //should be SUE. TODO-fix
 	}
 
 }

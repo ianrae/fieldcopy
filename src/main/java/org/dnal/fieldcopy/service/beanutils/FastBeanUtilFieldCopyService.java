@@ -273,7 +273,7 @@ public class FastBeanUtilFieldCopyService {
 		List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
 		
 		CopySpec innerSpec = new CopySpec();
-		innerSpec.converterL = new ArrayList<>();
+		innerSpec.converterL = new ArrayList<>(copySpecParam.converterL);
 		innerSpec.destObj = null; //!!
 		innerSpec.fieldPairs = fieldPairs;
 		innerSpec.mappingL = new ArrayList<>();
@@ -361,6 +361,7 @@ public class FastBeanUtilFieldCopyService {
 		spec.fieldPairs = mapping.getFieldPairs();
 		spec.mappingL = copySpec.mappingL;
 		spec.options = copySpec.options;
+		spec.converterL = new ArrayList<>(copySpec.converterL);
 		
 		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);

@@ -246,7 +246,8 @@ public class ConverterService {
 			FieldInfo destField = new FieldInfo();
 			destField.fieldName = pair.destProp.getName();
 			destField.fieldClass = destClass;
-			destField.beanClass = copySpec.destObj.getClass();
+			//NOTE. destObj is sometimes null. Document this TODO
+			destField.beanClass = copySpec.destObj == null ? null : copySpec.destObj.getClass();
 			for(ValueConverter converter: converterL) {
 				//TODO: fix value null issue
 				
