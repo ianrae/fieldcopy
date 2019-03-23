@@ -247,14 +247,6 @@ public class FastBeanUtilFieldCopyService {
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) zpair.destProp;
 		Class<?> destClass = fd2.pd.getPropertyType();
 		
-		//not a list or array
-		if (Collection.class.isAssignableFrom(srcClass) ||
-				Collection.class.isAssignableFrom(destClass)) {
-			return null;
-		} else if (srcClass.isArray() || destClass.isArray()) {
-			return null;
-		}
-		
 		if (beanDetectorSvc.isBeanClass(srcClass)) {
 			FieldCopyMapping mapping = null;
 			try {

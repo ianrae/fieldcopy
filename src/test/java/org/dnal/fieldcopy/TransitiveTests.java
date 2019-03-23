@@ -2,6 +2,9 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
@@ -109,6 +112,70 @@ public class TransitiveTests extends BaseTest {
 		}
 	}
 	
+	public static class OuterWithList {
+		private String name;
+		private String title;
+		private List<Source> sourceL;
+
+		public OuterWithList() {
+		}
+		public OuterWithList(String name, String title) {
+			this.name = name;
+			this.title = title;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public List<Source> getSourceL() {
+			return sourceL;
+		}
+		public void setSourceL(List<Source> sourceL) {
+			this.sourceL = sourceL;
+		}
+	}
+	public static class OuterWithListDTO {
+		private String name;
+		private String title;
+		private List<Source> sourceL;
+
+		public OuterWithListDTO() {
+		}
+		public OuterWithListDTO(String name, String title) {
+			this.name = name;
+			this.title = title;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public List<Source> getSourceL() {
+			return sourceL;
+		}
+		public void setSourceL(List<Source> sourceL) {
+			this.sourceL = sourceL;
+		}
+	}
 	
 	@Test
 	public void test() {
@@ -129,4 +196,25 @@ public class TransitiveTests extends BaseTest {
 		assertEquals("SUE", dest.getSource().getName()); 
 	}
 
+	@Test
+	public void testWithList() {
+		OuterWithList src = new OuterWithList("bob", "title1");
+		Source source = new Source("sue", 28);
+		List<Source> srcL = new ArrayList<>();
+		srcL.add(source);
+		src.setSourceL(srcL);
+		OuterWithListDTO dest = new OuterWithListDTO(null, null);
+		
+		MyConverter1 conv = new MyConverter1();
+		
+		FieldCopier copier = createCopier();
+		enableLogging();
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+		assertEquals("BOB", dest.getName());
+		assertEquals("TITLE1", dest.getTitle());
+		
+		//transitive does NOT apply to elements of lists or arrays
+		assertEquals(1, dest.getSourceL().size());
+		assertEquals("sue", dest.getSourceL().get(0).getName()); 
+	}
 }

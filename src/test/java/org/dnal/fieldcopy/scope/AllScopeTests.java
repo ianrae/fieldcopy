@@ -3,7 +3,6 @@ package org.dnal.fieldcopy.scope;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.scope.core.MyRunner;
@@ -20,8 +19,8 @@ import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.EnumTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
-import org.dnal.fieldcopy.scopetest.ListDateTests;
 import org.dnal.fieldcopy.scopetest.ListColourTests;
+import org.dnal.fieldcopy.scopetest.ListDateTests;
 import org.dnal.fieldcopy.scopetest.ListIntegerTests;
 import org.dnal.fieldcopy.scopetest.ListLongTests;
 import org.dnal.fieldcopy.scopetest.ListStringTests;

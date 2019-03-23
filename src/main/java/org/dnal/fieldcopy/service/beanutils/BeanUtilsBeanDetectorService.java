@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +63,14 @@ public class BeanUtilsBeanDetectorService implements BeanDetectorService {
 	 */
 	@Override
 	public boolean isBeanClass(Class<?> clazz) {
+		if (clazz.isEnum()) {
+			return false;
+		} else if (Collection.class.isAssignableFrom(clazz)) {
+			return false;
+		} else if (clazz.isArray()) {
+			return false;
+		}
+		
 		return !knownTypes.containsKey(clazz);
 	}
 	
