@@ -93,10 +93,10 @@ public class FastBeanUtilFieldCopyService {
             	try {
             		fillInDestPropIfNeeded(pair, destObj.getClass());
             		
-            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj);
-            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj);
-            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj);
-            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj);
+            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
             		
             		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
             		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc, copySpec);
@@ -246,7 +246,12 @@ public class FastBeanUtilFieldCopyService {
 			
 			CopySpec innerSpec = new CopySpec();
 			//how populate innerSpec!!
-			
+			innerSpec.converterL = new ArrayList<>();
+			innerSpec.destObj = null; //!!
+			innerSpec.fieldPairs = fieldPairs;
+			innerSpec.mappingL = new ArrayList<>();
+			innerSpec.options = copySpecParam.options;
+//			innerSpec.sourceObj = 
 			
 //			for(FieldPair pair: fieldPairs) {
 //	            final FieldDescriptor origDescriptor = pair.srcProp;

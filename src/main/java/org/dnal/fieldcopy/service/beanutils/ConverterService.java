@@ -25,7 +25,7 @@ public class ConverterService {
 	}
 
 	// List -> List
-	public void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
+	public void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -39,7 +39,7 @@ public class ConverterService {
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj.getClass(), fd2);
+			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destClass, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("list", fd1, listSpec1, fd2, listSpec2);
@@ -64,7 +64,7 @@ public class ConverterService {
 	}
 	
 	// Array -> List
-	public void addArrayListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
+	public void addArrayListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -77,7 +77,7 @@ public class ConverterService {
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj.getClass(), fd2);
+			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destClass, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("list", fd1, listSpec1, fd2, listSpec2);
@@ -103,7 +103,7 @@ public class ConverterService {
 	}
 	
 	// Array -> Array
-	public void addArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
+	public void addArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -116,7 +116,7 @@ public class ConverterService {
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj.getClass(), fd2);
+			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destClass, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
@@ -141,7 +141,7 @@ public class ConverterService {
 	}
 
 	// List -> Array
-	public void addListArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
+	public void addListArrayConverterIfNeeded(FieldPair pair, CopySpec copySpec, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -154,7 +154,7 @@ public class ConverterService {
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destObj.getClass(), fd2);
+			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destClass, fd2);
 			
 			if (listSpec1.depth != listSpec2.depth) {
 				throwDepthError("array", fd1, listSpec1, fd2, listSpec2);
