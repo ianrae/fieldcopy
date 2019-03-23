@@ -106,8 +106,8 @@ public class ListElementConverter implements ValueConverter {
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
-		spec.mappingL = null;
-		spec.converterL = null;
+		spec.mappingL = ctx.mappingL;
+		spec.converterL = ctx.converterL;
 
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {
@@ -140,6 +140,7 @@ public class ListElementConverter implements ValueConverter {
 			return false;
 		}
 		
+		//TODO: !1replace this with bean detector service
 		try {
 			//use Java's Introspector. beans will have > 1 property descriptor
 			BeanInfo info = Introspector.getBeanInfo(clazz);

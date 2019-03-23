@@ -100,8 +100,8 @@ public class ArrayElementConverter implements ValueConverter {
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
-		spec.mappingL = null;
-		spec.converterL = null;
+		spec.mappingL = ctx.mappingL;
+		spec.converterL = ctx.converterL;
 
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);

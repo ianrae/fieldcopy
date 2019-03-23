@@ -400,6 +400,7 @@ public class FastBeanUtilFieldCopyService {
 				ctx.srcClass = srcClass;
 				ctx.copySvc = outerSvc;
 				ctx.copyOptions = spec.options;
+				addConverterAndMappingLists(ctx, spec);
 				execPlan.inConverter = true;
 				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
 				execPlan.inConverter = false;
@@ -416,6 +417,17 @@ public class FastBeanUtilFieldCopyService {
 			}
 		}
 		return ok;
+	}
+
+	private void addConverterAndMappingLists(ConverterContext ctx, CopySpec spec) {
+		if (CollectionUtils.isNotEmpty(spec.mappingL)) {
+			ctx.mappingL = new ArrayList<>();
+			ctx.mappingL.addAll(spec.mappingL);
+		}
+		if (CollectionUtils.isNotEmpty(spec.converterL)) {
+			ctx.converterL = new ArrayList<>();
+			ctx.converterL.addAll(spec.converterL);
+		}
 	}
 
 	private Object getLoggableString(Object value) {

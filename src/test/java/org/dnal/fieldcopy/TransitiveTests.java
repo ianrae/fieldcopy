@@ -213,8 +213,8 @@ public class TransitiveTests extends BaseTest {
 		assertEquals("BOB", dest.getName());
 		assertEquals("TITLE1", dest.getTitle());
 		
-		//transitive does NOT apply to elements of lists or arrays
+		//transitive does apply to elements of lists or arrays
 		assertEquals(1, dest.getSourceL().size());
-		assertEquals("sue", dest.getSourceL().get(0).getName()); 
+		assertEquals("SUE", dest.getSourceL().get(0).getName()); 
 	}
 }
