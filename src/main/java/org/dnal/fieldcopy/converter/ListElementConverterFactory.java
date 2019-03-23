@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+
 public class ListElementConverterFactory {
+	private BeanUtilsBeanDetectorService beanDetectorSvc;
 
 	
 	public ListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
@@ -12,14 +15,14 @@ public class ListElementConverterFactory {
 			return null;
 		}
 		
-		return new ListElementConverter(beanClass, name, srcElementClass, destElementClass);
+		return new ListElementConverter(beanClass, name, srcElementClass, destElementClass, beanDetectorSvc);
 	}
 	public ArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
 		
-		return new ArrayElementConverter(beanClass, name, srcElementClass, destElementClass);
+		return new ArrayElementConverter(beanClass, name, srcElementClass, destElementClass, beanDetectorSvc);
 	}
 
 	private boolean isSupported(Class<?> srcElementClass, Class<?> destElementClass) {
@@ -35,6 +38,9 @@ public class ListElementConverterFactory {
 			return list.contains(destElementClass);
 		}
 		return !destElementClass.isEnum();
+	}
+	public void setBeanDetectorSvc(BeanUtilsBeanDetectorService beanDetectorSvc) {
+		this.beanDetectorSvc = beanDetectorSvc;
 	}
 	
 }

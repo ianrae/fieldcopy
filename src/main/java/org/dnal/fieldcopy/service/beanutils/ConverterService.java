@@ -19,9 +19,10 @@ public class ConverterService {
 	private SimpleLogger logger;
 	private ListElementConverterFactory converterFactory;
 	
-	public ConverterService(SimpleLogger logger) {
+	public ConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc) {
 		this.logger = logger;
 		this.converterFactory = new ListElementConverterFactory();
+		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);
 	}
 
 	// List -> List

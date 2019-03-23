@@ -35,8 +35,8 @@ public class FastBeanUtilFieldCopyService {
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
-		this.converterSvc = new ConverterService(logger);
 		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
 	}
 
 	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec, FieldCopyService outerSvc)  {
@@ -400,6 +400,7 @@ public class FastBeanUtilFieldCopyService {
 				ctx.srcClass = srcClass;
 				ctx.copySvc = outerSvc;
 				ctx.copyOptions = spec.options;
+				ctx.beanDetectorSvc = this.beanDetectorSvc;
 				addConverterAndMappingLists(ctx, spec);
 				execPlan.inConverter = true;
 				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);

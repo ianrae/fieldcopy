@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import org.dnal.fieldcopy.converter.ArrayElementConverter;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.junit.Test;
 
 public class ArrayTests extends BaseTest {
@@ -94,7 +95,8 @@ public class ArrayTests extends BaseTest {
 	@Test
 	public void testConverter() {
 		String fieldName = "names";
-		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, String.class);
+		BeanUtilsBeanDetectorService beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, String.class, beanDetectorSvc);
 		
 		FieldInfo sourceInfo = new FieldInfo();
 		sourceInfo.beanClass = Home.class;
@@ -132,7 +134,8 @@ public class ArrayTests extends BaseTest {
 	@Test
 	public void testConverter2() {
 		String fieldName = "names";
-		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, Integer.class);
+		BeanUtilsBeanDetectorService beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		ArrayElementConverter conv = new ArrayElementConverter(Home.class, fieldName, String.class, Integer.class, beanDetectorSvc);
 		
 		FieldInfo sourceInfo = new FieldInfo();
 		sourceInfo.beanClass = Home.class;

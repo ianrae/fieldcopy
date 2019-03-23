@@ -1,16 +1,12 @@
 package org.dnal.fieldcopy.converter;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 
 /**
  * Converts the elements of an array.
@@ -25,19 +21,18 @@ public class ArrayElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
-	private List<Class<?>> knownScalarsL;
 	private boolean useScalarCopy;
 	private int depth;
 	private Class<?> beanClass;
 	private boolean sourceIsList;
 
-	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
+	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+			BeanUtilsBeanDetectorService beanDetectorSvc) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
-		this.knownScalarsL = Arrays.asList(String.class, Date.class);
-		this.useScalarCopy = ! isBean(srcElClass) && ! isBean(destElClass);
+		this.useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElClass) && ! beanDetectorSvc.isBeanClass(destElClass);
 	}
 
 	@Override
@@ -127,28 +122,6 @@ public class ArrayElementConverter implements ValueConverter {
 			Array.set(arrayObj2, i, result);
 		}
 		return arrayObj2;
-	}
-
-	/**
-	 * Determine if class is a bean (i.e. has inner fields).
-	 * Classes like Integer are not beans.
-	 * @param clazz
-	 * @return
-	 */
-	private boolean isBean(Class<?> clazz) {
-		if (knownScalarsL.contains(clazz) || clazz.isEnum()) {
-			return false;
-		}
-		
-		try {
-			//use Java's Introspector. beans will have > 1 property descriptor
-			BeanInfo info = Introspector.getBeanInfo(clazz);
-			return info.getPropertyDescriptors().length > 1;
-		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
 	}
 
 	private Object createObject(Class<?> clazzDest) {
