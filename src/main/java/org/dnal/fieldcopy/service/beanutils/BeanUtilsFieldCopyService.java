@@ -124,6 +124,8 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			if (execSpec == null) {
 				execSpec = fastSvc.generateExecutePlan(copySpec, this);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
+			} else {
+				propogateStuff(execSpec, copySpec);
 			}
 			logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
 					copySpec.destObj.getClass(), execSpec.fieldL.size());
@@ -131,6 +133,27 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		
+		private void propogateStuff(ExecuteCopyPlan execSpec, CopySpec copySpec) {
+			for(FieldPlan fplan: execSpec.fieldL) {
+				
+				//TODO. ensure only add each mapping once to copyspec
+				if (fplan.mapping != null) {
+					if (copySpec.mappingL == null) {
+						copySpec.mappingL = new ArrayList<>();
+					}
+					copySpec.mappingL.add(fplan.mapping);
+				}
+				if (fplan.converter != null) {
+					if (copySpec.converterL == null) {
+						copySpec.converterL = new ArrayList<>();
+					}
+					if (! copySpec.converterL.contains(fplan.converter)) {
+						copySpec.converterL.add(fplan.converter);
+					}
+				}
+			}
+		}
+
 		@Override
 		public void dumpFields(Object sourceObj) {
 			try {
