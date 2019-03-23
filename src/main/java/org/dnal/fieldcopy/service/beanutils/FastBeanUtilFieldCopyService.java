@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -12,6 +13,7 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -99,7 +101,7 @@ public class FastBeanUtilFieldCopyService {
             		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
             		
             		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
-            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc, copySpec);
+            		FieldCopyMapping mapping = findOrGenerateMapping(pair, mappingL, outerSvc, copySpec);
             		if (mapping != null) {
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
@@ -211,7 +213,19 @@ public class FastBeanUtilFieldCopyService {
 		return false;
 	}
 
-	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
+	private FieldCopyMapping findOrGenerateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
+		FieldCopyMapping mapping = findMapping(pair, mappingL, outerSvc, copySpec);
+		if (mapping != null) {
+			return mapping;
+		}
+		
+		//auto-generate mappings for sub-objects
+		//-first, detect that we are in a sub-obj (not in main obj)
+		//-then determinine if any transitive features are active
+		//-create mapping for src,dest (so that sub-obj gets converters, etc)
+		return autoGenerateMapping(pair, outerSvc, copySpec);
+	}
+	private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
 		
 		for(FieldCopyMapping mapping: mappingL) {
@@ -225,71 +239,103 @@ public class FastBeanUtilFieldCopyService {
 				}
 			}
 		}
-		
-		//auto-generate mappings for sub-objects
-		//-first, detect that we are in a sub-obj (not in main obj)
-		//-then determinine if any transitive features are active
-		//-create mapping for src,dest (so that sub-obj gets converters, etc)
-		return autoGenerateMapping(pair, outerSvc, copySpec);
+		return null;
 	}
 	private FieldCopyMapping autoGenerateMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam) {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) zpair.srcProp;
 		Class<?> srcClass = fd.pd.getPropertyType();
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) zpair.destProp;
 		Class<?> destClass = fd2.pd.getPropertyType();
-		Object destObj = copySpecParam.destObj;
-		Object orig = copySpecParam.sourceObj;
+		
+		//not a list or array
+		if (Collection.class.isAssignableFrom(srcClass) ||
+				Collection.class.isAssignableFrom(destClass)) {
+			return null;
+		} else if (srcClass.isArray() || destClass.isArray()) {
+			return null;
+		}
 		
 		if (beanDetectorSvc.isBeanClass(srcClass)) {
-			BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
-			List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
-			
-			CopySpec innerSpec = new CopySpec();
-			//how populate innerSpec!!
-			innerSpec.converterL = new ArrayList<>();
-			innerSpec.destObj = null; //!!
-			innerSpec.fieldPairs = fieldPairs;
-			innerSpec.mappingL = new ArrayList<>();
-			innerSpec.options = copySpecParam.options;
-//			innerSpec.sourceObj = 
-			
-//			for(FieldPair pair: fieldPairs) {
-//	            final FieldDescriptor origDescriptor = pair.srcProp;
-//	            final String name = origDescriptor.getName();
-////	            execspec.currentFieldName = name;
-//	            
-//	            if (propertyUtils.isReadable(orig, name) &&
-//	            		propertyUtils.isWriteable(destObj, pair.destFieldName)) {
-//	            	try {
-//	            		fillInDestPropIfNeeded(pair, destObj.getClass());
-//	            		
-//	            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj);
-//	            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj);
-//	            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj);
-//	            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj);
-//	            		
-//	            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
-//	            		FieldCopyMapping mapping = generateMapping(pair, mappingL, outerSvc);
-//	            		if (mapping != null) {
-//	            			FieldPlan fspec = new FieldPlan();
-//	            			fspec.pair = pair;
-//	            			fspec.mapping = mapping;
-//	            			execspec.fieldL.add(fspec);
-//	            		} else {
-//	            			validateIsAllowed(pair);
-//	            			
-//	            			FieldPlan fspec = new FieldPlan();
-//	            			fspec.pair = pair;
-//	            			fspec.converter = converterSvc.useConverterIfPresent(copySpec, pair, orig, copySpec.converterL);
-//	            			execspec.fieldL.add(fspec);
-//	            		}
-//	            		
-//	            	} catch (final NoSuchMethodException e) {
-//	            		// Should not happen
-//	            	}
-//	            }
-//			}
+			FieldCopyMapping mapping = null;
+			try {
+				mapping = doAutoGenMapping(zpair, outerSvc, copySpecParam, srcClass, destClass);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return mapping;
 		}		
+		return null;
+	}
+
+	private FieldCopyMapping doAutoGenMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam, Class<?> srcClass, Class<?> destClass) throws Exception {
+		BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
+		List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
+		
+		CopySpec innerSpec = new CopySpec();
+		innerSpec.converterL = new ArrayList<>();
+		innerSpec.destObj = null; //!!
+		innerSpec.fieldPairs = fieldPairs;
+		innerSpec.mappingL = new ArrayList<>();
+		innerSpec.options = copySpecParam.options;
+		try {
+			innerSpec.sourceObj = propertyUtils.getSimpleProperty(copySpecParam.sourceObj, zpair.srcProp.getName());
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (innerSpec.sourceObj == null) {
+			return null;
+		}
+		
+		boolean needMapping = false;
+		Object orig = innerSpec.sourceObj;
+		for(FieldPair pair: fieldPairs) {
+            final FieldDescriptor origDescriptor = pair.srcProp;
+            final String name = origDescriptor.getName();
+            
+            if (propertyUtils.isReadable(orig, name)) {
+// TODO           		propertyUtils.isWriteable(destObj, pair.destFieldName)) {
+            	try {
+            		fillInDestPropIfNeeded(pair, destClass.getClass());
+            		
+            		int numConverters = innerSpec.converterL.size();
+            		converterSvc.addListConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addArrayListConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addArrayConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addListArrayConverterIfNeeded(pair, innerSpec, destClass);
+            		if (numConverters != innerSpec.converterL.size()) {
+            			needMapping = true;
+            		}
+            		
+            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
+					FieldCopyMapping mapping = findMapping(pair, copySpecParam.mappingL, outerSvc, innerSpec);
+            		if (mapping != null) {
+            			needMapping = true;
+            		} else {
+            			validateIsAllowed(pair);
+            			ValueConverter conv = converterSvc.useConverterIfPresent(innerSpec, pair, orig, innerSpec.converterL);
+            			if (conv != null) {
+            				needMapping = true;
+            			}
+            		}
+            	} catch (final NoSuchMethodException e) {
+            		// Should not happen
+            	}
+            }
+		}
+		
+		if (needMapping) {
+			FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass, fieldPairs);
+			return mapping;
+		}
+		
 		return null;
 	}
 
