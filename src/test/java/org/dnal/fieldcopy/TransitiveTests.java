@@ -9,18 +9,10 @@ import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
+import org.dnal.fieldcopy.core.CopySpec;
 import org.junit.Test;
 
 /**
- * TODO
- * -mutli-dim arrays
- * -failIfNull on field and global
- * -builtInConveters
- * -bean detector service
- *   -everthing that isn't gets a mapping automatically
- * -only transitive stuff if needed (don't create sub-obj mapping for example)
- * 
- * 
  * Transitive features
  * -features such as built-in converters apply 'globally'.
  * -they are applied at the field level to the top-level object
@@ -194,6 +186,22 @@ public class TransitiveTests extends BaseTest {
 		
 		//transitive! converter applied to fields of sub-object
 		assertEquals("SUE", dest.getSource().getName()); 
+		
+		CopySpec spec = copier.getMostRecentCopySpec();
+		assertEquals(1, spec.converterL.size());
+		assertEquals(1, spec.mappingL.size());
+
+		log("again..");
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+		assertEquals("BOB", dest.getName());
+		assertEquals("TITLE1", dest.getTitle());
+		
+		//transitive! converter applied to fields of sub-object
+		assertEquals("SUE", dest.getSource().getName()); 
+		
+		spec = copier.getMostRecentCopySpec();
+		assertEquals(1, spec.converterL.size());
+		assertEquals(1, spec.mappingL.size());
 	}
 
 	@Test

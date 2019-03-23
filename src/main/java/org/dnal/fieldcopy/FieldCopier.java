@@ -3,6 +3,7 @@ package org.dnal.fieldcopy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
@@ -23,7 +24,8 @@ public class FieldCopier {
 	Object sourceObj;
 	Object destObj;
 	CopyOptions options = new CopyOptions();
-
+	CopySpec mostRecentCopySpec; //for testing only
+	
 	public FieldCopier(FieldCopyService copier) {
 		this.copier = copier;
 	}
@@ -105,6 +107,10 @@ public class FieldCopier {
 			}
 		}
 		return null;
+	}
+
+	public CopySpec getMostRecentCopySpec() {
+		return mostRecentCopySpec;
 	}
 
 }

@@ -221,9 +221,12 @@ public class FastBeanUtilFieldCopyService {
 		
 		//auto-generate mappings for sub-objects
 		//-first, detect that we are in a sub-obj (not in main obj)
-		//-then determinine if any transitive features are active
 		//-create mapping for src,dest (so that sub-obj gets converters, etc)
-		return autoGenerateMapping(pair, outerSvc, copySpec);
+		mapping = autoGenerateMapping(pair, outerSvc, copySpec);
+		if (mapping != null) {
+			mappingL.add(mapping);
+		}
+		return mapping;
 	}
 	private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
@@ -241,23 +244,24 @@ public class FastBeanUtilFieldCopyService {
 		}
 		return null;
 	}
-	private FieldCopyMapping autoGenerateMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam) {
-		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) zpair.srcProp;
+	private FieldCopyMapping autoGenerateMapping(FieldPair pair, FieldCopyService outerSvc, CopySpec copySpecParam) {
+		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
 		Class<?> srcClass = fd.pd.getPropertyType();
-		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) zpair.destProp;
+		if (!beanDetectorSvc.isBeanClass(srcClass)) {
+			return null;
+		}
+		
+		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		Class<?> destClass = fd2.pd.getPropertyType();
 		
-		if (beanDetectorSvc.isBeanClass(srcClass)) {
-			FieldCopyMapping mapping = null;
-			try {
-				mapping = doAutoGenMapping(zpair, outerSvc, copySpecParam, srcClass, destClass);
-			} catch (Exception e) {
-				String err = String.format("Failed during auto-generate sub-mapping %s to %s", srcClass.getName(), destClass.getName());
-				throw new FieldCopyException(err);
-			}
-			return mapping;
-		}		
-		return null;
+		FieldCopyMapping mapping = null;
+		try {
+			mapping = doAutoGenMapping(pair, outerSvc, copySpecParam, srcClass, destClass);
+		} catch (Exception e) {
+			String err = String.format("Failed during auto-generate sub-mapping %s to %s", srcClass.getName(), destClass.getName());
+			throw new FieldCopyException(err);
+		}
+		return mapping;
 	}
 
 	private FieldCopyMapping doAutoGenMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam, Class<?> srcClass, Class<?> destClass) throws Exception {
@@ -282,7 +286,10 @@ public class FastBeanUtilFieldCopyService {
 		
 		//inspect each field of the sub-object. If it needs a converter or mapping
 		//then create a mapping. If not, then BeanUtils will do a simple copy.
-		boolean needMapping = false;
+		//Wait a sec! Since we only inspect direct sub-obj, we don't know if their sub-sub-objs
+		//might use a mapping or converter.
+		//so set needMapping to true unless we know there are no converters or mappings...
+		boolean needMapping = true;
 		Object orig = innerSpec.sourceObj;
 		for(FieldPair pair: fieldPairs) {
             final FieldDescriptor origDescriptor = pair.srcProp;
@@ -349,10 +356,9 @@ public class FastBeanUtilFieldCopyService {
 		spec.fieldPairs = mapping.getFieldPairs();
 		spec.mappingL = copySpec.mappingL;
 		spec.options = copySpec.options;
-		spec.converterL = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(copySpec.converterL)) {
-			spec.converterL.addAll(copySpec.converterL);
-		}
+		spec.converterL = copySpec.converterL;
+		//important that we directly pass mappingL and converterL so that
+		//any mappings or converters created get added to copySpec
 		
 		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);

@@ -92,6 +92,7 @@ public class CopyBuilder1 {
 		spec.options = root.options;
 		spec.converterL = this.converters;
 		spec.executionPlanCacheKey = this.executionPlanCacheKey;
+		root.mostRecentCopySpec = spec;
 		FieldCopyService copySvc = root.getCopyService();
 		copySvc.copyFields(spec);
 		return null;
