@@ -36,6 +36,7 @@ public class RunawayTests extends BaseTest {
 		node1.setNext(node2);
 
 		FieldCopier copier = createCopier();
+		enableLogging();
 		FieldCopyMapping mapping = copier.createMapping(Node.class, Node.class).autoCopy().build();
 		
 		Node nodeDest = new Node();

@@ -2,7 +2,6 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
@@ -44,8 +43,6 @@ public class TransitiveTests extends BaseTest {
 			return s.toUpperCase();
 		}
 	}
-	
-	
 	
 	public static class Outer {
 		private String name;
@@ -123,10 +120,13 @@ public class TransitiveTests extends BaseTest {
 		MyConverter1 conv = new MyConverter1();
 		
 		FieldCopier copier = createCopier();
+		enableLogging();
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
 		assertEquals("BOB", dest.getName());
 		assertEquals("TITLE1", dest.getTitle());
-		assertEquals("SUE", dest.getSource().getName()); //should be SUE. TODO-fix
+		
+		//transitive! converter applied to fields of sub-object
+		assertEquals("SUE", dest.getSource().getName()); 
 	}
 
 }

@@ -47,6 +47,9 @@ public class BeanUtilsBeanDetectorService implements BeanDetectorService {
         add(java.sql.Time.class);
         add(Timestamp.class);
         add(URL.class);
+        
+        //more
+        add(Map.class);
 		
 	}
 

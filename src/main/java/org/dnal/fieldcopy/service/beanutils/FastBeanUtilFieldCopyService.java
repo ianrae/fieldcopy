@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -10,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
@@ -260,8 +260,8 @@ public class FastBeanUtilFieldCopyService {
 			try {
 				mapping = doAutoGenMapping(zpair, outerSvc, copySpecParam, srcClass, destClass);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				String err = String.format("Failed during auto-generate sub-mapping %s to %s", srcClass.getName(), destClass.getName());
+				throw new FieldCopyException(err);
 			}
 			return mapping;
 		}		
@@ -273,27 +273,23 @@ public class FastBeanUtilFieldCopyService {
 		List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
 		
 		CopySpec innerSpec = new CopySpec();
-		innerSpec.converterL = new ArrayList<>(copySpecParam.converterL);
+		innerSpec.converterL = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(copySpecParam.converterL)) {
+			innerSpec.converterL.addAll(copySpecParam.converterL);
+		}
 		innerSpec.destObj = null; //!!
 		innerSpec.fieldPairs = fieldPairs;
 		innerSpec.mappingL = new ArrayList<>();
 		innerSpec.options = copySpecParam.options;
-		try {
-			innerSpec.sourceObj = propertyUtils.getSimpleProperty(copySpecParam.sourceObj, zpair.srcProp.getName());
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		//this may throw exceptions
+		innerSpec.sourceObj = propertyUtils.getSimpleProperty(copySpecParam.sourceObj, zpair.srcProp.getName());
 		if (innerSpec.sourceObj == null) {
 			return null;
 		}
 		
+		//inspect each field of the sub-object. If it needs a converter or mapping
+		//then create a mapping. If not, then BeanUtils will do a simple copy.
 		boolean needMapping = false;
 		Object orig = innerSpec.sourceObj;
 		for(FieldPair pair: fieldPairs) {
@@ -361,11 +357,13 @@ public class FastBeanUtilFieldCopyService {
 		spec.fieldPairs = mapping.getFieldPairs();
 		spec.mappingL = copySpec.mappingL;
 		spec.options = copySpec.options;
-		spec.converterL = new ArrayList<>(copySpec.converterL);
+		spec.converterL = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(copySpec.converterL)) {
+			spec.converterL.addAll(copySpec.converterL);
+		}
 		
 		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);
-//		applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
 
 		return true;
 	}
