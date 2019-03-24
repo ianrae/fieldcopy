@@ -112,7 +112,7 @@ public class FastBeanUtilFieldCopyService {
             			
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
-            			fspec.converter = converterSvc.useConverterIfPresent(copySpec, pair, orig, copySpec.converterL);
+            			fspec.converter = converterSvc.findConverter(copySpec, pair, orig, copySpec.converterL);
             			execspec.fieldL.add(fspec);
             		}
             		
@@ -315,7 +315,7 @@ public class FastBeanUtilFieldCopyService {
             			needMapping = true;
             		} else {
             			validateIsAllowed(pair);
-            			ValueConverter conv = converterSvc.useConverterIfPresent(innerSpec, pair, orig, innerSpec.converterL);
+            			ValueConverter conv = converterSvc.findConverter(innerSpec, pair, orig, innerSpec.converterL);
             			if (conv != null) {
             				needMapping = true;
             			}

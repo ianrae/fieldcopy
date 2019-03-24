@@ -18,6 +18,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
 public class ConverterService {
 	private SimpleLogger logger;
 	private ListElementConverterFactory converterFactory;
+	private List<ValueConverter> builtInConverterL = new ArrayList<>();
 	
 	public ConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc) {
 		this.logger = logger;
@@ -201,6 +202,17 @@ public class ConverterService {
 				return true;
 			}
 		}
+
+		//now try builtin converters
+		for(ValueConverter converter: builtInConverterL) {
+			//a special use of converter. normally we pass field name and its class (and the dest class).
+			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
+			if (converter.canConvert(sourceField, destField)) {
+				//if already is a converter, nothing more to do
+				return true;
+			}
+		}
+		
 		return false;
 	}
 
@@ -230,8 +242,8 @@ public class ConverterService {
 	}
 
 
-	public ValueConverter useConverterIfPresent(CopySpec copySpec, FieldPair pair, Object orig, List<ValueConverter> converterL) {
-		if (CollectionUtils.isNotEmpty(converterL)) {
+	public ValueConverter findConverter(CopySpec copySpec, FieldPair pair, Object orig, List<ValueConverter> converterL) {
+		if (CollectionUtils.isNotEmpty(converterL) || CollectionUtils.isNotEmpty(builtInConverterL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
 			
@@ -256,8 +268,22 @@ public class ConverterService {
 					return converter;
 				}
 			}
+			
+			//now try builtin converters
+			for(ValueConverter converter: builtInConverterL) {
+				//a special use of converter. normally we pass field name and its class (and the dest class).
+				//Here we are passing the fieldName (which is a list) and source and destination *element* classes
+				if (converter.canConvert(sourceField, destField)) {
+					//if already is a converter, nothing more to do
+					return converter;
+				}
+			}
 		}
 		return null;
+	}
+
+	public List<ValueConverter> getBuiltInConverterL() {
+		return builtInConverterL;
 	}
 	
 }
