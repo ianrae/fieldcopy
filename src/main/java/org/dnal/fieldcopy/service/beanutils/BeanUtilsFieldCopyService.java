@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -219,5 +220,10 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 
 		public FastBeanUtilFieldCopyService getFastSvc() {
 			return fastSvc;
+		}
+
+		@Override
+		public void addBuiltInConverter(ValueConverter converter) {
+			fastSvc.getConverterSvc().getBuiltInConverterL().add(converter);
 		}
 	}

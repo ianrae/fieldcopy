@@ -261,11 +261,14 @@ public class ConverterService {
 			destField.fieldClass = destClass;
 			//NOTE. destObj is sometimes null. Document this TODO
 			destField.beanClass = copySpec.destObj == null ? null : copySpec.destObj.getClass();
-			for(ValueConverter converter: converterL) {
-				//TODO: fix value null issue
-				
-				if (converter.canConvert(sourceField, destField)) {
-					return converter;
+
+			if (CollectionUtils.isNotEmpty(converterL)) {
+				for(ValueConverter converter: converterL) {
+					//TODO: fix value null issue
+					
+					if (converter.canConvert(sourceField, destField)) {
+						return converter;
+					}
 				}
 			}
 			

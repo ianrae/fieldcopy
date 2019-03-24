@@ -3,6 +3,7 @@ package org.dnal.fieldcopy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
@@ -39,6 +40,10 @@ public class FieldCopier {
 		this.sourceObj = sourceObj;
 		this.destObj = destObj;
 		return new CopyBuilder1(this);
+	}
+	
+	public void addBuiltInConverter(ValueConverter converter) {
+		copier.addBuiltInConverter(converter);
 	}
 	
 	FieldCopyService getCopyService() {

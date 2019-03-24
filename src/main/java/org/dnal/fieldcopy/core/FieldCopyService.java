@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.core;
 
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 /**
@@ -17,6 +18,7 @@ public interface FieldCopyService {
 	void dumpFields(Object sourceObj);
 	SimpleLogger getLogger();
 	FieldRegistry getRegistry();
+	void addBuiltInConverter(ValueConverter converter);
 	
 	/**
 	 * Generate unique string that represents the spec. 

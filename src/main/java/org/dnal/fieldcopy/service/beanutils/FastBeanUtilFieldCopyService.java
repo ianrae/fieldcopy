@@ -462,6 +462,10 @@ public class FastBeanUtilFieldCopyService {
 			return s;
 		}
 	}
+
+	public ConverterService getConverterSvc() {
+		return converterSvc;
+	}
 	
 	
 }
