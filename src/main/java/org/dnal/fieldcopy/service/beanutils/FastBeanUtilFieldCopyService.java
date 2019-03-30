@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -12,8 +13,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
-import org.dnal.fieldcopy.converter.ListElementConverter;
-import org.dnal.fieldcopy.converter.ListElementConverterFactory;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
@@ -28,28 +27,37 @@ public class FastBeanUtilFieldCopyService {
 	private BeanUtilsBean beanUtil;
 	private PropertyUtilsBean propertyUtils;
 	private FieldFilter fieldFilter;
-	private ListElementConverterFactory converterFactory;
+	private ConverterService converterSvc;
+	private BeanUtilsBeanDetectorService beanDetectorSvc;
 	
 	public FastBeanUtilFieldCopyService(SimpleLogger logger, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
-		this.converterFactory = new ListElementConverterFactory();
+		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
 	}
 
-	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec)  {
+	public ExecuteCopyPlan generateExecutePlan(CopySpec copySpec, FieldCopyService outerSvc)  {
 		ExecuteCopyPlan result = null;
+		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
 		try {
-			result = doGenerateExecutePlan(copySpec, 1);
+			result = doGenerateExecutePlan(copySpec, outerSvc, execspec, 1);
 		} catch (Exception e) {
-			throw new FieldCopyException(e.getMessage());
+			String s = " while generating execution plan:";
+			String className = String.format("'%s'", copySpec.sourceObj.getClass().getSimpleName());
+			String field = execspec.currentFieldName == null ? "" : " field '" + execspec.currentFieldName + "'";
+			String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+					e.getClass().getSimpleName(), s, e.getMessage());
+			throw new FieldCopyException(msg, e);
 		}
+		
+		result.currentFieldName = null; //reset
 		return result;
 	}
 	
-	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, int runawayCounter) throws Exception {
-		ExecuteCopyPlan execspec = new ExecuteCopyPlan();
+	private ExecuteCopyPlan doGenerateExecutePlan(CopySpec copySpec, FieldCopyService outerSvc, ExecuteCopyPlan execspec, int runawayCounter) throws Exception {
 		
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
@@ -80,15 +88,20 @@ public class FastBeanUtilFieldCopyService {
 		for(FieldPair pair: fieldPairs) {
             final FieldDescriptor origDescriptor = pair.srcProp;
             final String name = origDescriptor.getName();
+            execspec.currentFieldName = name;
+            
             if (propertyUtils.isReadable(orig, name) &&
             		propertyUtils.isWriteable(dest, pair.destFieldName)) {
             	try {
             		fillInDestPropIfNeeded(pair, destObj.getClass());
             		
-            		addListConverterIfNeeded(pair, copySpec, destObj);
+            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
+            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
             		
             		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
-            		FieldCopyMapping mapping = generateMapping(pair, mappingL);
+            		FieldCopyMapping mapping = findOrGenerateMapping(pair, mappingL, outerSvc, copySpec);
             		if (mapping != null) {
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
@@ -99,7 +112,7 @@ public class FastBeanUtilFieldCopyService {
             			
             			FieldPlan fspec = new FieldPlan();
             			fspec.pair = pair;
-            			fspec.converter = convertIfPresent(pair, orig, copySpec.converterL);
+            			fspec.converter = converterSvc.findConverter(copySpec, pair, orig, copySpec.converterL);
             			execspec.fieldL.add(fspec);
             		}
             		
@@ -127,74 +140,6 @@ public class FastBeanUtilFieldCopyService {
         		return;
         	}
         }
-	}
-
-	private void addListConverterIfNeeded(FieldPair pair, CopySpec copySpec, Object destObj) {
-		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
-		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
-		
-		Class<?> srcFieldClass = fd1.pd.getPropertyType();
-//		Class<?> destFieldClass = fd2.pd.getPropertyType();
-		if (Collection.class.isAssignableFrom(srcFieldClass) && 
-				Collection.class.isAssignableFrom(srcFieldClass)) {
-			
-			if (copySpec.converterL == null) {
-				copySpec.converterL = new ArrayList<>();
-			}
-			
-			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj, fd1);
-			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destObj, fd2);
-			
-			if (listSpec1.depth != listSpec2.depth) {
-				String error = String.format("copyFields. field '%s' has list depth %d, but field '%s' has different depth %d",
-						fd1.getName(), listSpec1.depth, fd2.getName(), listSpec2.depth);
-				throw new FieldCopyException(error);
-
-			}
-//			if (ReflectionUtil.elementIsList(copySpec.sourceObj, fd1)) {
-//				//TODO: also check destObj??
-//				return;
-//			}
-
-			Class<?> srcElementClass = listSpec1.elementClass;
-			Class<?> destElementClass = listSpec2.elementClass;
-			for(ValueConverter converter: copySpec.converterL) {
-				//a special use of converter. normally we pass field name and its class (and the dest class).
-				//Here we are passing the fieldName (which is a list) and source and destination *element* classes
-				if (converter.canConvert(pair.srcProp.getName(), srcElementClass, destElementClass)) {
-					//if already is a converter, nothing more to do
-					return;
-				}
-			}
-			
-			//add one
-			String name = pair.srcProp.getName();
-			ListElementConverter converter = converterFactory.createConverter(name, srcElementClass, destElementClass);
-			if (converter == null) {
-				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
-				throw new FieldCopyException(error);
-			}
-			converter.setDepth(listSpec1.depth);
-			copySpec.converterL.add(converter);
-		}
-	}
-
-	private ValueConverter convertIfPresent(FieldPair pair, Object orig, List<ValueConverter> converterL) {
-		if (CollectionUtils.isNotEmpty(converterL)) {
-			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
-			Class<?> destClass = desc.pd.getPropertyType();
-			
-			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
-			Class<?> srcClass = fd1.pd.getPropertyType();
-			//TODO: can we make this faster with a map??
-			for(ValueConverter converter: converterL) {
-				//TODO: fix value null issue
-				if (converter.canConvert(pair.srcProp.getName(), srcClass, destClass)) {
-					return converter;
-				}
-			}
-		}
-		return null;
 	}
 
 	private void validateIsAllowed(FieldPair pair) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
@@ -244,7 +189,12 @@ public class FastBeanUtilFieldCopyService {
 				return type;
 			}
 		} else if (Collection.class.isAssignableFrom(srcType)) {
-			if (Collection.class.isAssignableFrom(type)) {
+			if (Collection.class.isAssignableFrom(type) || type.isArray()) {
+			} else {
+				return type;
+			}
+		} else if (srcType.isArray()) {
+			if (type.isArray() || Collection.class.isAssignableFrom(type)) {
 			} else {
 				return type;
 			}
@@ -263,8 +213,24 @@ public class FastBeanUtilFieldCopyService {
 		return false;
 	}
 
-	private FieldCopyMapping generateMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
+	private FieldCopyMapping findOrGenerateMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
+		FieldCopyMapping mapping = findMapping(pair, mappingL, outerSvc, copySpec);
+		if (mapping != null) {
+			return mapping;
+		}
+		
+		//auto-generate mappings for sub-objects
+		//-first, detect that we are in a sub-obj (not in main obj)
+		//-create mapping for src,dest (so that sub-obj gets converters, etc)
+		mapping = autoGenerateMapping(pair, outerSvc, copySpec);
+		if (mapping != null) {
+			mappingL.add(mapping);
+		}
+		return mapping;
+	}
+	private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL, FieldCopyService outerSvc, CopySpec copySpec) throws Exception {
 		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+		
 		for(FieldCopyMapping mapping: mappingL) {
 			if (mapping.getClazzSrc().equals(fd.pd.getPropertyType())) {
 				if (pair.destProp == null) {
@@ -278,8 +244,100 @@ public class FastBeanUtilFieldCopyService {
 		}
 		return null;
 	}
+	private FieldCopyMapping autoGenerateMapping(FieldPair pair, FieldCopyService outerSvc, CopySpec copySpecParam) {
+		BeanUtilsFieldDescriptor fd = (BeanUtilsFieldDescriptor) pair.srcProp;
+		Class<?> srcClass = fd.pd.getPropertyType();
+		if (!beanDetectorSvc.isBeanClass(srcClass)) {
+			return null;
+		}
+		
+		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+		Class<?> destClass = fd2.pd.getPropertyType();
+		
+		FieldCopyMapping mapping = null;
+		try {
+			mapping = doAutoGenMapping(pair, outerSvc, copySpecParam, srcClass, destClass);
+		} catch (Exception e) {
+			String err = String.format("Failed during auto-generate sub-mapping %s to %s", srcClass.getName(), destClass.getName());
+			throw new FieldCopyException(err);
+		}
+		return mapping;
+	}
+
+	private FieldCopyMapping doAutoGenMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam, Class<?> srcClass, Class<?> destClass) throws Exception {
+		BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
+		List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
+		
+		CopySpec innerSpec = new CopySpec();
+		innerSpec.converterL = new ArrayList<>();
+		if (CollectionUtils.isNotEmpty(copySpecParam.converterL)) {
+			innerSpec.converterL.addAll(copySpecParam.converterL);
+		}
+		innerSpec.destObj = null; //!!
+		innerSpec.fieldPairs = fieldPairs;
+		innerSpec.mappingL = new ArrayList<>();
+		innerSpec.options = copySpecParam.options;
+		
+		//this may throw exceptions
+		innerSpec.sourceObj = propertyUtils.getSimpleProperty(copySpecParam.sourceObj, zpair.srcProp.getName());
+		if (innerSpec.sourceObj == null) {
+			return null;
+		}
+		
+		//inspect each field of the sub-object. If it needs a converter or mapping
+		//then create a mapping. If not, then BeanUtils will do a simple copy.
+		//Wait a sec! Since we only inspect direct sub-obj, we don't know if their sub-sub-objs
+		//might use a mapping or converter.
+		//so set needMapping to true unless we know there are no converters or mappings...
+		boolean needMapping = true;
+		Object orig = innerSpec.sourceObj;
+		for(FieldPair pair: fieldPairs) {
+            final FieldDescriptor origDescriptor = pair.srcProp;
+            final String name = origDescriptor.getName();
+            
+            if (propertyUtils.isReadable(orig, name)) {
+// TODO           		propertyUtils.isWriteable(destObj, pair.destFieldName)) {
+            	try {
+            		fillInDestPropIfNeeded(pair, destClass.getClass());
+            		
+            		int numConverters = innerSpec.converterL.size();
+            		converterSvc.addListConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addArrayListConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addArrayConverterIfNeeded(pair, innerSpec, destClass);
+            		converterSvc.addListArrayConverterIfNeeded(pair, innerSpec, destClass);
+            		if (numConverters != innerSpec.converterL.size()) {
+            			needMapping = true;
+            		}
+            		
+            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
+					FieldCopyMapping mapping = findMapping(pair, copySpecParam.mappingL, outerSvc, innerSpec);
+            		if (mapping != null) {
+            			needMapping = true;
+            		} else {
+            			validateIsAllowed(pair);
+            			ValueConverter conv = converterSvc.findConverter(innerSpec, pair, orig, innerSpec.converterL);
+            			if (conv != null) {
+            				needMapping = true;
+            			}
+            		}
+            	} catch (final NoSuchMethodException e) {
+            		// Should not happen
+            	}
+            }
+		}
+		
+		if (needMapping) {
+			FieldCopyMapping mapping = new FieldCopyMapping(srcClass, destClass, fieldPairs);
+			return mapping;
+		}
+		
+		return null;
+	}
+
 	private boolean applyMapping(FieldCopyService outerSvc, CopySpec copySpec,  
-			FieldPair pair, Object sourceObj, Object destObj, Object srcValue, FieldCopyMapping mapping, int runawayCounter) throws Exception {
+			FieldPair pair, Object sourceObj, Object destObj, Object srcValue, 
+			FieldCopyMapping mapping, int runawayCounter) throws Exception {
+		
 		if (srcValue == null) {
 			return true;
 		}
@@ -298,10 +356,12 @@ public class FastBeanUtilFieldCopyService {
 		spec.fieldPairs = mapping.getFieldPairs();
 		spec.mappingL = copySpec.mappingL;
 		spec.options = copySpec.options;
+		spec.converterL = copySpec.converterL;
+		//important that we directly pass mappingL and converterL so that
+		//any mappings or converters created get added to copySpec
 		
 		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);
-//		applyMapping(copySpec, pair, srcValue, destValue, srcValue, mapping, runawayCounter + 1);
 
 		return true;
 	}
@@ -315,7 +375,12 @@ public class FastBeanUtilFieldCopyService {
 		try {
 			b = doExecutePlan(spec, execPlan, outerSvc, runawayCounter);
 		} catch (Exception e) {
-			throw new FieldCopyException(e.getMessage());
+			String s = execPlan.inConverter ? " in converter:" : ":";
+			String className = String.format("'%s'", spec.sourceObj.getClass().getSimpleName());
+			String field = execPlan.currentFieldName == null ? "" : " field '" + execPlan.currentFieldName + "'";
+			String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+					e.getClass().getSimpleName(), s, e.getMessage());
+			throw new FieldCopyException(msg, e);
 		}
 		return b;
 	}
@@ -324,7 +389,11 @@ public class FastBeanUtilFieldCopyService {
 		boolean ok = true;
 		for(FieldPlan fieldPlan: execPlan.fieldL) {
 			String name = fieldPlan.pair.srcProp.getName();
+			execPlan.currentFieldName = name;
     		Object value = propertyUtils.getSimpleProperty(spec.sourceObj, name);
+    		
+    		logger.log("  field %s: %s", name, getLoggableString(value));
+    		
 			if (fieldPlan.converter != null) {
 				BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.pair.destProp;
 				Class<?> destClass = fd2.pd.getPropertyType();
@@ -335,10 +404,17 @@ public class FastBeanUtilFieldCopyService {
 				ConverterContext ctx = new ConverterContext();
 				ctx.destClass = destClass;
 				ctx.srcClass = srcClass;
-				ctx.srcFieldName = name;
 				ctx.copySvc = outerSvc;
 				ctx.copyOptions = spec.options;
+				ctx.beanDetectorSvc = this.beanDetectorSvc;
+				addConverterAndMappingLists(ctx, spec);
+				execPlan.inConverter = true;
 				value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
+				execPlan.inConverter = false;
+			}
+			
+			if (value == null) {
+				value = fieldPlan.pair.defaultValue;
 			}
 			
 			if (fieldPlan.mapping != null) {
@@ -348,6 +424,47 @@ public class FastBeanUtilFieldCopyService {
 			}
 		}
 		return ok;
+	}
+
+	private void addConverterAndMappingLists(ConverterContext ctx, CopySpec spec) {
+		if (CollectionUtils.isNotEmpty(spec.mappingL)) {
+			ctx.mappingL = new ArrayList<>();
+			ctx.mappingL.addAll(spec.mappingL);
+		}
+		if (CollectionUtils.isNotEmpty(spec.converterL)) {
+			ctx.converterL = new ArrayList<>();
+			ctx.converterL.addAll(spec.converterL);
+		}
+	}
+
+	private Object getLoggableString(Object value) {
+		if (value == null || ! logger.isEnabled()) {
+			return null;
+		}
+		
+		if (value.getClass().isArray()) {
+			int n = Array.getLength(value);
+			String s = String.format("array(len=%d): ", n);
+			for(int i = 0; i < n; i++) {
+				Object el = Array.get(value, i);
+				s += String.format("%s ", el.toString());
+				if (i >= 2) {
+					s += "...";
+					break;
+				}
+			}
+			return s;
+		} else {
+			String s = value.toString();
+			if (s.length() > 100) {
+				s = s.substring(0, 100);
+			}
+			return s;
+		}
+	}
+
+	public ConverterService getConverterSvc() {
+		return converterSvc;
 	}
 	
 	

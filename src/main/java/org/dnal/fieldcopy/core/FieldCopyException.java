@@ -6,4 +6,7 @@ public class FieldCopyException extends RuntimeException {
 	public FieldCopyException(String msg) {
 		super(msg);
 	}
+	public FieldCopyException(String msg, Exception inner) {
+		super(msg, inner);
+	}
 }

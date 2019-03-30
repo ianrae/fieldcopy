@@ -10,4 +10,5 @@ public class FieldPair {
 	public FieldDescriptor srcProp;
 	public String destFieldName;
 	public FieldDescriptor destProp; //set lazily
+	public Object defaultValue = null; //use if src field is null
 }

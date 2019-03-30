@@ -2,9 +2,11 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -20,8 +22,8 @@ public class ListLongTests extends BaseListTest {
 	
 	public static class MyLongToStringListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listLong1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("listLong1");
 		}
 
 		@Override
@@ -132,6 +134,42 @@ public class ListLongTests extends BaseListTest {
 		copySrcFieldToFail(mainField, "listColour1");
 	}
 	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		List<Long> list = createLongList();
+		entity.setListLong1(list);
+		copier.copy(entity, dto).field("listLong1", "arrayString1").execute();
+		chkStringArrayValue(2, "44", "45");
+	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copier.copy(entity, dto).field("listLong1", "arrayInt1").execute();
+		chkIntArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copier.copy(entity, dto).field("listLong1", "arrayDate1").execute();
+		refDate1 = new Date(44L);
+		refDate2 = new Date(45L);
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copier.copy(entity, dto).field("listLong1", "arrayLong1").execute();
+		chkLongArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "arrayColour1", false);
+	}
 	
 	//---
 	private static final String mainField = "listLong1";

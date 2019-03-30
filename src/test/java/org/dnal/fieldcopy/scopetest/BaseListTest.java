@@ -30,10 +30,26 @@ public class BaseListTest extends BaseScopeTest {
 		list = new ArrayList<>(list);
 		return list;
 	}
+	protected Integer[] createIntArray() {
+		Integer[] ar = {44, 45};
+		return ar;
+	}
+	protected Long[] createLongArray() {
+		Long[] ar = {44L, 45L};
+		return ar;
+	}
+	protected String[] createStringArray() {
+		String[] ar = {"abc", "def"};
+		return ar;
+	}
 	protected List<Colour> createColourList() {
 		List<Colour> list = Arrays.asList(Colour.RED, Colour.BLUE);
 		list = new ArrayList<>(list);
 		return list;
+	}
+	protected Colour[] createColourArray() {
+		Colour[] ar = {Colour.RED, Colour.BLUE};
+		return ar;
 	}
 	protected List<Long> createLongList() {
 		List<Long> list = Arrays.asList(44L, 45L);
@@ -45,6 +61,11 @@ public class BaseListTest extends BaseScopeTest {
 		list.add(createADate(0));
 		list.add(createADate(1));
 		return list;
+	}
+	protected Date[] createDateArray() {
+		List<Date> list = createDateList();
+		Date[] ar = { list.get(0), list.get(1) };
+		return ar;
 	}
 	protected Date createADate(int which) {
 		int year = 2015 + which;
@@ -62,7 +83,18 @@ public class BaseListTest extends BaseScopeTest {
 			assertEquals(s2, list.get(1));
 		}
 	}
-	protected void chkIntListValue(int expected, int n1, int n2) {
+	protected void chkIntArrayValue(int expected, int n1, int n2) {
+		Integer[] ar = dto.getArrayInt1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(n1, ar[0].intValue());
+		}
+		if (expected > 1) {
+			assertEquals(n2, ar[1].intValue());
+		}
+	}
+	protected void chkIntListValue(int expected, long n1, long n2) {
 		List<Integer> list = dto.getListInt1();
 		assertEquals(expected, list.size());
 		
@@ -106,4 +138,50 @@ public class BaseListTest extends BaseScopeTest {
 			assertEquals(c2, list.get(1));
 		}
 	}
+	
+	protected void chkStringArrayValue(int expected, String s1, String s2) {
+		String[] ar = dto.getArrayString1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(s1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(s2, ar[1]);
+		}
+	}
+	protected void chkLongArrayValue(int expected, long n1, long n2) {
+		Long[] ar = dto.getArrayLong1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(n1, ar[0].longValue());
+		}
+		if (expected > 1) {
+			assertEquals(n2, ar[1].longValue());
+		}
+	}
+	protected void chkDateArrayValue(int expected, Date dt1, Date dt2) {
+		Date[] ar = dto.getArrayDate1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(dt1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(dt2, ar[1]);
+		}
+	}
+	protected void chkColourArrayValue(int expected, Colour c1, Colour c2) {
+		Colour[] ar = dto.getArrayColour1();
+		assertEquals(expected, ar.length);
+		
+		if (expected > 0) {
+			assertEquals(c1, ar[0]);
+		}
+		if (expected > 1) {
+			assertEquals(c2, ar[1]);
+		}
+	}
+	
 }

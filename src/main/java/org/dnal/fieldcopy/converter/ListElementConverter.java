@@ -1,14 +1,11 @@
 package org.dnal.fieldcopy.converter;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.dnal.fieldcopy.core.BeanDetectorService;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
 
@@ -25,21 +22,23 @@ public class ListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
-	private List<Class<?>> knownScalarsL;
 	private boolean useScalarCopy;
 	private int depth;
+	private Class<?> beanClass;
+	private boolean sourceIsArray;
 	
-	public ListElementConverter(String fieldName, Class<?> srcElementClass, Class<?> destElementClass) {
+	public ListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+			BeanDetectorService beanDetectorSvc) {
+		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
-		this.knownScalarsL = Arrays.asList(String.class, Date.class);
-		this.useScalarCopy = ! isBean(srcElClass) && ! isBean(destElClass);
+		this.useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElClass) && ! beanDetectorSvc.isBeanClass(destElClass);
 	}
 
 	@Override
-	public boolean canConvert(String fieldName, Class<?>srcClass, Class<?> targetClass) {
-		return this.srcFieldName.equals(fieldName);
+	public boolean canConvert(FieldInfo source, FieldInfo dest) {
+		return source.matches(beanClass, srcFieldName);
 	}
 	
 	@Override
@@ -49,7 +48,7 @@ public class ListElementConverter implements ValueConverter {
 		}
 		
 		@SuppressWarnings("unchecked")
-		List<?> list = (List<?>) value;
+		List<?> list = (List<?>) getAsList(value); 
 		
 		if (depth == 0) {
 			return copyInnerMostList(list, ctx);
@@ -64,6 +63,20 @@ public class ListElementConverter implements ValueConverter {
 		}
 	}
 	
+	private List<?> getAsList(Object value) {
+		if (sourceIsArray) {
+			List<Object> list = new ArrayList<>();
+			int n = Array.getLength(value);
+			for(int i = 0; i < n; i++) {
+				Object el = Array.get(value, i);
+				list.add(el);
+			}
+			return list;
+		} else {
+			return (List<?>) value;
+		}
+	}
+
 	private List<?> copyNextLevelNestedList(List<?> list, ConverterContext ctx, int currentDepth) {
 		boolean isInnermost = (currentDepth == depth - 1);
 		if (isInnermost) {
@@ -88,8 +101,8 @@ public class ListElementConverter implements ValueConverter {
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
-		spec.mappingL = null;
-		spec.converterL = null;
+		spec.mappingL = ctx.mappingL;
+		spec.converterL = ctx.converterL;
 
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {
@@ -109,28 +122,6 @@ public class ListElementConverter implements ValueConverter {
 			list2.add(result);
 		}
 		return list2;
-	}
-
-	/**
-	 * Determine if class is a bean (i.e. has inner fields).
-	 * Classes like Integer are not beans.
-	 * @param clazz
-	 * @return
-	 */
-	private boolean isBean(Class<?> clazz) {
-		if (knownScalarsL.contains(clazz) || clazz.isEnum()) {
-			return false;
-		}
-		
-		try {
-			//use Java's Introspector. beans will have > 1 property descriptor
-			BeanInfo info = Introspector.getBeanInfo(clazz);
-			return info.getPropertyDescriptors().length > 1;
-		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
 	}
 
 	private Object createObject(Class<?> clazzDest) {
@@ -153,6 +144,14 @@ public class ListElementConverter implements ValueConverter {
 
 	public void setDepth(int depth) {
 		this.depth = depth;
+	}
+
+	public boolean isSourceIsArray() {
+		return sourceIsArray;
+	}
+
+	public void setSourceIsArray(boolean sourceIsArray) {
+		this.sourceIsArray = sourceIsArray;
 	}
 
 }

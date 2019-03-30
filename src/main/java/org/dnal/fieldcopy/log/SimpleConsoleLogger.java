@@ -1,7 +1,12 @@
 package org.dnal.fieldcopy.log;
 
 public class SimpleConsoleLogger implements SimpleLogger {
-	private boolean enabled = true;
+	private boolean enabled = false;
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
 
 	@Override
 	public void enableLogging(boolean b) {

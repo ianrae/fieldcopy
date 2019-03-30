@@ -10,16 +10,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.converter.ListElementConverter;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.junit.Test;
 
 
-public class ListTests {
+public class ListTests extends BaseTest {
 	public static class Holder {
 		private int width;
 		private List<Source> listSource1;
@@ -94,7 +92,9 @@ public class ListTests {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		ListElementConverter converter = new ListElementConverter("listSource1", Source.class, Dest.class);
+		BeanUtilsBeanDetectorService beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		ListElementConverter converter = new ListElementConverter(Holder.class, "listSource1", 
+				Source.class, Dest.class, beanDetectorSvc);
 		
 		copier.copy(holder, holder2).withConverters(converter).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
@@ -189,11 +189,5 @@ public class ListTests {
 			}
 			
 		}
-	}
-	
-	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
 	}
 }

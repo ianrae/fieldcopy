@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -62,10 +63,16 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 				return fieldPairs;
 			}
 			
+            fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
+			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+            return fieldPairs;
+		}
+		
+		public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
             final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
             final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
     		
-            fieldPairs = new ArrayList<>();
+            List<FieldPair> fieldPairs = new ArrayList<>();
             for (int i = 0; i < arSrc.length; i++) {
             	PropertyDescriptor pd = arSrc[i];
             	if (! fieldFilter.shouldProcess(class1, pd.getName())) {
@@ -80,8 +87,6 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
             	pair.destProp = new BeanUtilsFieldDescriptor(targetPd);
             	fieldPairs.add(pair);
             }
-			
-			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
             return fieldPairs;
 		}
 		
@@ -100,6 +105,8 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		public void copyFields(CopySpec copySpec)  {
 			try {
 				doCopyFields(copySpec, 1);
+			} catch (FieldCopyException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new FieldCopyException(e.getMessage());
 			}
@@ -116,13 +123,38 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			}
 			ExecuteCopyPlan execSpec = executionPlanMap.get(copySpec.executionPlanCacheKey);
 			if (execSpec == null) {
-				execSpec = fastSvc.generateExecutePlan(copySpec);
+				execSpec = fastSvc.generateExecutePlan(copySpec, this);
 				executionPlanMap.put(copySpec.executionPlanCacheKey, execSpec);
+			} else {
+				propogateStuff(execSpec, copySpec);
 			}
+			logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
+					copySpec.destObj.getClass(), execSpec.fieldL.size());
 			fastSvc.executePlan(copySpec, execSpec, this, runawayCounter);
 		}
 
 		
+		private void propogateStuff(ExecuteCopyPlan execSpec, CopySpec copySpec) {
+			for(FieldPlan fplan: execSpec.fieldL) {
+				
+				//TODO. ensure only add each mapping once to copyspec
+				if (fplan.mapping != null) {
+					if (copySpec.mappingL == null) {
+						copySpec.mappingL = new ArrayList<>();
+					}
+					copySpec.mappingL.add(fplan.mapping);
+				}
+				if (fplan.converter != null) {
+					if (copySpec.converterL == null) {
+						copySpec.converterL = new ArrayList<>();
+					}
+					if (! copySpec.converterL.contains(fplan.converter)) {
+						copySpec.converterL.add(fplan.converter);
+					}
+				}
+			}
+		}
+
 		@Override
 		public void dumpFields(Object sourceObj) {
 			try {
@@ -184,5 +216,14 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 			String class1Name = spec.sourceObj == null ? "" : spec.sourceObj.getClass().getName();
 			String class2Name = spec.destObj == null ? "" : spec.destObj.getClass().getName();
 			return String.format("%s--%s", class1Name, class2Name);
+		}
+
+		public FastBeanUtilFieldCopyService getFastSvc() {
+			return fastSvc;
+		}
+
+		@Override
+		public void addBuiltInConverter(ValueConverter converter) {
+			fastSvc.getConverterSvc().getBuiltInConverterL().add(converter);
 		}
 	}

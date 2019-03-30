@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 public abstract class MyScopeTestsBase {
 	public List<String> allTypes;
 	public List<String> allListTypes;
+	public List<String> allArrayTypes;
 	public List<String> errors = new ArrayList<>();
 	protected ScopeTestRunResults scopeResults;
 	public List<ScopeResult> observedL = new ArrayList<>();

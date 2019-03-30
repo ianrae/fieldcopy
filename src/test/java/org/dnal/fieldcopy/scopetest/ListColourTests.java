@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -20,8 +21,8 @@ public class ListColourTests extends BaseListTest {
 	
 	public static class MyStringToColourListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listString1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("listString1");
 		}
 
 		@Override
@@ -129,6 +130,39 @@ public class ListColourTests extends BaseListTest {
 		
 		reset();
 		copySrcFieldToFail(mainField, "listProvince1");
+	}
+	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+//		enableLogging();
+		copier.copy(entity, dto).field("listColour1", "arrayString1").execute();
+		chkStringArrayValue(2, "RED", "BLUE");
+	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldToFail(mainField, "arrayInt1");
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldToFail(mainField, "listDate1");
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copySrcFieldToFail(mainField, "arrayLong1");
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		copySrcFieldTo(mainField, "arrayColour1");
+		chkColourArrayValue(2, Colour.RED, Colour.BLUE);
+		
+		reset();
+		copySrcFieldToFail(mainField, "arrayProvince1");
 	}
 	
 	

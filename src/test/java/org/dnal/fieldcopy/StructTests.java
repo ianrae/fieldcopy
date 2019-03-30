@@ -3,8 +3,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -12,7 +12,7 @@ import org.dnal.fieldcopy.service.beanutils.ExecuteCopyPlan;
 import org.dnal.fieldcopy.service.beanutils.FastBeanUtilFieldCopyService;
 import org.junit.Test;
 
-public class StructTests {
+public class StructTests extends BaseTest {
 
 	@Test
 	public void test() {
@@ -32,7 +32,7 @@ public class StructTests {
 		spec.options = new CopyOptions();
 		spec.converterL = null;;
 		
-		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec);
+		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec, null); //TODO: fix null later
 		assertEquals(2, execSpec.fieldL.size());
 		
 		boolean b = execSvc.executePlan(spec, execSpec, null, 1);

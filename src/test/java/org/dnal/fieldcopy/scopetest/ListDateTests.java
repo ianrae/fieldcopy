@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -21,8 +22,8 @@ public class ListDateTests extends BaseListTest {
 	
 	public static class MyDateToStringListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listDate1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("listDate1");
 		}
 
 		@Override
@@ -139,13 +140,39 @@ public class ListDateTests extends BaseListTest {
 	}
 	
 	
-	private String formatDate(Date dt) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String s  = sdf.format(dt);
-		return s;
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+//		enableLogging();
+		copier.copy(entity, dto).field("listDate1", "arrayString1").execute();
+		chkStringArrayValue(2, formatDate(refDate1), formatDate(refDate2));
 	}
-
-
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		copySrcFieldToFail(mainField, "arrayInt1");
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		copySrcFieldTo(mainField, "arrayDate1");
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		copier.copy(entity, dto).field("listDate1", "arrayLong1").execute();
+		chkLongArrayValue(2, refDate1.getTime(), refDate2.getTime());
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "arrayColour1", false);
+	}
+	
+	
 	//---
 	private static final String mainField = "listDate1";
 	
@@ -161,5 +188,10 @@ public class ListDateTests extends BaseListTest {
 		entity.setListDate1(list);
 		
 		return entity;
+	}
+	private String formatDate(Date dt) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String s  = sdf.format(dt);
+		return s;
 	}
 }

@@ -5,16 +5,16 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class MapConverterTests {
+public class MapConverterTests extends BaseTest {
 	
 	public static class Inner {
 		private String name;
@@ -100,8 +100,8 @@ public class MapConverterTests {
 	
 	public static class MyMapValueConverter implements ValueConverter {
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
-			return fieldName.equals("mapInner");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("mapInner");
 		}
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
@@ -120,8 +120,8 @@ public class MapConverterTests {
 	}
 	public static class MyOtherMapValueConverter implements ValueConverter {
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
-			return fieldName.equals("mapInner");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("mapInner");
 		}
 		@Override
 		public Object convertValue(Object srcBean, Object value, ConverterContext ctx) {
@@ -198,18 +198,10 @@ public class MapConverterTests {
 	}
 	
 	//--
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-
 	private Inner createInner() {
 		Inner inner = new Inner();
 		inner.setName("rob");
 		inner.setPoints(10);
 		return inner;
-	}
-	private void log(String s) {
-		System.out.println(s);
 	}
 }

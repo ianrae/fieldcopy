@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.dnal.fieldcopy.BeanUtilTests.Dest;
-import org.dnal.fieldcopy.BeanUtilTests.Source;
+import org.dnal.fieldcopy.FieldCopierTests.Dest;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
 
-public class DeeplyNestedListTests {
+public class DeeplyNestedListTests extends BaseTest {
 	
 	public static class Taxi {
 		private int width;
@@ -163,14 +163,6 @@ public class DeeplyNestedListTests {
 		}
 	}
 
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-	}
-	private void log(String s) {
-		System.out.println(s);
-	}
-	
 	private void chkDestListValue(int expected, int n1, int n2, List<Dest> list) {
 		assertEquals(expected, list.size());
 		

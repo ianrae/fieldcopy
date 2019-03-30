@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
@@ -21,8 +22,8 @@ public class ListStringTests extends BaseListTest {
 	
 	public static class MyStringToIntegerListConverter extends BaseListConverter {
 		@Override
-		public boolean canConvert(String srcFieldName, Class<?>srcClass, Class<?> destClass) {
-			return srcFieldName.equals("listString1");
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			return source.matches("listString1");
 		}
 
 		@Override
@@ -165,6 +166,53 @@ public class ListStringTests extends BaseListTest {
 		entity.setListString1(list);
 		copier.copy(entity, dto).withConverters(new ListColourTests.MyStringToColourListConverter()).field("listString1", "listColour1").execute();
 		chkColourListValue(2, Colour.RED, Colour.BLUE);
+	}
+	
+	//--array--
+	@Test
+	@Scope("String[]")
+	public void testToArrayString() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayString1").execute();
+		chkStringArrayValue(2, "44", "45");
+	}
+	@Test
+	@Scope("Integer[]")
+	public void testToArrayInt() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayInt1").execute();
+		chkIntArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("Date[]")
+	public void testToArrayDate() {
+		reset();
+		List<String> list = Arrays.asList("2015-12-25", "2016-12-25");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayDate1").execute();
+		
+		refDate1 = this.createDateNoHourMinue(2015, 12, 25);
+		refDate2 = this.createDateNoHourMinue(2016, 12, 25);
+		this.chkDateArrayValue(2, refDate1, refDate2);
+	}
+	@Test
+	@Scope("Long[]")
+	public void testToArrayLong() {
+		reset();
+		List<String> list = Arrays.asList("44", "45");
+		entity.setListString1(list);
+		copier.copy(entity, dto).field("listString1", "arrayLong1").execute();
+		chkLongArrayValue(2, 44, 45);
+	}
+	@Test
+	@Scope("Colour[]")
+	public void testToArrayColour() {
+		//not supported without a converter
+		copySrcFieldToFail(mainField, "arrayColour1", false);
 	}
 	
 	

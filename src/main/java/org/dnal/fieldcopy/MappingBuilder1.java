@@ -13,7 +13,7 @@ import org.dnal.fieldcopy.core.FieldPair;
  * @author Ian Rae
  *
  */
-public class MapBuilder1 {
+public class MappingBuilder1 {
 	private FieldCopier root;
 	private List<String> includeList;
 	private List<String> excludeList;
@@ -21,28 +21,28 @@ public class MapBuilder1 {
 	private Class<?> srcClass;
 	private Class<?> destClass;
 
-	public MapBuilder1(FieldCopier fieldCopierBuilder, Class<?> srcClass, Class<?> destClass) {
+	public MappingBuilder1(FieldCopier fieldCopierBuilder, Class<?> srcClass, Class<?> destClass) {
 		this.root = fieldCopierBuilder;
 		this.srcClass = srcClass;
 		this.destClass = destClass;
 	}
 
-	public MapBuilder1 include(String...fieldNames) {
+	public MappingBuilder1 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
-	public MapBuilder1 exclude(String...fieldNames) {
+	public MappingBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
 	
-	public MapBuilder1 autoCopy() {
+	public MappingBuilder1 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
 	}
 	
 	public FieldCopyMapping build() {
-		return doBuild(null, null);
+		return doBuild(null, null, null);
 	}
 	
 	
@@ -56,9 +56,10 @@ public class MapBuilder1 {
 	 * 
 	 * @param srcList
 	 * @param destList
+	 * @param defaultValueList 
 	 */
 	
-	FieldCopyMapping doBuild(List<String> srcList, List<String> destList) {
+	FieldCopyMapping doBuild(List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(srcClass, destClass);
 		
@@ -87,10 +88,12 @@ public class MapBuilder1 {
 			for(int i = 0; i < srcList.size(); i++) {
 				String srcField = srcList.get(i);
 				String destField = destList.get(i);
+				Object defaultValue = (defaultValueList == null) ? null : defaultValueList.get(i);
 				
 				FieldPair pair = new FieldPair();
 				pair.srcProp = findInPairs(srcField, fieldPairs);
 				pair.destFieldName = destField;
+				pair.defaultValue = defaultValue;
 				
 				fieldsToCopy.add(pair);
 			}
@@ -109,10 +112,14 @@ public class MapBuilder1 {
 		return null;
 	}
 
-	public MapBuilder2 field(String srcFieldName) {
-		return new MapBuilder2(this, srcFieldName, srcFieldName);
+	public MappingBuilder2 field(String srcFieldName) {
+		return new MappingBuilder2(this, srcFieldName, srcFieldName, null);
 	}
-	public MapBuilder2 field(String srcFieldName, String destFieldName) {
-		return new MapBuilder2(this, srcFieldName, destFieldName);
+	public MappingBuilder2 field(String srcFieldName, String destFieldName) {
+		return new MappingBuilder2(this, srcFieldName, destFieldName, null);
 	}
+	public MappingBuilder2 field(String srcFieldName, String destFieldName, Object defaultValue) {
+		return new MappingBuilder2(this, srcFieldName, destFieldName, defaultValue);
+	}
+	
 }

@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.scopetest;
 import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.scope.core.MyRunner;
@@ -22,8 +23,8 @@ public class EnumTests extends BaseScopeTest {
 	public static class MyConverter implements ValueConverter {
 
 		@Override
-		public boolean canConvert(String fieldName, Class<?>fieldClass, Class<?> targetClass) {
-			if (fieldClass.equals(Colour.class) && targetClass.equals(Province.class)) {
+		public boolean canConvert(FieldInfo source, FieldInfo dest) {
+			if (source.fieldClass.equals(Colour.class) && dest.fieldClass.equals(Province.class)) {
 				return true;
 			}
 			return false;

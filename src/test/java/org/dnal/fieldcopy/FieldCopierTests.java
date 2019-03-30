@@ -5,16 +5,12 @@ import static org.junit.Assert.assertSame;
 
 import java.util.List;
 
-import org.dnal.fieldcopy.CopyOptions;
-import org.dnal.fieldcopy.DefaultCopyFactory;
-import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.junit.Test;
 
-public class BeanUtilTests {
+public class FieldCopierTests extends BaseTest {
 	public static class Source {
 		private String name;
 		private int age;
@@ -205,24 +201,4 @@ public class BeanUtilTests {
 	}
 	
 	
-	//--
-	private FieldCopyService createCopyService() {
-		return DefaultCopyFactory.Factory().createCopyService();
-//		SimpleLogger logger = new SimpleConsoleLogger();
-//		FieldRegistry registry = new FieldRegistry();
-//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-//		return copySvc;
-	}
-	
-	private FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
-//		SimpleLogger logger = new SimpleConsoleLogger();
-//		FieldRegistry registry = new FieldRegistry();
-//		FieldCopyService copySvc = new FieldCopyService(logger, registry);
-//		FieldCopier builder = new FieldCopier(registry, copySvc, logger);
-//		return builder;
-	}
-
-
 }

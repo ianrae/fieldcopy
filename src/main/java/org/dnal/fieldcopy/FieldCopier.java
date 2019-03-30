@@ -3,6 +3,8 @@ package org.dnal.fieldcopy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dnal.fieldcopy.converter.ValueConverter;
+import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
@@ -23,7 +25,8 @@ public class FieldCopier {
 	Object sourceObj;
 	Object destObj;
 	CopyOptions options = new CopyOptions();
-
+	CopySpec mostRecentCopySpec; //for testing only
+	
 	public FieldCopier(FieldCopyService copier) {
 		this.copier = copier;
 	}
@@ -39,6 +42,10 @@ public class FieldCopier {
 		return new CopyBuilder1(this);
 	}
 	
+	public void addBuiltInConverter(ValueConverter converter) {
+		copier.addBuiltInConverter(converter);
+	}
+	
 	FieldCopyService getCopyService() {
 		return copier;
 	}
@@ -47,12 +54,12 @@ public class FieldCopier {
 		return options;
 	}
 	
-	public MapBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
-		return new MapBuilder1(this, srcClass, destClass);
+	public MappingBuilder1 createMapping(Class<?> srcClass, Class<?> destClass) {
+		return new MappingBuilder1(this, srcClass, destClass);
 	}
 	
 	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
-			 List<String> excludeList, List<String> srcList, List<String> destList) {
+			 List<String> excludeList, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
 		if (destObj == null) {
@@ -86,10 +93,12 @@ public class FieldCopier {
 			for(int i = 0; i < srcList.size(); i++) {
 				String srcField = srcList.get(i);
 				String destField = destList.get(i);
+				Object defaultValue = (defaultValueList == null) ? null : defaultValueList.get(i);
 				
 				FieldPair pair = new FieldPair();
 				pair.srcProp = findInPairs(srcField, fieldPairs);
 				pair.destFieldName = destField;
+				pair.defaultValue = defaultValue;
 				
 				fieldsToCopy.add(pair);
 			}
@@ -103,6 +112,10 @@ public class FieldCopier {
 			}
 		}
 		return null;
+	}
+
+	public CopySpec getMostRecentCopySpec() {
+		return mostRecentCopySpec;
 	}
 
 }

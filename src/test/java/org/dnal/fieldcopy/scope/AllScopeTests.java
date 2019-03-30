@@ -4,17 +4,23 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.MyScopeTestsBase;
 import org.dnal.fieldcopy.scope.core.ScopeResult;
 import org.dnal.fieldcopy.scope.core.ScopeTestRunResults;
+import org.dnal.fieldcopy.scopetest.ArrayColourTests;
+import org.dnal.fieldcopy.scopetest.ArrayDateTests;
+import org.dnal.fieldcopy.scopetest.ArrayIntegerTests;
+import org.dnal.fieldcopy.scopetest.ArrayLongTests;
+import org.dnal.fieldcopy.scopetest.ArrayStringTests;
 import org.dnal.fieldcopy.scopetest.BooleanTests;
 import org.dnal.fieldcopy.scopetest.DateTests;
 import org.dnal.fieldcopy.scopetest.DoubleTests;
 import org.dnal.fieldcopy.scopetest.EnumTests;
 import org.dnal.fieldcopy.scopetest.IntegerTests;
-import org.dnal.fieldcopy.scopetest.ListDateTests;
 import org.dnal.fieldcopy.scopetest.ListColourTests;
+import org.dnal.fieldcopy.scopetest.ListDateTests;
 import org.dnal.fieldcopy.scopetest.ListIntegerTests;
 import org.dnal.fieldcopy.scopetest.ListLongTests;
 import org.dnal.fieldcopy.scopetest.ListStringTests;
@@ -24,7 +30,7 @@ import org.junit.Test;
 import org.junit.internal.TextListener;
 import org.junit.runner.JUnitCore;
 
-public class AllScopeTests {
+public class AllScopeTests extends BaseTest {
 	
 	public static class MyScopeTests extends MyScopeTestsBase {
 		public MyScopeTests() {
@@ -33,6 +39,9 @@ public class AllScopeTests {
 			
 			this.allListTypes = Arrays.asList("List<String>", "List<Integer>", "List<Date>", 
 					"List<Long>", "List<Colour>");
+			
+			this.allArrayTypes = Arrays.asList("String[]", "Integer[]", "Date[]",
+					"Long[]", "Colour[]");
 		}
 		
 		@Override
@@ -51,6 +60,15 @@ public class AllScopeTests {
 				ensureHappenedList("null");
 				checkListType(listType);
 				checkListToListType(listType);
+				checkListToArrayType(listType);
+			}
+			
+			for(String arrayType: allArrayTypes) {
+				ensureHappenedArray("values");
+				ensureHappenedArray("null");
+				checkArrayType(arrayType);
+				checkArrayToArrayType(arrayType);
+				checkArrayToListType(arrayType);
 			}
 			
 			//checkListAll();
@@ -80,6 +98,46 @@ public class AllScopeTests {
 				addErrorIfFailed("checkListToListType", res, target, type);
 			}
 		}
+		protected void checkArrayToListType(String arrayType) {
+			for(String type: allListTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToListType", res, target, type);
+			}
+		}
+		
+		//--array
+		protected void ensureHappenedArray(String testName) {
+			for(String type: allArrayTypes) {
+				ScopeResult res = find(type, testName);
+				addErrorIfFailed("", res, type, testName);
+			}
+		}
+		protected void checkArrayType(String arrayType) {
+			for(String type: allTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayType", res, target, type);
+			}
+		}
+		protected void checkArrayToArrayType(String arrayType) {
+			for(String type: allArrayTypes) {
+				String target = String.format("%s:: %s", arrayType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToArrayListType", res, target, type);
+			}
+		}
+		protected void checkListToArrayType(String listType) {
+			for(String type: allArrayTypes) {
+				String target = String.format("%s:: %s", listType, type);
+				
+				ScopeResult res = findTarget(target);
+				addErrorIfFailed("checkArrayToArrayListType", res, target, type);
+			}
+		}
 	}
 	
 	//--
@@ -104,6 +162,12 @@ public class AllScopeTests {
 		runClass(ListDateTests.class);	
 		runClass(ListLongTests.class);	
 		runClass(ListColourTests.class);	
+		
+		runClass(ArrayColourTests.class);
+		runClass(ArrayDateTests.class);
+		runClass(ArrayIntegerTests.class);
+		runClass(ArrayLongTests.class);
+		runClass(ArrayStringTests.class);
 
 		afterRunning();
 	}
@@ -127,9 +191,5 @@ public class AllScopeTests {
 	private void runClass(Class<?> class1) {
 		junit.run(class1);	
 		allResults.executions.addAll(MyRunner.scopeResults.executions);
-	}
-
-	private static void log(String s) {
-		System.out.println(s);
 	}
 }
