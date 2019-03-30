@@ -30,7 +30,7 @@ public class ZConverterService {
 	}
 
 	// List -> List
-	public void addListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -38,10 +38,6 @@ public class ZConverterService {
 		Class<?> destFieldClass = fd2.pd.getPropertyType();
 		if (Collection.class.isAssignableFrom(srcFieldClass) && 
 				Collection.class.isAssignableFrom(destFieldClass)) {
-			
-			if (classPlan.converterL == null) {
-				classPlan.converterL = new ArrayList<>();
-			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(classPlan.srcClass, fd1);
 			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destClass, fd2);
@@ -52,8 +48,9 @@ public class ZConverterService {
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			if (matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass)) {
-				return;
+			ValueConverter conv = matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass);
+			if (conv != null) {
+				return conv;
 			}
 			
 			//add one
@@ -65,22 +62,19 @@ public class ZConverterService {
 			}
 			converter.setDepth(listSpec1.depth);
 			classPlan.converterL.add(converter);
-			fieldPlan.converter = converter;
+			return converter;
 		}
+		return null;
 	}
 	
 	// Array -> List
-	public void addArrayListConverterIfNeeded(FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
 		Class<?> srcFieldClass = fd1.pd.getPropertyType();
 		Class<?> destFieldClass = fd2.pd.getPropertyType();
 		if (srcFieldClass.isArray() && Collection.class.isAssignableFrom(destFieldClass)) {
-			
-			if (classPlan.converterL == null) {
-				classPlan.converterL = new ArrayList<>();
-			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(classPlan.srcClass, fd1);
 			ListSpec listSpec2 = ReflectionUtil.buildListSpec(destClass, fd2);
@@ -91,8 +85,9 @@ public class ZConverterService {
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			if (matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass)) {
-				return;
+			ValueConverter conv = matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass);
+			if (conv != null) {
+				return conv;
 			}
 			
 			//add one
@@ -105,21 +100,19 @@ public class ZConverterService {
 			converter.setDepth(listSpec1.depth);
 			converter.setSourceIsArray(true);
 			classPlan.converterL.add(converter);
+			return converter;
 		}
+		return null;
 	}
 	
 	// Array -> Array
-	public void addArrayConverterIfNeeded(FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
 		Class<?> srcFieldClass = fd1.pd.getPropertyType();
 		Class<?> destFieldClass = fd2.pd.getPropertyType();
 		if (srcFieldClass.isArray() && destFieldClass.isArray()) { 
-			
-			if (classPlan.converterL == null) {
-				classPlan.converterL = new ArrayList<>();
-			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(classPlan.srcClass, fd1);
 			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destClass, fd2);
@@ -130,8 +123,9 @@ public class ZConverterService {
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			if (matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass)) {
-				return;
+			ValueConverter conv = matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass);
+			if (conv != null) {
+				return conv;
 			}
 			
 			//add one
@@ -143,21 +137,19 @@ public class ZConverterService {
 			}
 			converter.setDepth(listSpec1.depth);
 			classPlan.converterL.add(converter);
+			return converter;
 		}
+		return null;
 	}
 
 	// List -> Array
-	public void addListArrayConverterIfNeeded(FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListArrayConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
 		Class<?> srcFieldClass = fd1.pd.getPropertyType();
 		Class<?> destFieldClass = fd2.pd.getPropertyType();
 		if (Collection.class.isAssignableFrom(srcFieldClass) && destFieldClass.isArray()) { 
-			
-			if (classPlan.converterL == null) {
-				classPlan.converterL = new ArrayList<>();
-			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(classPlan.srcClass, fd1);
 			ListSpec listSpec2 = ReflectionUtil.buildArraySpec(destClass, fd2);
@@ -168,8 +160,9 @@ public class ZConverterService {
 
 			Class<?> srcElementClass = listSpec1.elementClass;
 			Class<?> destElementClass = listSpec2.elementClass;
-			if (matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass)) {
-				return;
+			ValueConverter conv = matchingConverterAlreadyExists(classPlan, pair, srcElementClass, destElementClass);
+			if (conv != null) {
+				return conv;
 			}
 			
 			//add one
@@ -182,10 +175,12 @@ public class ZConverterService {
 			converter.setDepth(listSpec1.depth);
 			converter.setSourceIsList(true);
 			classPlan.converterL.add(converter);
+			return converter;
 		}
+		return null;
 	}
 	
-	private boolean matchingConverterAlreadyExists(ZClassPlan classPlan, FieldPair pair, Class<?> srcElementClass, Class<?> destElementClass) {
+	private ValueConverter matchingConverterAlreadyExists(ZClassPlan classPlan, FieldPair pair, Class<?> srcElementClass, Class<?> destElementClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 	
@@ -203,7 +198,7 @@ public class ZConverterService {
 			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 			if (converter.canConvert(sourceField, destField)) {
 				//if already is a converter, nothing more to do
-				return true;
+				return converter;
 			}
 		}
 
@@ -213,11 +208,11 @@ public class ZConverterService {
 			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 			if (converter.canConvert(sourceField, destField)) {
 				//if already is a converter, nothing more to do
-				return true;
+				return converter;
 			}
 		}
 		
-		return false;
+		return null;
 	}
 
 	private void throwDepthError(String title, BeanUtilsFieldDescriptor fd1, ListSpec listSpec1, BeanUtilsFieldDescriptor fd2,

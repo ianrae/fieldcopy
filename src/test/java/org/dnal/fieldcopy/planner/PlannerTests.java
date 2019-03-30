@@ -220,10 +220,7 @@ public class PlannerTests extends BaseTest {
 	            	validateIsAllowed(pair);
 	            	
         			//handle list, array, list to array, and viceversa
-            		converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
-            		converterSvc.addArrayListConverterIfNeeded(pair, classPlan, classPlan.destClass);
-            		converterSvc.addArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
-            		converterSvc.addListArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
+	            	fieldPlan.converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
 	            	
 	            	//add converter if one matches
             		if (fieldPlan.converter == null) {
@@ -236,6 +233,30 @@ public class PlannerTests extends BaseTest {
 			return classPlan;
 		}
 		
+		private ValueConverter findOrCreateCollectionConverter(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan) {
+			if (classPlan.converterL == null) {
+				classPlan.converterL = new ArrayList<>();
+			}
+			
+        	ValueConverter converter = converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+        	if (converter != null) {
+        		return converter;
+        	}
+    		converter = converterSvc.addArrayListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+        	if (converter != null) {
+        		return converter;
+        	}
+    		converter = converterSvc.addArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+        	if (converter != null) {
+        		return converter;
+        	}
+    		converter = converterSvc.addListArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+        	if (converter != null) {
+        		return converter;
+        	}
+        	return null;
+		}
+
 		private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
             Class<?> destType = pair.getDestClass();
     		
@@ -323,7 +344,7 @@ public class PlannerTests extends BaseTest {
 					ConverterContext ctx = new ConverterContext();
 					ctx.destClass = destClass;
 					ctx.srcClass = srcClass;
-					//ctx.copySvc = outerSvc;
+					ctx.copySvc = this;
 					ctx.copyOptions = execPlan.copySpec.options;
 					ctx.beanDetectorSvc = this.beanDetectorSvc;
 					//addConverterAndMappingLists(ctx, spec);
@@ -633,7 +654,7 @@ public class PlannerTests extends BaseTest {
 		
 		
 		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
-		assertEquals(1, plannerSvc.getPlanCacheSize());
+		assertEquals(2, plannerSvc.getPlanCacheSize());
 		ZClassPlan plan = plannerSvc.findPlan(Holder.class.getName());
 		assertEquals(1, plan.converterL.size());
 	}
