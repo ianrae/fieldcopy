@@ -8,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.BaseTest;
-import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopyFactory;
@@ -25,6 +26,7 @@ import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.ConverterService;
 import org.junit.Test;
 
 /**
@@ -55,6 +57,7 @@ public class PlannerTests extends BaseTest {
 		public Class<?> srcClass;
 		public Class<?> destClass;
 		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
+		public List<ValueConverter> converterL = new ArrayList<>();
 	}
 	public static class ZFieldPlan {
 		public FieldDescriptor srcFd;
@@ -84,15 +87,17 @@ public class PlannerTests extends BaseTest {
 		public ZClassPlan classPlan;
 		public boolean inConverter; //used to make better error messages
 		public String currentFieldName;
-		public CopyOptions options;
+		public CopySpec copySpec;
 	}
 	
 	public static class PlannerService extends PlannerServiceBase {
 		private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
 		private boolean enablePlanCache = true;
+		private ConverterService converterSvc;
 
 		public PlannerService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			super(logger, registry, fieldFilter);
+			this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
 		}
 		
 		public int getPlanCacheSize() {
@@ -123,7 +128,7 @@ public class PlannerTests extends BaseTest {
 				execPlan.srcObject = sourceObj;
 				execPlan.destObj = destObj;
 				execPlan.classPlan = classPlan;
-				execPlan.options = copySpec.options;
+				execPlan.copySpec = copySpec;
 				// do we have anything to propogate?
 				//propogateStuff(execSpec, copySpec);
 				
@@ -148,7 +153,7 @@ public class PlannerTests extends BaseTest {
 			
 			if (classPlan == null) {
 				try {
-					classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
+					classPlan = buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs, copySpec);
 				} catch (Exception e) {
 					//throw FCException with inner !!!!!!!!!!!!!
 					// TODO Auto-generated catch block
@@ -162,7 +167,7 @@ public class PlannerTests extends BaseTest {
 			return classPlan;
 		}
 
-		private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs) throws Exception {
+		private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec) throws Exception {
 			logger.log("BUILDPLAN!");
 			if (srcObj == null) {
 				String error = String.format("buildClassPlan. srcObj is NULL");
@@ -173,6 +178,9 @@ public class PlannerTests extends BaseTest {
 			ZClassPlan classPlan = new ZClassPlan();
 			classPlan.srcClass = srcClass;
 			classPlan.destClass = destClass;
+			if (CollectionUtils.isNotEmpty(copySpec.converterL)) {
+				classPlan.converterL.addAll(copySpec.converterL);
+			}
 
 			for(FieldPair pair: fieldPairs) {
 				final FieldDescriptor origDescriptor = pair.srcProp;
@@ -202,7 +210,7 @@ public class PlannerTests extends BaseTest {
 	            		fieldPlan.lazySubPlanFlag = true; //do later if this field is ever non-null
 	            	} else {
 	            		//recursively generate plan
-	            		fieldPlan.subPlan = doCreateSubPlan(pair, srcType, srcFieldValue); //**recursion**
+	            		fieldPlan.subPlan = doCreateSubPlan(copySpec, pair, srcType, srcFieldValue); //**recursion**
 	            	}
 	            } else {
         			//handle list
@@ -210,6 +218,7 @@ public class PlannerTests extends BaseTest {
         			//handle list to array, and viceversa
         			validateIsAllowed(pair);
 	            	//add converter if one matches
+        			fieldPlan.converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
 	            }
 	            classPlan.fieldPlanL.add(fieldPlan);
 			}
@@ -217,12 +226,12 @@ public class PlannerTests extends BaseTest {
 			return classPlan;
 		}
 		
-		private ZClassPlan doCreateSubPlan(FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
+		private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
             Class<?> destType = pair.getDestClass();
     		
             //!!look if client passed in mapping
             List<FieldPair> subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
-    		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs);
+    		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec);
 		}
 
 		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
@@ -268,7 +277,7 @@ public class PlannerTests extends BaseTest {
 		
 		
 		private boolean executePlan(ZExecPlan execPlan, int runawayCounter)  {
-			if (runawayCounter > execPlan.options.maxRecursionDepth) {
+			if (runawayCounter > execPlan.copySpec.options.maxRecursionDepth) {
 			String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
 			throw new FieldCopyException(error);
 		}
@@ -305,11 +314,11 @@ public class PlannerTests extends BaseTest {
 					ctx.destClass = destClass;
 					ctx.srcClass = srcClass;
 					//ctx.copySvc = outerSvc;
-					//ctx.copyOptions = spec.options;
+					ctx.copyOptions = execPlan.copySpec.options;
 					ctx.beanDetectorSvc = this.beanDetectorSvc;
 					//addConverterAndMappingLists(ctx, spec);
 					execPlan.inConverter = true;
-					//value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
+					value = fieldPlan.converter.convertValue(execPlan.srcObject, value, ctx);
 					execPlan.inConverter = false;
 				}
 				
@@ -324,7 +333,7 @@ public class PlannerTests extends BaseTest {
 					pair.destProp = fieldPlan.destFd;
 					pair.srcProp = fieldPlan.srcFd;
 					logger.log("lazy-generate-plan %s", pair.destFieldName);
-					fieldPlan.subPlan = doCreateSubPlan(pair, srcClass, value);
+					fieldPlan.subPlan = doCreateSubPlan(execPlan.copySpec, pair, srcClass, value);
 					if (fieldPlan.subPlan != null) {
 						fieldPlan.lazySubPlanFlag = false;
 					}
@@ -334,7 +343,7 @@ public class PlannerTests extends BaseTest {
 					ZExecPlan subexec = new ZExecPlan();
 					subexec.srcObject= value;
 					subexec.classPlan = fieldPlan.subPlan;
-					subexec.options = execPlan.options;
+					subexec.copySpec = execPlan.copySpec;
 					
 					//use the mapping, which has fields, autocopy flag etc
 					String destFieldName = fieldPlan.destFd.getName();
@@ -563,6 +572,35 @@ public class PlannerTests extends BaseTest {
 		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
 		assertEquals(1, plannerSvc.getPlanCacheSize());
 	}
+	
+	@Test
+	public void testConverter() {
+		A src = new A("bob", "smith");
+		B bval = new B("toronto");
+		src.setbVal(bval);
+		ADTO dest = new ADTO();
+		MyConverter1 conv = new MyConverter1();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+	
+		assertEquals("BOB", dest.getName1());
+		assertEquals("SMITH", dest.getName2());
+		assertEquals("TORONTO", dest.getbVal().getTitle());
+		
+		log("again..");
+		src = new A("BOB", "smith");
+		bval = new B("toronto");
+		src.setbVal(bval);
+		dest = new ADTO();
+		
+		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
+	
+		assertEquals("BOB", dest.getName1());
+		assertEquals("SMITH", dest.getName2());
+		assertEquals("TORONTO", dest.getbVal().getTitle());
+	}
+	
 
 	@Override
 	protected FieldCopier createCopier() {
