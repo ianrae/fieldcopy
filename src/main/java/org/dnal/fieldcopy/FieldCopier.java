@@ -46,7 +46,7 @@ public class FieldCopier {
 		copier.addBuiltInConverter(converter);
 	}
 	
-	FieldCopyService getCopyService() {
+	public FieldCopyService getCopyService() {
 		return copier;
 	}
 

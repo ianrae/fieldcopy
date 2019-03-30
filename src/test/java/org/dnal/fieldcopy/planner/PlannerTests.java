@@ -6,6 +6,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultCopyFactory;
@@ -85,9 +87,15 @@ public class PlannerTests extends BaseTest {
 	}
 	
 	public static class PlannerService extends PlannerServiceBase {
-		
+		private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
+		private boolean enablePlanCache = true;
+
 		public PlannerService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			super(logger, registry, fieldFilter);
+		}
+		
+		public int getPlanCacheSize() {
+			return executionPlanMap.size();
 		}
 		
 		@Override
@@ -109,8 +117,32 @@ public class PlannerTests extends BaseTest {
 //				throw new FieldCopyException(error);
 //			}
 			
+			if (copySpec.executionPlanCacheKey == null) {
+				copySpec.executionPlanCacheKey = generateExecutionPlanCacheKey(copySpec);
+			}
+			ZClassPlan classPlan = executionPlanMap.get(copySpec.executionPlanCacheKey);
+			if (! enablePlanCache) {
+				classPlan = null;
+			}
+			if (classPlan == null) {
+				try {
+					classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (! enablePlanCache) {
+					executionPlanMap.put(copySpec.executionPlanCacheKey, classPlan);
+				}
+			} else {
+				// do we have anything to propogate?
+				//propogateStuff(execSpec, copySpec);
+			}
+			
 			try {
-				ZClassPlan classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
+				logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
+						copySpec.destObj.getClass(), classPlan.fieldPlanL.size());
 				ZExecPlan execPlan = new ZExecPlan();
 				execPlan.srcObject = sourceObj;
 				execPlan.destObj = destObj;
@@ -362,6 +394,14 @@ public class PlannerTests extends BaseTest {
 				return s;
 			}
 		}
+
+		public boolean isEnablePlanCache() {
+			return enablePlanCache;
+		}
+
+		public void setEnablePlanCache(boolean enablePlanCache) {
+			this.enablePlanCache = enablePlanCache;
+		}
 		
 		
 	}
@@ -555,6 +595,9 @@ public class PlannerTests extends BaseTest {
 		assertEquals("bob", dest.getName1());
 		assertEquals("smith", dest.getName2());
 		assertEquals("toronto", dest.getbVal().getTitle());
+		
+		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
+		assertEquals(1, plannerSvc.getPlanCacheSize());
 	}
 
 	@Override
