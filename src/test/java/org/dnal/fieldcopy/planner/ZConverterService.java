@@ -7,8 +7,6 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.converter.ArrayElementConverter;
 import org.dnal.fieldcopy.converter.FieldInfo;
-import org.dnal.fieldcopy.converter.ListElementConverter;
-import org.dnal.fieldcopy.converter.ListElementConverterFactory;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
@@ -21,12 +19,12 @@ import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
 
 public class ZConverterService {
 	private SimpleLogger logger;
-	private ListElementConverterFactory converterFactory;
+	private ZListElementConverterFactory converterFactory;
 	private List<ValueConverter> builtInConverterL = new ArrayList<>();
 	
 	public ZConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc) {
 		this.logger = logger;
-		this.converterFactory = new ListElementConverterFactory();
+		this.converterFactory = new ZListElementConverterFactory();
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);
 	}
 
@@ -59,7 +57,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			ZListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -97,7 +95,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			ZListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
