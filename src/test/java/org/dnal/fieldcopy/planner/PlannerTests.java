@@ -284,6 +284,7 @@ public class PlannerTests extends BaseTest {
 					pair.destFieldName = fieldPlan.destFd.getName();
 					pair.destProp = fieldPlan.destFd;
 					pair.srcProp = fieldPlan.srcFd;
+					logger.log("lazy-gen %s", pair.destFieldName);
 					ZClassPlan ff = createSubPlan1(pair, srcClass, value);
 					
 					if (ff != null) {
@@ -534,6 +535,18 @@ public class PlannerTests extends BaseTest {
 		log("again..");
 		src = new A("bob", "smith");
 		B bval = new B("toronto");
+		src.setbVal(bval);
+		dest = new ADTO();
+		
+		copier.copy(src, dest).autoCopy().execute();
+	
+		assertEquals("bob", dest.getName1());
+		assertEquals("smith", dest.getName2());
+		assertEquals("toronto", dest.getbVal().getTitle());
+		
+		log("again2..");
+		src = new A("bob", "smith");
+		bval = new B("toronto");
 		src.setbVal(bval);
 		dest = new ADTO();
 		
