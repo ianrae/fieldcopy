@@ -110,10 +110,8 @@ public abstract class PlannerServiceBase implements FieldCopyService {
 	 * @return null if allowed, else class that we are NOT allowed to copy to
 	 */
 	private Class<?> isNotAllowed(FieldPair pair) {
-		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
-		Class<?> srcType = fd1.pd.getPropertyType();
-		BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
-		Class<?> type = desc.pd.getPropertyType();
+		Class<?> srcType = pair.getSrcClass();
+		Class<?> type = pair.getDestClass();
 		
 		if (Number.class.isAssignableFrom(srcType) || isNumberPrimitive(srcType)) {
 			if (Boolean.class.equals(type) || Boolean.TYPE.equals(type)) {			

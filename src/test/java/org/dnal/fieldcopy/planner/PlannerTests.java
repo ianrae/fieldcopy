@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.planner;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +12,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.FieldCopierTests.Source;
+import org.dnal.fieldcopy.ListTests.Holder;
+import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
@@ -94,6 +98,14 @@ public class PlannerTests extends BaseTest {
 		
 		public int getPlanCacheSize() {
 			return executionPlanMap.size();
+		}
+		public ZClassPlan findPlan(String srcClassName) {
+			for(String key: executionPlanMap.keySet()) {
+				if (key.contains(srcClassName)) {
+					return executionPlanMap.get(key);
+				}
+			}
+			return null;
 		}
 		
 		@Override
@@ -205,16 +217,14 @@ public class PlannerTests extends BaseTest {
 	            		fieldPlan.subPlan = doCreateSubPlan(copySpec, pair, srcType, srcFieldValue); //**recursion**
 	            	}
 	            } else {
-        			//handle list
-        			//handle array
-        			//handle list to array, and viceversa
+	            	validateIsAllowed(pair);
+	            	
+        			//handle list, array, list to array, and viceversa
             		converterSvc.addListConverterIfNeeded(pair, classPlan, classPlan.destClass);
             		converterSvc.addArrayListConverterIfNeeded(pair, classPlan, classPlan.destClass);
             		converterSvc.addArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
             		converterSvc.addListArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
 	            	
-	            	
-        			validateIsAllowed(pair);
 	            	//add converter if one matches
         			fieldPlan.converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
 	            }
@@ -598,6 +608,34 @@ public class PlannerTests extends BaseTest {
 		assertEquals("SMITH", dest.getName2());
 		assertEquals("TORONTO", dest.getbVal().getTitle());
 	}
+	
+	@Test
+	public void testList() {
+		Source src = new Source("bob", 33);
+		Holder holder = new Holder();
+		holder.setWidth(55);
+		
+		List<Source> list = new ArrayList<>();
+		list.add(src);
+		holder.setListSource1(list);
+		
+		HolderDest holder2 = new HolderDest();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(holder, holder2).autoCopy().execute();
+		assertEquals(55, holder2.getWidth());
+		assertEquals(1, holder2.getListSource1().size());
+		
+		//TODO: fix class cast exception. we need a way to run mapper
+//		Des?St dest = holder2.getListSource1().get(0);
+		
+		
+		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
+		assertEquals(1, plannerSvc.getPlanCacheSize());
+		ZClassPlan plan = plannerSvc.findPlan(Holder.class.getName());
+		assertEquals(1, plan.converterL.size());
+	}
+	
 	
 
 	@Override
