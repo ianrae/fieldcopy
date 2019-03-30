@@ -220,13 +220,15 @@ public class PlannerTests extends BaseTest {
 	            	validateIsAllowed(pair);
 	            	
         			//handle list, array, list to array, and viceversa
-            		converterSvc.addListConverterIfNeeded(pair, classPlan, classPlan.destClass);
+            		converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
             		converterSvc.addArrayListConverterIfNeeded(pair, classPlan, classPlan.destClass);
             		converterSvc.addArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
             		converterSvc.addListArrayConverterIfNeeded(pair, classPlan, classPlan.destClass);
 	            	
 	            	//add converter if one matches
-        			fieldPlan.converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
+            		if (fieldPlan.converter == null) {
+            			fieldPlan.converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
+            		}
 	            }
 	            classPlan.fieldPlanL.add(fieldPlan);
 			}

@@ -8,7 +8,6 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
-import org.dnal.fieldcopy.core.BeanDetectorService;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
 

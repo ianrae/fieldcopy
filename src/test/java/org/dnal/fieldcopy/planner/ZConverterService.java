@@ -12,6 +12,7 @@ import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.planner.PlannerTests.ZFieldPlan;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.ListSpec;
@@ -29,7 +30,7 @@ public class ZConverterService {
 	}
 
 	// List -> List
-	public void addListConverterIfNeeded(FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public void addListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -64,6 +65,7 @@ public class ZConverterService {
 			}
 			converter.setDepth(listSpec1.depth);
 			classPlan.converterL.add(converter);
+			fieldPlan.converter = converter;
 		}
 	}
 	
