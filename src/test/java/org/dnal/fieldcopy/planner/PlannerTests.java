@@ -64,6 +64,17 @@ public class PlannerTests extends BaseTest {
 		public ZClassPlan subPlan; //null if not-bean
 		//public boolean directMode; //later when we support plan backoff
 		public boolean lazySubPlanFlag = false; 
+
+		public Class<?> getSrcClass() {
+			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) srcFd;
+			Class<?> srcClass = fd1.pd.getPropertyType();
+			return srcClass;
+		}
+		public Class<?> getDestClass() {
+			BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) destFd;
+			Class<?> destClass = fd2.pd.getPropertyType();
+			return destClass;
+		}
 	}
 	public static class ZExecPlan {
 		public Object srcObject;
@@ -147,21 +158,16 @@ public class PlannerTests extends BaseTest {
 	            fieldPlan.srcFd = origDescriptor;
 	            fieldPlan.destFd = pair.destProp;
 	            
-	            BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
-	            Class<?> srcType = fd1.pd.getPropertyType();
+	            Class<?> srcType = pair.getSrcClass();
 
 	            if (beanDetectorSvc.isBeanClass(srcType)) {
 	            	Object srcFieldValue = propertyUtils.getSimpleProperty(srcObj, name);
 	            	if (srcFieldValue == null) {
+	            		logger.log("lazy on field: %s", name);
 	            		fieldPlan.lazySubPlanFlag = true; //do later if this field is ever non-null
 	            	} else {
 	            		//recursively generate plan
-	    	            BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
-	    	            Class<?> destType = fd2.pd.getPropertyType();
-	            		
-	    	            //!!look if client passed in mapping
-	    	            List<FieldPair> subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
-	            		fieldPlan.subPlan = buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs);
+	            		fieldPlan.subPlan = createSubPlan1(pair, srcType, srcFieldValue);
 	            	}
 	            } else {
         			//handle list
@@ -177,6 +183,14 @@ public class PlannerTests extends BaseTest {
 		}
 		
 		
+		private ZClassPlan createSubPlan1(FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
+            Class<?> destType = pair.getDestClass();
+    		
+            //!!look if client passed in mapping
+            List<FieldPair> subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
+    		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs);
+		}
+
 		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
 			if (pair.destProp != null) {
 				return;
@@ -243,13 +257,10 @@ public class PlannerTests extends BaseTest {
 	    		Object value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
 	    		
 	    		logger.log("  field %s: %s", name, getLoggableString(value));
+	    		Class<?> srcClass = fieldPlan.getSrcClass();
 	    		
 				if (fieldPlan.converter != null) {
-					BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.destFd;
-					Class<?> destClass = fd2.pd.getPropertyType();
-
-					BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) fieldPlan.srcFd;
-					Class<?> srcClass = fd1.pd.getPropertyType();
+					Class<?> destClass = fieldPlan.getDestClass();
 					
 					ConverterContext ctx = new ConverterContext();
 					ctx.destClass = destClass;
@@ -267,8 +278,14 @@ public class PlannerTests extends BaseTest {
 					value = fieldPlan.defaultValue;
 				}
 				
-				if (fieldPlan.lazySubPlanFlag) {
-					ZClassPlan ff = null; //createSubPlan();
+				if (fieldPlan.lazySubPlanFlag && value != null) {
+					FieldPair pair = new FieldPair();
+					pair.defaultValue = fieldPlan.defaultValue;
+					pair.destFieldName = fieldPlan.destFd.getName();
+					pair.destProp = fieldPlan.destFd;
+					pair.srcProp = fieldPlan.srcFd;
+					ZClassPlan ff = createSubPlan1(pair, srcClass, value);
+					
 					if (ff != null) {
 						fieldPlan.subPlan = ff;
 						fieldPlan.lazySubPlanFlag = false;
@@ -483,6 +500,43 @@ public class PlannerTests extends BaseTest {
 		ADTO dest = new ADTO();
 		
 		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+	
+		assertEquals("bob", dest.getName1());
+		assertEquals("smith", dest.getName2());
+		assertEquals("toronto", dest.getbVal().getTitle());
+		
+		log("again..");
+		src = new A("bob", "smith");
+		bval = new B("toronto");
+		src.setbVal(bval);
+		dest = new ADTO();
+		
+		copier.copy(src, dest).autoCopy().execute();
+	
+		assertEquals("bob", dest.getName1());
+		assertEquals("smith", dest.getName2());
+		assertEquals("toronto", dest.getbVal().getTitle());
+	}
+	
+	@Test
+	public void testSubPlanLazy() {
+		A src = new A("bob", "smith");
+		ADTO dest = new ADTO();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+	
+		assertEquals("bob", dest.getName1());
+		assertEquals("smith", dest.getName2());
+		assertEquals(null, dest.getbVal());
+		
+		log("again..");
+		src = new A("bob", "smith");
+		B bval = new B("toronto");
+		src.setbVal(bval);
+		dest = new ADTO();
+		
 		copier.copy(src, dest).autoCopy().execute();
 	
 		assertEquals("bob", dest.getName1());
