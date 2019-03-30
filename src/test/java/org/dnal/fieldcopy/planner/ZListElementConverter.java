@@ -106,6 +106,7 @@ public class ZListElementConverter implements ValueConverter {
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
 		spec.converterL = ctx.converterL;
+		spec.runawayCounter = ctx.runawayCounter;
 
 		//list elements may be different classes (eg. List<Shape> and Circle, Square, ...)
 		List<Object> list2 = new ArrayList<>();
@@ -113,7 +114,6 @@ public class ZListElementConverter implements ValueConverter {
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
 			ctx.copySvc.copyFields(spec);
-			//TODO add runawayCounter to copyFields(spec, 1)
 			
 			list2.add(spec.destObj);
 		}

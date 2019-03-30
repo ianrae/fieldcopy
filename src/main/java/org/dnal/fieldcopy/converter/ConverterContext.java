@@ -24,6 +24,7 @@ public class ConverterContext {
 	public List<FieldCopyMapping> mappingL;
 	public List<ValueConverter> converterL;
 	public BeanDetectorService beanDetectorSvc;
+	public int runawayCounter;
 	
 	/**
 	 * Create a copy spec for copying the given clazz1 to clazz2

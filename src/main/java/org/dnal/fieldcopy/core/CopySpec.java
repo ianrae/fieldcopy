@@ -14,4 +14,5 @@ public class CopySpec {
 		public CopyOptions options;
 		public List<ValueConverter> converterL;
 		public String executionPlanCacheKey;
+		public int runawayCounter = 1;
 }

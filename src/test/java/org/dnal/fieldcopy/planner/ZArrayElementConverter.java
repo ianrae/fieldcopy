@@ -100,6 +100,7 @@ public class ZArrayElementConverter implements ValueConverter {
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
 		spec.converterL = ctx.converterL;
+		spec.runawayCounter = ctx.runawayCounter;
 
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);

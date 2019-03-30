@@ -136,7 +136,7 @@ public class PlannerTests extends BaseTest {
 				//TODO anything else to propagate?
 				//propogateStuff(execSpec, copySpec);
 				
-				this.executePlan(execPlan, 1);
+				this.executePlan(execPlan, copySpec.runawayCounter);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -347,6 +347,7 @@ public class PlannerTests extends BaseTest {
 					ctx.copySvc = this;
 					ctx.copyOptions = execPlan.copySpec.options;
 					ctx.beanDetectorSvc = this.beanDetectorSvc;
+					ctx.runawayCounter = runawayCounter;
 					//addConverterAndMappingLists(ctx, spec);
 					execPlan.inConverter = true;
 					value = fieldPlan.converter.convertValue(execPlan.srcObject, value, ctx);
