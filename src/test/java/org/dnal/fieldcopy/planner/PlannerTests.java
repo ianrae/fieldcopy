@@ -14,17 +14,18 @@ import org.apache.commons.beanutils.converters.DateConverter;
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.FieldCopierTests.Dest;
-import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.junit.Test;
 
@@ -52,6 +53,20 @@ import org.junit.Test;
  */
 public class PlannerTests extends BaseTest {
 	
+	public static class ZClassPlan {
+		public Class<?> srcClass;
+		public Class<?> destClass;
+		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
+	}
+	public static class ZFieldPlan {
+		public FieldDescriptor srcFd;
+		public FieldDescriptor destFd;
+		public ValueConverter conv;
+		public ZClassPlan subPlan; //null if not-bean
+		//public boolean directMode; //later when we support plan backoff
+		public boolean lazySubPlanFlag = false; 
+	}
+	
 	public static class PlannerSvc implements FieldCopyService {
 		
 		private SimpleLogger logger;
@@ -59,6 +74,7 @@ public class PlannerTests extends BaseTest {
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
 		private FieldFilter fieldFilter;
+		private BeanUtilsBeanDetectorService beanDetectorSvc;
 
 		public PlannerSvc(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
@@ -66,6 +82,7 @@ public class PlannerTests extends BaseTest {
 			this.beanUtil =  BeanUtilsBean.getInstance();
 			this.propertyUtils =  new PropertyUtilsBean();
 			this.fieldFilter = fieldFilter;
+			this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
 			
 			//customize Date converter.  There is no good defaut for date conversions
 			//so well just do yyyy-MM-dd
@@ -122,9 +139,90 @@ public class PlannerTests extends BaseTest {
 
 		@Override
 		public void copyFields(CopySpec copySpec) {
-			// TODO Auto-generated method stub
+			logger.log("PLAN!");
+			Object sourceObj = copySpec.sourceObj;
+			Object destObj = copySpec.destObj;
+
+			if (sourceObj == null) {
+				String error = String.format("copyFields. NULL passed to sourceObj");
+				throw new FieldCopyException(error);
+			}
+			if (destObj == null) {
+				String error = String.format("copyFields. NULL passed to destObj.");
+				throw new FieldCopyException(error);
+			}
+//			if (runawayCounter > options.maxRecursionDepth) {
+//				String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
+//				throw new FieldCopyException(error);
+//			}
 			
+			
+			for(FieldPair pair: copySpec.fieldPairs) {
+	            final FieldDescriptor origDescriptor = pair.srcProp;
+	            final String name = origDescriptor.getName();
+	            
+	            if (propertyUtils.isReadable(sourceObj, name) &&
+	            		propertyUtils.isWriteable(destObj, pair.destFieldName)) {
+	            	try {
+	            		fillInDestPropIfNeeded(pair, destObj.getClass());
+	            		
+	            		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+	            		Class<?> srcType = fd1.pd.getPropertyType();
+	            		
+	            		if (beanDetectorSvc.isBeanClass(srcType)) {
+	            			
+	            		} else {
+	            			
+	            		}
+	            		
+//	            		
+//	            		converterSvc.addListConverterIfNeeded(pair, copySpec, destObj.getClass());
+//	            		converterSvc.addArrayListConverterIfNeeded(pair, copySpec, destObj.getClass());
+//	            		converterSvc.addArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
+//	            		converterSvc.addListArrayConverterIfNeeded(pair, copySpec, destObj.getClass());
+	            		
+//	            		//a mapping is an explicit set of instructions for copying sub-objects (i.e. sub-beans)
+//	            		FieldCopyMapping mapping = findOrGenerateMapping(pair, mappingL, outerSvc, copySpec);
+//	            		if (mapping != null) {
+//	            			FieldPlan fspec = new FieldPlan();
+//	            			fspec.pair = pair;
+//	            			fspec.mapping = mapping;
+//	            			execspec.fieldL.add(fspec);
+//	            		} else {
+//	            			validateIsAllowed(pair);
+//	            			
+//	            			FieldPlan fspec = new FieldPlan();
+//	            			fspec.pair = pair;
+//	            			fspec.converter = converterSvc.findConverter(copySpec, pair, orig, copySpec.converterL);
+//	            			execspec.fieldL.add(fspec);
+//	            		}
+	            		
+	            	} catch (final Exception e) { //was NoSuchMethodException
+	            		// Should not happen
+	            	}
+	            }
+			}
 		}
+		
+		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
+			if (pair.destProp != null) {
+				return;
+			}
+	        final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+			
+	        for (int i = 0; i < arDest.length; i++) {
+	        	PropertyDescriptor pd = arDest[i];
+	        	if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+	        		continue; // No point in trying to set an object's class
+	            }
+
+	        	if (pd.getName().equals(pair.destFieldName)) {
+	        		pair.destProp = new BeanUtilsFieldDescriptor(pd);
+	        		return;
+	        	}
+	        }
+		}
+		
 
 		@Override
 		public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
@@ -244,6 +342,8 @@ public class PlannerTests extends BaseTest {
 	@Override
 	protected FieldCopier createCopier() {
 		PlannerFactory.setLogger(new SimpleConsoleLogger());
+		PlannerFactory.Factory().createLogger().enableLogging(true);
+		
 		return PlannerFactory.Factory().createCopier();
 	}
 }
