@@ -3,7 +3,6 @@ package org.dnal.fieldcopy.planner;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +25,6 @@ import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.ConverterService;
 import org.junit.Test;
 
 /**
@@ -53,12 +51,6 @@ import org.junit.Test;
  */
 public class PlannerTests extends BaseTest {
 	
-	public static class ZClassPlan {
-		public Class<?> srcClass;
-		public Class<?> destClass;
-		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
-		public List<ValueConverter> converterL = new ArrayList<>();
-	}
 	public static class ZFieldPlan {
 		public FieldDescriptor srcFd;
 		public FieldDescriptor destFd;
@@ -93,11 +85,11 @@ public class PlannerTests extends BaseTest {
 	public static class PlannerService extends PlannerServiceBase {
 		private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
 		private boolean enablePlanCache = true;
-		private ConverterService converterSvc;
+		private ZConverterService converterSvc;
 
 		public PlannerService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			super(logger, registry, fieldFilter);
-			this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
+			this.converterSvc = new ZConverterService(logger, this.beanDetectorSvc);
 		}
 		
 		public int getPlanCacheSize() {
@@ -129,7 +121,7 @@ public class PlannerTests extends BaseTest {
 				execPlan.destObj = destObj;
 				execPlan.classPlan = classPlan;
 				execPlan.copySpec = copySpec;
-				// do we have anything to propogate?
+				//TODO anything else to propagate?
 				//propogateStuff(execSpec, copySpec);
 				
 				this.executePlan(execPlan, 1);
