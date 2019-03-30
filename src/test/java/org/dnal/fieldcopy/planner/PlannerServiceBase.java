@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.planner;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -210,5 +211,33 @@ public abstract class PlannerServiceBase implements FieldCopyService {
 		String class2Name = spec.destObj == null ? "" : spec.destObj.getClass().getName();
 		return String.format("%s--%s", class1Name, class2Name);
 	}
+	
+	protected Object getLoggableString(Object value) {
+		if (value == null || ! logger.isEnabled()) {
+			return null;
+		}
+		
+		if (value.getClass().isArray()) {
+			int n = Array.getLength(value);
+			String s = String.format("array(len=%d): ", n);
+			for(int i = 0; i < n; i++) {
+				Object el = Array.get(value, i);
+				s += String.format("%s ", el.toString());
+				if (i >= 2) {
+					s += "...";
+					break;
+				}
+			}
+			return s;
+		} else {
+			String s = value.toString();
+			if (s.length() > 100) {
+				s = s.substring(0, 100);
+			}
+			return s;
+		}
+	}
+
+	
 	
 }

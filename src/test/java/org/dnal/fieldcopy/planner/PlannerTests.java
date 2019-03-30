@@ -3,13 +3,13 @@ package org.dnal.fieldcopy.planner;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.converter.ConverterContext;
@@ -52,8 +52,6 @@ import org.junit.Test;
 public class PlannerTests extends BaseTest {
 	
 	public static class ZClassPlan {
-//		public Object srcObject;
-//		public Object destObj;
 		public Class<?> srcClass;
 		public Class<?> destClass;
 		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
@@ -63,6 +61,8 @@ public class PlannerTests extends BaseTest {
 		public FieldDescriptor destFd;
 		public ValueConverter converter;
 		public Object defaultValue = null;
+		
+		public boolean isBean;
 		public ZClassPlan subPlan; //null if not-bean
 		//public boolean directMode; //later when we support plan backoff
 		public boolean lazySubPlanFlag = false; 
@@ -84,6 +84,7 @@ public class PlannerTests extends BaseTest {
 		public ZClassPlan classPlan;
 		public boolean inConverter; //used to make better error messages
 		public String currentFieldName;
+		public CopyOptions options;
 	}
 	
 	public static class PlannerService extends PlannerServiceBase {
@@ -112,33 +113,8 @@ public class PlannerTests extends BaseTest {
 				String error = String.format("copyFields. NULL passed to destObj.");
 				throw new FieldCopyException(error);
 			}
-//			if (runawayCounter > options.maxRecursionDepth) {
-//				String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
-//				throw new FieldCopyException(error);
-//			}
 			
-			if (copySpec.executionPlanCacheKey == null) {
-				copySpec.executionPlanCacheKey = generateExecutionPlanCacheKey(copySpec);
-			}
-			ZClassPlan classPlan = executionPlanMap.get(copySpec.executionPlanCacheKey);
-			if (! enablePlanCache) {
-				classPlan = null;
-			}
-			if (classPlan == null) {
-				try {
-					classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				if (! enablePlanCache) {
-					executionPlanMap.put(copySpec.executionPlanCacheKey, classPlan);
-				}
-			} else {
-				// do we have anything to propogate?
-				//propogateStuff(execSpec, copySpec);
-			}
+			ZClassPlan classPlan = getOrCreatePlan(copySpec);
 			
 			try {
 				logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
@@ -147,6 +123,9 @@ public class PlannerTests extends BaseTest {
 				execPlan.srcObject = sourceObj;
 				execPlan.destObj = destObj;
 				execPlan.classPlan = classPlan;
+				execPlan.options = copySpec.options;
+				// do we have anything to propogate?
+				//propogateStuff(execSpec, copySpec);
 				
 				this.executePlan(execPlan, 1);
 			} catch (Exception e1) {
@@ -155,6 +134,34 @@ public class PlannerTests extends BaseTest {
 			}
 		}
 		
+		private ZClassPlan getOrCreatePlan(CopySpec copySpec) {
+			Object sourceObj = copySpec.sourceObj;
+			Object destObj = copySpec.destObj;
+			
+			ZClassPlan classPlan = null;
+			if (enablePlanCache) {
+				if (copySpec.executionPlanCacheKey == null) {
+					copySpec.executionPlanCacheKey = generateExecutionPlanCacheKey(copySpec);
+				}
+				classPlan = executionPlanMap.get(copySpec.executionPlanCacheKey);
+			}
+			
+			if (classPlan == null) {
+				try {
+					classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
+				} catch (Exception e) {
+					//throw FCException with inner !!!!!!!!!!!!!
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (enablePlanCache) {
+					executionPlanMap.put(copySpec.executionPlanCacheKey, classPlan);
+				}
+			}
+			return classPlan;
+		}
+
 		private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs) throws Exception {
 			logger.log("BUILDPLAN!");
 			if (srcObj == null) {
@@ -176,30 +183,26 @@ public class PlannerTests extends BaseTest {
 					String error = String.format("Source Field '%s' is not readable", name);
 					throw new FieldCopyException(error);
 				}
-				if (destObj != null) {
-					if (!propertyUtils.isWriteable(destObj, pair.destFieldName)) {
-						String error = String.format("Destination Field '%s' is not writeable", name);
-						throw new FieldCopyException(error);
-					}
+				if (destObj != null && !propertyUtils.isWriteable(destObj, pair.destFieldName)) {
+					String error = String.format("Destination Field '%s' is not writeable", name);
+					throw new FieldCopyException(error);
 				}				
-	            
-	            //TODO add check for is-readable and writer later
 	            fillInDestPropIfNeeded(pair, destClass);
 
 	            ZFieldPlan fieldPlan = new ZFieldPlan();
 	            fieldPlan.srcFd = origDescriptor;
 	            fieldPlan.destFd = pair.destProp;
-	            
 	            Class<?> srcType = pair.getSrcClass();
 
 	            if (beanDetectorSvc.isBeanClass(srcType)) {
+	            	fieldPlan.isBean = true;
 	            	Object srcFieldValue = propertyUtils.getSimpleProperty(srcObj, name);
 	            	if (srcFieldValue == null) {
 	            		logger.log("lazy on field: %s", name);
 	            		fieldPlan.lazySubPlanFlag = true; //do later if this field is ever non-null
 	            	} else {
 	            		//recursively generate plan
-	            		fieldPlan.subPlan = createSubPlan1(pair, srcType, srcFieldValue);
+	            		fieldPlan.subPlan = doCreateSubPlan(pair, srcType, srcFieldValue); //**recursion**
 	            	}
 	            } else {
         			//handle list
@@ -214,8 +217,7 @@ public class PlannerTests extends BaseTest {
 			return classPlan;
 		}
 		
-		
-		private ZClassPlan createSubPlan1(FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
+		private ZClassPlan doCreateSubPlan(FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
             Class<?> destType = pair.getDestClass();
     		
             //!!look if client passed in mapping
@@ -266,6 +268,11 @@ public class PlannerTests extends BaseTest {
 		
 		
 		private boolean executePlan(ZExecPlan execPlan, int runawayCounter)  {
+			if (runawayCounter > execPlan.options.maxRecursionDepth) {
+			String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
+			throw new FieldCopyException(error);
+		}
+			
 			boolean b = false;
 			try {
 				b = doExecutePlan(execPlan, runawayCounter);
@@ -316,11 +323,9 @@ public class PlannerTests extends BaseTest {
 					pair.destFieldName = fieldPlan.destFd.getName();
 					pair.destProp = fieldPlan.destFd;
 					pair.srcProp = fieldPlan.srcFd;
-					logger.log("lazy-gen %s", pair.destFieldName);
-					ZClassPlan ff = createSubPlan1(pair, srcClass, value);
-					
-					if (ff != null) {
-						fieldPlan.subPlan = ff;
+					logger.log("lazy-generate-plan %s", pair.destFieldName);
+					fieldPlan.subPlan = doCreateSubPlan(pair, srcClass, value);
+					if (fieldPlan.subPlan != null) {
 						fieldPlan.lazySubPlanFlag = false;
 					}
 				}
@@ -329,14 +334,13 @@ public class PlannerTests extends BaseTest {
 					ZExecPlan subexec = new ZExecPlan();
 					subexec.srcObject= value;
 					subexec.classPlan = fieldPlan.subPlan;
+					subexec.options = execPlan.options;
 					
 					//use the mapping, which has fields, autocopy flag etc
 					String destFieldName = fieldPlan.destFd.getName();
 					Object destValue = propertyUtils.getSimpleProperty(execPlan.destObj, destFieldName);
 					if (destValue == null) {
-						BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.destFd;
-						Class<?> destClass = fd2.pd.getPropertyType();
-						
+						Class<?> destClass = fieldPlan.getDestClass();
 						destValue = createObject(destClass);
 						beanUtil.copyProperty(execPlan.destObj, destFieldName, destValue);
 					}
@@ -346,7 +350,6 @@ public class PlannerTests extends BaseTest {
 					if (!b) {
 						return false;
 					}
-					//applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 				} else {
 					String destFieldName = fieldPlan.destFd.getName();
 					beanUtil.copyProperty(execPlan.destObj, destFieldName, value);
@@ -358,43 +361,6 @@ public class PlannerTests extends BaseTest {
 			return clazzDest.newInstance();
 		}
 
-//		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec spec) {
-//			if (CollectionUtils.isNotEmpty(spec.mappingL)) {
-//				ctx.mappingL = new ArrayList<>();
-//				ctx.mappingL.addAll(spec.mappingL);
-//			}
-//			if (CollectionUtils.isNotEmpty(spec.converterL)) {
-//				ctx.converterL = new ArrayList<>();
-//				ctx.converterL.addAll(spec.converterL);
-//			}
-//		}
-
-		private Object getLoggableString(Object value) {
-			if (value == null || ! logger.isEnabled()) {
-				return null;
-			}
-			
-			if (value.getClass().isArray()) {
-				int n = Array.getLength(value);
-				String s = String.format("array(len=%d): ", n);
-				for(int i = 0; i < n; i++) {
-					Object el = Array.get(value, i);
-					s += String.format("%s ", el.toString());
-					if (i >= 2) {
-						s += "...";
-						break;
-					}
-				}
-				return s;
-			} else {
-				String s = value.toString();
-				if (s.length() > 100) {
-					s = s.substring(0, 100);
-				}
-				return s;
-			}
-		}
-
 		public boolean isEnablePlanCache() {
 			return enablePlanCache;
 		}
@@ -402,8 +368,6 @@ public class PlannerTests extends BaseTest {
 		public void setEnablePlanCache(boolean enablePlanCache) {
 			this.enablePlanCache = enablePlanCache;
 		}
-		
-		
 	}
 	
 	
