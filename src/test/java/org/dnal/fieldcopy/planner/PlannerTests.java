@@ -93,7 +93,7 @@ public class PlannerTests extends BaseTest {
 
 		public PlannerService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			super(logger, registry, fieldFilter);
-			this.converterSvc = new ZConverterService(logger, this.beanDetectorSvc);
+			this.converterSvc = new ZConverterService(logger, this.beanDetectorSvc, this);
 		}
 		
 		public int getPlanCacheSize() {

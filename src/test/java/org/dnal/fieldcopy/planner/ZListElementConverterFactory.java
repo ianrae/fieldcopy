@@ -5,11 +5,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.dnal.fieldcopy.converter.ArrayElementConverter;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 
 public class ZListElementConverterFactory {
 	private BeanUtilsBeanDetectorService beanDetectorSvc;
+	private FieldCopyService outerSvc;
 
+	public ZListElementConverterFactory(FieldCopyService outerSvc) {
+		this.outerSvc = outerSvc;
+	}
 	
 	public ZListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
@@ -17,7 +23,12 @@ public class ZListElementConverterFactory {
 		}
 		
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
-		return new ZListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy);
+		List<FieldPair> fieldPairs = null;
+		if (!useScalarCopy) {
+			fieldPairs = outerSvc.buildAutoCopyPairs(srcElementClass, destElementClass);
+		}
+		
+		return new ZListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}
 	public ArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {

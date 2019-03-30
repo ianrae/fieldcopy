@@ -28,14 +28,16 @@ public class ZListElementConverter implements ValueConverter {
 	private int depth;
 	private Class<?> beanClass;
 	private boolean sourceIsArray;
+	private List<FieldPair> fieldPairs;
 	
 	public ZListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
-			boolean useScalarCopy) {
+			boolean useScalarCopy, List<FieldPair> fieldPairs) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
 		this.useScalarCopy = useScalarCopy;
+		this.fieldPairs = fieldPairs;
 	}
 
 	@Override
@@ -98,7 +100,6 @@ public class ZListElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
@@ -106,6 +107,7 @@ public class ZListElementConverter implements ValueConverter {
 		spec.mappingL = ctx.mappingL;
 		spec.converterL = ctx.converterL;
 
+		//list elements may be different classes (eg. List<Shape> and Circle, Square, ...)
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {
 			spec.sourceObj = el;

@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
+import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.planner.PlannerTests.ZFieldPlan;
@@ -22,11 +23,13 @@ public class ZConverterService {
 	private SimpleLogger logger;
 	private ZListElementConverterFactory converterFactory;
 	private List<ValueConverter> builtInConverterL = new ArrayList<>();
+	private FieldCopyService outerSvc;
 	
-	public ZConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc) {
+	public ZConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
 		this.logger = logger;
-		this.converterFactory = new ZListElementConverterFactory();
+		this.converterFactory = new ZListElementConverterFactory(outerSvc);
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);
+		this.outerSvc = outerSvc;
 	}
 
 	// List -> List
