@@ -151,10 +151,17 @@ public class PlannerTests extends BaseTest {
 	            Class<?> srcType = fd1.pd.getPropertyType();
 
 	            if (beanDetectorSvc.isBeanClass(srcType)) {
-	            	if (destObj == null) {
+	            	Object srcFieldValue = propertyUtils.getSimpleProperty(srcObj, name);
+	            	if (srcFieldValue == null) {
 	            		fieldPlan.lazySubPlanFlag = true; //do later if this field is ever non-null
 	            	} else {
 	            		//recursively generate plan
+	    	            BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
+	    	            Class<?> destType = fd2.pd.getPropertyType();
+	            		
+	    	            //!!look if client passed in mapping
+	    	            List<FieldPair> subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
+	            		fieldPlan.subPlan = buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs);
 	            	}
 	            } else {
         			//handle list
@@ -162,9 +169,8 @@ public class PlannerTests extends BaseTest {
         			//handle list to array, and viceversa
         			validateIsAllowed(pair);
 	            	//add converter if one matches
-        			
-        			classPlan.fieldPlanL.add(fieldPlan);
 	            }
+	            classPlan.fieldPlanL.add(fieldPlan);
 			}
 			
 			return classPlan;
@@ -270,6 +276,26 @@ public class PlannerTests extends BaseTest {
 				}
 				
 				if (fieldPlan.subPlan != null) {
+					ZExecPlan subexec = new ZExecPlan();
+					subexec.srcObject= value;
+					subexec.classPlan = fieldPlan.subPlan;
+					
+					//use the mapping, which has fields, autocopy flag etc
+					String destFieldName = fieldPlan.destFd.getName();
+					Object destValue = propertyUtils.getSimpleProperty(execPlan.destObj, destFieldName);
+					if (destValue == null) {
+						BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.destFd;
+						Class<?> destClass = fd2.pd.getPropertyType();
+						
+						destValue = createObject(destClass);
+						beanUtil.copyProperty(execPlan.destObj, destFieldName, destValue);
+					}
+					
+					subexec.destObj = destValue;
+					boolean b = this.executePlan(subexec, runawayCounter + 1);
+					if (!b) {
+						return false;
+					}
 					//applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 				} else {
 					String destFieldName = fieldPlan.destFd.getName();
@@ -277,6 +303,9 @@ public class PlannerTests extends BaseTest {
 				}
 			}
 			return ok;
+		}
+		private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
+			return clazzDest.newInstance();
 		}
 
 //		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec spec) {
@@ -323,6 +352,7 @@ public class PlannerTests extends BaseTest {
 	public static class A {
 		private String name1;
 		private String name2;
+		private B bVal;
 		
 		public A(String name1, String name2) {
 			super();
@@ -341,11 +371,18 @@ public class PlannerTests extends BaseTest {
 		public void setName2(String name2) {
 			this.name2 = name2;
 		}
+		public B getbVal() {
+			return bVal;
+		}
+		public void setbVal(B bVal) {
+			this.bVal = bVal;
+		}
 	}
 	public static class ADTO {
 		private String name1;
 		private String name2;
-		
+		private BDTO bVal;
+
 		public String getName1() {
 			return name1;
 		}
@@ -357,6 +394,47 @@ public class PlannerTests extends BaseTest {
 		}
 		public void setName2(String name2) {
 			this.name2 = name2;
+		}
+		public BDTO getbVal() {
+			return bVal;
+		}
+		public void setbVal(BDTO bVal) {
+			this.bVal = bVal;
+		}
+	}
+	
+	public static class B {
+		private String title;
+		
+		public B(String title) {
+			super();
+			this.title = title;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+	}
+	public static class BDTO {
+		private String title;
+		
+		public BDTO() {
+		}
+		public BDTO(String title) {
+			super();
+			this.title = title;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
 		}
 	}
 	
@@ -386,7 +464,7 @@ public class PlannerTests extends BaseTest {
 	
 	
 	@Test
-	public void test() {
+	public void testString() {
 		A src = new A("bob", "smith");
 		ADTO dest = new ADTO();
 		
@@ -395,6 +473,21 @@ public class PlannerTests extends BaseTest {
 	
 		assertEquals("bob", dest.getName1());
 		assertEquals("smith", dest.getName2());
+	}
+	
+	@Test
+	public void testSubPlan() {
+		A src = new A("bob", "smith");
+		B bval = new B("toronto");
+		src.setbVal(bval);
+		ADTO dest = new ADTO();
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+	
+		assertEquals("bob", dest.getName1());
+		assertEquals("smith", dest.getName2());
+		assertEquals("toronto", dest.getbVal().getTitle());
 	}
 
 	@Override
