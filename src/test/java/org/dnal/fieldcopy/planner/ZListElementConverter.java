@@ -113,6 +113,7 @@ public class ZListElementConverter implements ValueConverter {
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
 			ctx.copySvc.copyFields(spec);
+			//TODO add runawayCounter to copyFields(spec, 1)
 			
 			list2.add(spec.destObj);
 		}

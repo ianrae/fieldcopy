@@ -133,7 +133,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			ZArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -170,7 +170,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			ZArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
