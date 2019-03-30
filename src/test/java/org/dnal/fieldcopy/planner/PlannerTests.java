@@ -50,8 +50,8 @@ import org.junit.Test;
 public class PlannerTests extends BaseTest {
 	
 	public static class ZClassPlan {
-		public Object srcObject;
-		public Object destObj;
+//		public Object srcObject;
+//		public Object destObj;
 		public Class<?> srcClass;
 		public Class<?> destClass;
 		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
@@ -64,6 +64,13 @@ public class PlannerTests extends BaseTest {
 		public ZClassPlan subPlan; //null if not-bean
 		//public boolean directMode; //later when we support plan backoff
 		public boolean lazySubPlanFlag = false; 
+	}
+	public static class ZExecPlan {
+		public Object srcObject;
+		public Object destObj;
+		public ZClassPlan classPlan;
+		public boolean inConverter; //used to make better error messages
+		public String currentFieldName;
 	}
 	
 	public static class PlannerService extends PlannerServiceBase {
@@ -93,10 +100,12 @@ public class PlannerTests extends BaseTest {
 			
 			try {
 				ZClassPlan classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
-				classPlan.srcObject = sourceObj;
-				classPlan.destObj = destObj;
+				ZExecPlan execPlan = new ZExecPlan();
+				execPlan.srcObject = sourceObj;
+				execPlan.destObj = destObj;
+				execPlan.classPlan = classPlan;
 				
-				this.executePlan(classPlan, 1);
+				this.executePlan(execPlan, 1);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -120,11 +129,11 @@ public class PlannerTests extends BaseTest {
 				final String name = origDescriptor.getName();
 				
 				//check for readability and writability
+				if (! propertyUtils.isReadable(srcObj, name)) {
+					String error = String.format("Source Field '%s' is not readable", name);
+					throw new FieldCopyException(error);
+				}
 				if (destObj != null) {
-					if (! propertyUtils.isReadable(srcObj, name)) {
-						String error = String.format("Source Field '%s' is not readable", name);
-						throw new FieldCopyException(error);
-					}
 					if (!propertyUtils.isWriteable(destObj, pair.destFieldName)) {
 						String error = String.format("Destination Field '%s' is not writeable", name);
 						throw new FieldCopyException(error);
@@ -204,14 +213,14 @@ public class PlannerTests extends BaseTest {
 		}
 		
 		
-		private boolean executePlan(ZClassPlan classPlan, int runawayCounter)  {
+		private boolean executePlan(ZExecPlan execPlan, int runawayCounter)  {
 			boolean b = false;
 			try {
-				b = doExecutePlan(classPlan, runawayCounter);
+				b = doExecutePlan(execPlan, runawayCounter);
 			} catch (Exception e) {
-				String s = "??"; //TODOexecPlan.inConverter ? " in converter:" : ":";
-				String className = String.format("'%s'", classPlan.srcClass.getSimpleName());
-				String field = "??"; //TODO execPlan.currentFieldName == null ? "" : " field '" + execPlan.currentFieldName + "'";
+				String s = execPlan.inConverter ? " in converter:" : ":";
+				String className = String.format("'%s'", execPlan.classPlan.srcClass.getSimpleName());
+				String field = execPlan.currentFieldName == null ? "" : " field '" + execPlan.currentFieldName + "'";
 				String msg = String.format("Exception in %s %s: %s%s %s", className, field,
 						e.getClass().getSimpleName(), s, e.getMessage());
 				throw new FieldCopyException(msg, e);
@@ -219,12 +228,13 @@ public class PlannerTests extends BaseTest {
 			return b;
 		}
 
-		private boolean doExecutePlan(ZClassPlan classPlan, int runawayCounter) throws Exception {
+		private boolean doExecutePlan(ZExecPlan execPlan, int runawayCounter) throws Exception {
 			boolean ok = true;
+			ZClassPlan classPlan = execPlan.classPlan;
 			for(ZFieldPlan fieldPlan: classPlan.fieldPlanL) {
 				String name = fieldPlan.srcFd.getName();
-				//execPlan.currentFieldName = name;
-	    		Object value = propertyUtils.getSimpleProperty(classPlan.srcObject, name);
+				execPlan.currentFieldName = name;
+	    		Object value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
 	    		
 	    		logger.log("  field %s: %s", name, getLoggableString(value));
 	    		
@@ -242,9 +252,9 @@ public class PlannerTests extends BaseTest {
 					//ctx.copyOptions = spec.options;
 					ctx.beanDetectorSvc = this.beanDetectorSvc;
 					//addConverterAndMappingLists(ctx, spec);
-					//execPlan.inConverter = true;
+					execPlan.inConverter = true;
 					//value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
-					//execPlan.inConverter = false;
+					execPlan.inConverter = false;
 				}
 				
 				if (value == null) {
@@ -263,7 +273,7 @@ public class PlannerTests extends BaseTest {
 					//applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
 				} else {
 					String destFieldName = fieldPlan.destFd.getName();
-					beanUtil.copyProperty(classPlan.destObj, destFieldName, value);
+					beanUtil.copyProperty(execPlan.destObj, destFieldName, value);
 				}
 			}
 			return ok;
