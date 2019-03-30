@@ -309,9 +309,9 @@ public class PlannerTests extends BaseTest {
 		
 		private boolean executePlan(ZExecPlan execPlan, int runawayCounter)  {
 			if (runawayCounter > execPlan.copySpec.options.maxRecursionDepth) {
-			String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
-			throw new FieldCopyException(error);
-		}
+				String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
+				throw new FieldCopyException(error);
+			}
 			
 			boolean b = false;
 			try {
@@ -346,9 +346,9 @@ public class PlannerTests extends BaseTest {
 					ctx.srcClass = srcClass;
 					ctx.copySvc = this;
 					ctx.copyOptions = execPlan.copySpec.options;
-					ctx.beanDetectorSvc = this.beanDetectorSvc;
+					//ctx.beanDetectorSvc = this.beanDetectorSvc;  remove from context!
 					ctx.runawayCounter = runawayCounter;
-					//addConverterAndMappingLists(ctx, spec);
+					addConverterAndMappingLists(ctx, execPlan);
 					execPlan.inConverter = true;
 					value = fieldPlan.converter.convertValue(execPlan.srcObject, value, ctx);
 					execPlan.inConverter = false;
@@ -400,6 +400,16 @@ public class PlannerTests extends BaseTest {
 		}
 		private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
 			return clazzDest.newInstance();
+		}
+		private void addConverterAndMappingLists(ConverterContext ctx, ZExecPlan execPlan) {
+			if (CollectionUtils.isNotEmpty(execPlan.copySpec.mappingL)) {
+				ctx.mappingL = new ArrayList<>();
+				ctx.mappingL.addAll(execPlan.copySpec.mappingL);
+			}
+			if (CollectionUtils.isNotEmpty(execPlan.copySpec.converterL)) {
+				ctx.converterL = new ArrayList<>();
+				ctx.converterL.addAll(execPlan.copySpec.converterL);
+			}
 		}
 
 		public boolean isEnablePlanCache() {
