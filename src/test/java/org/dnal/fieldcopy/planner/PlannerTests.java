@@ -3,12 +3,14 @@ package org.dnal.fieldcopy.planner;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -31,7 +33,7 @@ import org.junit.Test;
  * 
  * However, BeanUtil API is based on objects, not classes. As we inspect the fields to 
  * build the plan, if we encounter a null value for a bean field, we can't generate a 
- * sub-plan for it.  When this occurrs we set the lazyGenerationNeeded flag to true, so 
+ * sub-plan for it.  When this occurs we set the lazyGenerationNeeded flag to true, so 
  * that when the plan is executed we can generate the sub-plan then.
  *  * this may never occur if the field is always null
  *  * when we lazily create the plan, must do it in thread-safe way
@@ -48,6 +50,8 @@ import org.junit.Test;
 public class PlannerTests extends BaseTest {
 	
 	public static class ZClassPlan {
+		public Object srcObject;
+		public Object destObj;
 		public Class<?> srcClass;
 		public Class<?> destClass;
 		public List<ZFieldPlan> fieldPlanL = new ArrayList<>();
@@ -55,7 +59,8 @@ public class PlannerTests extends BaseTest {
 	public static class ZFieldPlan {
 		public FieldDescriptor srcFd;
 		public FieldDescriptor destFd;
-		public ValueConverter conv;
+		public ValueConverter converter;
+		public Object defaultValue = null;
 		public ZClassPlan subPlan; //null if not-bean
 		//public boolean directMode; //later when we support plan backoff
 		public boolean lazySubPlanFlag = false; 
@@ -88,6 +93,10 @@ public class PlannerTests extends BaseTest {
 			
 			try {
 				ZClassPlan classPlan = this.buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs);
+				classPlan.srcObject = sourceObj;
+				classPlan.destObj = destObj;
+				
+				this.executePlan(classPlan, 1);
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -144,6 +153,8 @@ public class PlannerTests extends BaseTest {
         			//handle list to array, and viceversa
         			validateIsAllowed(pair);
 	            	//add converter if one matches
+        			
+        			classPlan.fieldPlanL.add(fieldPlan);
 	            }
 			}
 			
@@ -173,9 +184,129 @@ public class PlannerTests extends BaseTest {
 
 		@Override
 		public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
-			// TODO Auto-generated method stub
-			return null;
+			T destObj = (T) createDestObject(destClass);
+			copySpec.destObj = destObj;
+			copyFields(copySpec);
+			return destObj;
 		}
+
+		@SuppressWarnings("unchecked")
+		private <T> T createDestObject(Class<T> destClass) {
+			T obj = null;
+			try {
+				obj = (T) destClass.newInstance();
+			} catch (InstantiationException e) {
+				throw new FieldCopyException(e.getMessage());
+			} catch (IllegalAccessException e) {
+				throw new FieldCopyException(e.getMessage());
+			}
+			return obj;
+		}
+		
+		
+		private boolean executePlan(ZClassPlan classPlan, int runawayCounter)  {
+			boolean b = false;
+			try {
+				b = doExecutePlan(classPlan, runawayCounter);
+			} catch (Exception e) {
+				String s = "??"; //TODOexecPlan.inConverter ? " in converter:" : ":";
+				String className = String.format("'%s'", classPlan.srcClass.getSimpleName());
+				String field = "??"; //TODO execPlan.currentFieldName == null ? "" : " field '" + execPlan.currentFieldName + "'";
+				String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+						e.getClass().getSimpleName(), s, e.getMessage());
+				throw new FieldCopyException(msg, e);
+			}
+			return b;
+		}
+
+		private boolean doExecutePlan(ZClassPlan classPlan, int runawayCounter) throws Exception {
+			boolean ok = true;
+			for(ZFieldPlan fieldPlan: classPlan.fieldPlanL) {
+				String name = fieldPlan.srcFd.getName();
+				//execPlan.currentFieldName = name;
+	    		Object value = propertyUtils.getSimpleProperty(classPlan.srcObject, name);
+	    		
+	    		logger.log("  field %s: %s", name, getLoggableString(value));
+	    		
+				if (fieldPlan.converter != null) {
+					BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) fieldPlan.destFd;
+					Class<?> destClass = fd2.pd.getPropertyType();
+
+					BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) fieldPlan.srcFd;
+					Class<?> srcClass = fd1.pd.getPropertyType();
+					
+					ConverterContext ctx = new ConverterContext();
+					ctx.destClass = destClass;
+					ctx.srcClass = srcClass;
+					//ctx.copySvc = outerSvc;
+					//ctx.copyOptions = spec.options;
+					ctx.beanDetectorSvc = this.beanDetectorSvc;
+					//addConverterAndMappingLists(ctx, spec);
+					//execPlan.inConverter = true;
+					//value = fieldPlan.converter.convertValue(spec.sourceObj, value, ctx);
+					//execPlan.inConverter = false;
+				}
+				
+				if (value == null) {
+					value = fieldPlan.defaultValue;
+				}
+				
+				if (fieldPlan.lazySubPlanFlag) {
+					ZClassPlan ff = null; //createSubPlan();
+					if (ff != null) {
+						fieldPlan.subPlan = ff;
+						fieldPlan.lazySubPlanFlag = false;
+					}
+				}
+				
+				if (fieldPlan.subPlan != null) {
+					//applyMapping(outerSvc, spec, fieldPlan.pair, spec.sourceObj, spec.destObj, value, fieldPlan.mapping, runawayCounter);
+				} else {
+					String destFieldName = fieldPlan.destFd.getName();
+					beanUtil.copyProperty(classPlan.destObj, destFieldName, value);
+				}
+			}
+			return ok;
+		}
+
+//		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec spec) {
+//			if (CollectionUtils.isNotEmpty(spec.mappingL)) {
+//				ctx.mappingL = new ArrayList<>();
+//				ctx.mappingL.addAll(spec.mappingL);
+//			}
+//			if (CollectionUtils.isNotEmpty(spec.converterL)) {
+//				ctx.converterL = new ArrayList<>();
+//				ctx.converterL.addAll(spec.converterL);
+//			}
+//		}
+
+		private Object getLoggableString(Object value) {
+			if (value == null || ! logger.isEnabled()) {
+				return null;
+			}
+			
+			if (value.getClass().isArray()) {
+				int n = Array.getLength(value);
+				String s = String.format("array(len=%d): ", n);
+				for(int i = 0; i < n; i++) {
+					Object el = Array.get(value, i);
+					s += String.format("%s ", el.toString());
+					if (i >= 2) {
+						s += "...";
+						break;
+					}
+				}
+				return s;
+			} else {
+				String s = value.toString();
+				if (s.length() > 100) {
+					s = s.substring(0, 100);
+				}
+				return s;
+			}
+		}
+		
+		
 	}
 	
 	

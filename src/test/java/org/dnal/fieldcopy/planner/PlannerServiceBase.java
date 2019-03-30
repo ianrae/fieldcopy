@@ -1,10 +1,12 @@
 package org.dnal.fieldcopy.planner;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
@@ -163,8 +165,22 @@ public abstract class PlannerServiceBase implements FieldCopyService {
 	
 	@Override
 	public void dumpFields(Object sourceObj) {
-		// TODO Auto-generated method stub
-		
+		try {
+			Map<String,String> map = beanUtil.describe(sourceObj);
+			for(String fieldName: map.keySet()) {
+				String val = map.get(fieldName);
+				logger.log("%s = %s", fieldName, val);
+			}
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
