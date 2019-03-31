@@ -104,6 +104,7 @@ public class ZArrayElementConverter implements ValueConverter {
 
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);
+		Class<?> prevSrcClass = null;
 		for(int i = 0; i < n; i++) {
 			Object el = Array.get(srcArray, i);
 			spec.sourceObj = el;
@@ -111,6 +112,12 @@ public class ZArrayElementConverter implements ValueConverter {
 			ctx.copySvc.copyFields(spec);
 			
 			Array.set(arrayObj2, i, spec.destObj);
+			
+			if (prevSrcClass == null || prevSrcClass.equals(el.getClass())) {
+			} else {
+				spec.executionPlanCacheKey = null; //clear so re-calc key on each element
+			}
+			prevSrcClass = el.getClass();
 		}
 		return arrayObj2;
 	}

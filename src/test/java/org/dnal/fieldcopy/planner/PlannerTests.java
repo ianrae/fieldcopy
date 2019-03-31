@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -230,6 +231,8 @@ public class PlannerTests extends BaseTest {
 	            classPlan.fieldPlanL.add(fieldPlan);
 			}
 			
+			//need copySpec and classPlan to have same set of converters
+			copySpec.converterL = new ArrayList<>(classPlan.converterL);
 			return classPlan;
 		}
 		
@@ -256,6 +259,7 @@ public class PlannerTests extends BaseTest {
         	}
         	return null;
 		}
+		
 
 		private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
             Class<?> destType = pair.getDestClass();

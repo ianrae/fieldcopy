@@ -110,10 +110,17 @@ public class ZListElementConverter implements ValueConverter {
 
 		//list elements may be different classes (eg. List<Shape> and Circle, Square, ...)
 		List<Object> list2 = new ArrayList<>();
+		Class<?> prevSrcClass = null;
 		for(Object el: list) {
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
 			ctx.copySvc.copyFields(spec);
+			
+			if (prevSrcClass == null || prevSrcClass.equals(el.getClass())) {
+			} else {
+				spec.executionPlanCacheKey = null; //clear so re-calc key on each element
+			}
+			prevSrcClass = el.getClass();
 			
 			list2.add(spec.destObj);
 		}
