@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -6,17 +6,16 @@ import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
-public class ZListElementConverterFactory {
+public class BUListElementConverterFactory {
 	private BUBeanDetectorService beanDetectorSvc;
 	private FieldCopyService outerSvc;
 
-	public ZListElementConverterFactory(FieldCopyService outerSvc) {
+	public BUListElementConverterFactory(FieldCopyService outerSvc) {
 		this.outerSvc = outerSvc;
 	}
 	
-	public ZListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public BUListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
@@ -27,9 +26,9 @@ public class ZListElementConverterFactory {
 			fieldPairs = outerSvc.buildAutoCopyPairs(srcElementClass, destElementClass);
 		}
 		
-		return new ZListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
+		return new BUListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}
-	public ZArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public BUArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
@@ -39,7 +38,7 @@ public class ZListElementConverterFactory {
 		if (!useScalarCopy) {
 			fieldPairs = outerSvc.buildAutoCopyPairs(srcElementClass, destElementClass);
 		}
-		return new ZArrayElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
+		return new BUArrayElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}
 
 	private boolean isSupported(Class<?> srcElementClass, Class<?> destElementClass) {

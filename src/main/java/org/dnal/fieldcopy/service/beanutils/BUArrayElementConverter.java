@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 /**
  * Converts the elements of an array.
@@ -20,7 +19,7 @@ import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
  * @author Ian Rae
  *
  */
-public class ZArrayElementConverter implements ValueConverter {
+public class BUArrayElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
@@ -30,7 +29,7 @@ public class ZArrayElementConverter implements ValueConverter {
 	private boolean sourceIsList;
 	private List<FieldPair> fieldPairs;
 
-	public ZArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+	public BUArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
 			boolean useScalarCopy, List<FieldPair> fieldPairs) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;

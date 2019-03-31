@@ -1,17 +1,17 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
-public class ZFieldPlan {
+public class BUFieldPlan {
 	public FieldDescriptor srcFd;
 	public FieldDescriptor destFd;
 	public ValueConverter converter;
 	public Object defaultValue = null;
 	
 	public boolean isBean;
-	public ZClassPlan subPlan; //null if not-bean
+	public BUClassPlan subPlan; //null if not-bean
 	//public boolean directMode; //later when we support plan backoff
 	public boolean lazySubPlanFlag = false; 
 

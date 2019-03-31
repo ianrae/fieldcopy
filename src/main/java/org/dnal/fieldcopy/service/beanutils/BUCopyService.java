@@ -17,10 +17,6 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.planner.ZClassPlan;
-import org.dnal.fieldcopy.planner.ZConverterService;
-import org.dnal.fieldcopy.planner.ZExecPlan;
-import org.dnal.fieldcopy.planner.ZFieldPlan;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
 public class BUCopyService extends BUPlannerServiceBase {
@@ -29,19 +25,19 @@ public class BUCopyService extends BUPlannerServiceBase {
 		public int runawayCounter = 1;
 	}
 	
-	private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
+	private Map<String,BUClassPlan> executionPlanMap = new ConcurrentHashMap<>();
 	private boolean enablePlanCache = true;
-	private ZConverterService converterSvc;
+	private BUConverterService converterSvc;
 
 	public BUCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		super(logger, registry, fieldFilter);
-		this.converterSvc = new ZConverterService(logger, this.beanDetectorSvc, this);
+		this.converterSvc = new BUConverterService(logger, this.beanDetectorSvc, this);
 	}
 	
 	public int getPlanCacheSize() {
 		return executionPlanMap.size();
 	}
-	public ZClassPlan findPlan(String srcClassName) {
+	public BUClassPlan findPlan(String srcClassName) {
 		for(String key: executionPlanMap.keySet()) {
 			if (key.contains(srcClassName)) {
 				return executionPlanMap.get(key);
@@ -70,11 +66,11 @@ public class BUCopyService extends BUPlannerServiceBase {
 			throw new FieldCopyException(error);
 		}
 		
-		ZClassPlan classPlan = getOrCreatePlan(copySpec);
+		BUClassPlan classPlan = getOrCreatePlan(copySpec);
 		
 		logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
 				copySpec.destObj.getClass(), classPlan.fieldPlanL.size());
-		ZExecPlan execPlan = new ZExecPlan();
+		BUExecutePlan execPlan = new BUExecutePlan();
 		execPlan.srcObject = sourceObj;
 		execPlan.destObj = destObj;
 		execPlan.classPlan = classPlan;
@@ -85,11 +81,11 @@ public class BUCopyService extends BUPlannerServiceBase {
 		this.executePlan(execPlan, copySpec.runawayCounter);
 	}
 	
-	private ZClassPlan getOrCreatePlan(CopySpec copySpec) {
+	private BUClassPlan getOrCreatePlan(CopySpec copySpec) {
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
 		
-		ZClassPlan classPlan = null;
+		BUClassPlan classPlan = null;
 		if (enablePlanCache) {
 			if (copySpec.executionPlanCacheKey == null) {
 				copySpec.executionPlanCacheKey = generateExecutionPlanCacheKey(copySpec);
@@ -119,7 +115,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 		return classPlan;
 	}
 
-	private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec, PlanCreateState state) throws Exception {
+	private BUClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec, PlanCreateState state) throws Exception {
 		logger.log("BUILDPLAN!");
 		if (srcObj == null) {
 			String error = String.format("buildClassPlan. srcObj is NULL");
@@ -133,7 +129,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 		}
 		
 		
-		ZClassPlan classPlan = new ZClassPlan();
+		BUClassPlan classPlan = new BUClassPlan();
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
 		if (CollectionUtils.isNotEmpty(copySpec.converterL)) {
@@ -156,7 +152,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 			}				
             fillInDestPropIfNeeded(pair, destClass);
 
-            ZFieldPlan fieldPlan = new ZFieldPlan();
+            BUFieldPlan fieldPlan = new BUFieldPlan();
             fieldPlan.srcFd = origDescriptor;
             fieldPlan.destFd = pair.destProp;
             fieldPlan.defaultValue = pair.defaultValue;
@@ -191,7 +187,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 		return classPlan;
 	}
 	
-	private ValueConverter findOrCreateCollectionConverter(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan) {
+	private ValueConverter findOrCreateCollectionConverter(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan) {
 		if (classPlan.converterL == null) {
 			classPlan.converterL = new ArrayList<>();
 		}
@@ -216,7 +212,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 	}
 	
 
-	private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue, PlanCreateState state) throws Exception {
+	private BUClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue, PlanCreateState state) throws Exception {
         Class<?> destType = pair.getDestClass();
 		
         //look if client passed a mapping
@@ -293,7 +289,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 	}
 	
 	
-	private boolean executePlan(ZExecPlan execPlan, int runawayCounter)  {
+	private boolean executePlan(BUExecutePlan execPlan, int runawayCounter)  {
 		if (runawayCounter > execPlan.copySpec.options.maxRecursionDepth) {
 			String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");
 			throw new FieldCopyException(error);
@@ -313,10 +309,10 @@ public class BUCopyService extends BUPlannerServiceBase {
 		return b;
 	}
 
-	private boolean doExecutePlan(ZExecPlan execPlan, int runawayCounter) throws Exception {
+	private boolean doExecutePlan(BUExecutePlan execPlan, int runawayCounter) throws Exception {
 		boolean ok = true;
-		ZClassPlan classPlan = execPlan.classPlan;
-		for(ZFieldPlan fieldPlan: classPlan.fieldPlanL) {
+		BUClassPlan classPlan = execPlan.classPlan;
+		for(BUFieldPlan fieldPlan: classPlan.fieldPlanL) {
 			String name = fieldPlan.srcFd.getName();
 			execPlan.currentFieldName = name;
     		Object value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
@@ -359,7 +355,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 			}
 			
 			if (fieldPlan.subPlan != null) {
-				ZExecPlan subexec = new ZExecPlan();
+				BUExecutePlan subexec = new BUExecutePlan();
 				subexec.srcObject= value;
 				subexec.classPlan = fieldPlan.subPlan;
 				subexec.copySpec = execPlan.copySpec;
@@ -388,7 +384,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 	private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
 		return clazzDest.newInstance();
 	}
-	private void addConverterAndMappingLists(ConverterContext ctx, ZExecPlan execPlan) {
+	private void addConverterAndMappingLists(ConverterContext ctx, BUExecutePlan execPlan) {
 		if (CollectionUtils.isNotEmpty(execPlan.copySpec.mappingL)) {
 			ctx.mappingL = new ArrayList<>();
 			ctx.mappingL.addAll(execPlan.copySpec.mappingL);

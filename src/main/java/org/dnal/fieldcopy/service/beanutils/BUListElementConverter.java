@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import org.dnal.fieldcopy.core.FieldPair;
  * @author Ian Rae
  *
  */
-public class ZListElementConverter implements ValueConverter {
+public class BUListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
@@ -30,7 +30,7 @@ public class ZListElementConverter implements ValueConverter {
 	private boolean sourceIsArray;
 	private List<FieldPair> fieldPairs;
 	
-	public ZListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+	public BUListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
 			boolean useScalarCopy, List<FieldPair> fieldPairs) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;

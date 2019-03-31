@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,27 +12,26 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.old.ArrayElementConverter;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.old.ListSpec;
 import org.dnal.fieldcopy.service.beanutils.old.ReflectionUtil;
 
-public class ZConverterService {
+public class BUConverterService {
 	private SimpleLogger logger;
-	private ZListElementConverterFactory converterFactory;
+	private BUListElementConverterFactory converterFactory;
 	private List<ValueConverter> builtInConverterL = new ArrayList<>();
 	private FieldCopyService outerSvc;
 	
-	public ZConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
+	public BUConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
 		this.logger = logger;
-		this.converterFactory = new ZListElementConverterFactory(outerSvc);
+		this.converterFactory = new BUListElementConverterFactory(outerSvc);
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);
 		this.outerSvc = outerSvc;
 	}
 
 	// List -> List
-	public ValueConverter addListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -57,7 +56,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ZListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -70,7 +69,7 @@ public class ZConverterService {
 	}
 	
 	// Array -> List
-	public ValueConverter addArrayListConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -94,7 +93,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ZListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -108,7 +107,7 @@ public class ZConverterService {
 	}
 	
 	// Array -> Array
-	public ValueConverter addArrayConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -132,7 +131,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ZArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -145,7 +144,7 @@ public class ZConverterService {
 	}
 
 	// List -> Array
-	public ValueConverter addListArrayConverterIfNeeded(ZFieldPlan fieldPlan, FieldPair pair, ZClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -169,7 +168,7 @@ public class ZConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			ZArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -182,7 +181,7 @@ public class ZConverterService {
 		return null;
 	}
 	
-	private ValueConverter matchingConverterAlreadyExists(ZClassPlan classPlan, FieldPair pair, Class<?> srcElementClass, Class<?> destElementClass) {
+	private ValueConverter matchingConverterAlreadyExists(BUClassPlan classPlan, FieldPair pair, Class<?> srcElementClass, Class<?> destElementClass) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 	
@@ -225,7 +224,7 @@ public class ZConverterService {
 	}
 
 	private FieldInfo buildSourceFieldInfo(FieldPair pair, Class<?> srcElementClass,
-			ZClassPlan classPlan, boolean isArray) {
+			BUClassPlan classPlan, boolean isArray) {
 		FieldInfo sourceField = new FieldInfo();
 		sourceField.fieldName = pair.srcProp.getName();
 		sourceField.fieldClass = srcElementClass;
@@ -233,7 +232,7 @@ public class ZConverterService {
 		sourceField.isArray = isArray;
 		return sourceField;
 	}
-	private FieldInfo buildDestFieldInfo(FieldPair pair, Class<?> destElementClass, ZClassPlan classPlan, boolean isArray) {
+	private FieldInfo buildDestFieldInfo(FieldPair pair, Class<?> destElementClass, BUClassPlan classPlan, boolean isArray) {
 		FieldInfo destField = new FieldInfo();
 		destField.fieldName = pair.destProp.getName();
 		destField.fieldClass = destElementClass;
