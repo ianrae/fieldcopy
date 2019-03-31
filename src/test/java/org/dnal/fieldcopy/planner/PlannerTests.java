@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +13,7 @@ import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
+import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
@@ -264,10 +264,36 @@ public class PlannerTests extends BaseTest {
 		private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
             Class<?> destType = pair.getDestClass();
     		
-            //!!look if client passed in mapping
-            List<FieldPair> subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
+            //look if client passed a mapping
+            List<FieldPair> subFieldPairs;
+            FieldCopyMapping mapping = findMapping(pair, copySpec.mappingL);
+            if (mapping != null) {
+            	subFieldPairs = mapping.getFieldPairs();
+            } else {
+            	subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
+            }
     		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec);
 		}
+		private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
+			if (CollectionUtils.isEmpty(mappingL)) {
+				return null;
+			}
+			Class<?> srcClass = pair.getSrcClass();
+			
+			for(FieldCopyMapping mapping: mappingL) {
+				if (mapping.getClazzSrc().equals(srcClass)) {
+					if (pair.destProp == null) {
+						throw new IllegalArgumentException("fix later");
+					}
+					Class<?> destClass = pair.getDestClass();
+					if (mapping.getClazzDest().equals(destClass)) {
+						return mapping;
+					}
+				}
+			}
+			return null;
+		}
+		
 
 		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
 			if (pair.destProp != null) {
