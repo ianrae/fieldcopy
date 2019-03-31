@@ -13,7 +13,6 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.planner.PlannerTests.ZFieldPlan;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.ListSpec;

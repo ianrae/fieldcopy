@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
-import org.dnal.fieldcopy.planner.PlannerTests.ZFieldPlan;
 
 public class ZClassPlan {
 	public Class<?> srcClass;
