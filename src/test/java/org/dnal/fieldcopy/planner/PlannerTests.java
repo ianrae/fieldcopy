@@ -6,18 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
-import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
-import org.dnal.fieldcopy.core.CopyFactory;
-import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.FieldFilter;
-import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
-import org.dnal.fieldcopy.log.SimpleLogger;
 import org.junit.Test;
 
 /**
@@ -135,28 +129,6 @@ public class PlannerTests extends BaseTest {
 	
 	//add class B and then C
 	//C should have a date field. then test that builtIn converter for dates gets applied to C
-	
-	public static class PlannerFactory extends DefaultCopyFactory	 {
-		private static CopyFactory theSingleton;
-
-
-		@Override
-		public FieldCopyService createCopyService() {
-			SimpleLogger logger = createLogger();
-			FieldRegistry registry = new FieldRegistry();
-			FieldFilter fieldFilter = createFieldFilter();
-			PlannerService copySvc = new PlannerService(logger, registry, fieldFilter);
-			return copySvc;
-		}
-		
-		public static CopyFactory Factory() {
-			if (theSingleton == null) {
-				theSingleton = new PlannerFactory();
-			}
-			return theSingleton;
-		}
-	}
-	
 	
 	@Test
 	public void testString() {
@@ -296,9 +268,9 @@ public class PlannerTests extends BaseTest {
 
 	@Override
 	protected FieldCopier createCopier() {
-		PlannerFactory.setLogger(new SimpleConsoleLogger());
-		PlannerFactory.Factory().createLogger().enableLogging(true);
+		PlannerCopyFactory.setLogger(new SimpleConsoleLogger());
+		PlannerCopyFactory.Factory().createLogger().enableLogging(true);
 		
-		return PlannerFactory.Factory().createCopier();
+		return PlannerCopyFactory.Factory().createCopier();
 	}
 }
