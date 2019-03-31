@@ -3,8 +3,10 @@ package org.dnal.fieldcopy;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.planner.PlannerCopyFactory;
 
 public class BaseTest {
+	protected boolean usePlannerSvc = true;
 	
 	protected void log(String s) {
 		System.out.println(s);
@@ -14,12 +16,21 @@ public class BaseTest {
 	}
 
 	protected FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		return DefaultCopyFactory.Factory().createCopier();
+		if (usePlannerSvc) {
+			PlannerCopyFactory.setLogger(new SimpleConsoleLogger());
+			return PlannerCopyFactory.Factory().createCopier();
+		} else {
+			DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
+			return DefaultCopyFactory.Factory().createCopier();
+		}
 	}
 	//--
 	protected FieldCopyService createCopyService() {
-		return DefaultCopyFactory.Factory().createCopyService();
+		if (usePlannerSvc) {
+			return PlannerCopyFactory.Factory().createCopyService();
+		} else {
+			return DefaultCopyFactory.Factory().createCopyService();
+		}
 //		SimpleLogger logger = new SimpleConsoleLogger();
 //		FieldRegistry registry = new FieldRegistry();
 //		FieldCopyService copySvc = new FieldCopyService(logger, registry);

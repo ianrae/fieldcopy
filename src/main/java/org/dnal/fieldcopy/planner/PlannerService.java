@@ -20,6 +20,10 @@ import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 
 public class PlannerService extends PlannerServiceBase {
+	private static class PlanCreateState {
+		public String currentFieldName;
+	}
+	
 	private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
 	private boolean enablePlanCache = true;
 	private ZConverterService converterSvc;
@@ -89,12 +93,18 @@ public class PlannerService extends PlannerServiceBase {
 		}
 		
 		if (classPlan == null) {
+			PlanCreateState state = new PlanCreateState();
 			try {
-				classPlan = buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs, copySpec);
-			} catch (Exception e) {
-				//throw FCException with inner !!!!!!!!!!!!!
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				classPlan = buildClassPlan(sourceObj, destObj, sourceObj.getClass(), destObj.getClass(), copySpec.fieldPairs, copySpec, state);
+			} catch(FieldCopyException e) {
+				throw e; //rethrow
+			}catch (Exception e) {
+				String s = " while generating execution plan:";
+				String className = String.format("'%s'", copySpec.sourceObj.getClass().getSimpleName());
+				String field = state.currentFieldName == null ? "" : " field '" + state.currentFieldName + "'";
+				String msg = String.format("Exception in %s %s: %s%s %s", className, field,
+						e.getClass().getSimpleName(), s, e.getMessage());
+				throw new FieldCopyException(msg, e);
 			}
 			
 			if (enablePlanCache) {
@@ -104,7 +114,7 @@ public class PlannerService extends PlannerServiceBase {
 		return classPlan;
 	}
 
-	private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec) throws Exception {
+	private ZClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec, PlanCreateState state) throws Exception {
 		logger.log("BUILDPLAN!");
 		if (srcObj == null) {
 			String error = String.format("buildClassPlan. srcObj is NULL");
@@ -122,6 +132,7 @@ public class PlannerService extends PlannerServiceBase {
 		for(FieldPair pair: fieldPairs) {
 			final FieldDescriptor origDescriptor = pair.srcProp;
 			final String name = origDescriptor.getName();
+			state.currentFieldName = name; //for logging errors
 			
 			//check for readability and writability
 			if (! propertyUtils.isReadable(srcObj, name)) {
@@ -137,6 +148,7 @@ public class PlannerService extends PlannerServiceBase {
             ZFieldPlan fieldPlan = new ZFieldPlan();
             fieldPlan.srcFd = origDescriptor;
             fieldPlan.destFd = pair.destProp;
+            fieldPlan.defaultValue = pair.defaultValue;
             Class<?> srcType = pair.getSrcClass();
 
             if (beanDetectorSvc.isBeanClass(srcType)) {
@@ -147,7 +159,7 @@ public class PlannerService extends PlannerServiceBase {
             		fieldPlan.lazySubPlanFlag = true; //do later if this field is ever non-null
             	} else {
             		//recursively generate plan
-            		fieldPlan.subPlan = doCreateSubPlan(copySpec, pair, srcType, srcFieldValue); //**recursion**
+            		fieldPlan.subPlan = doCreateSubPlan(copySpec, pair, srcType, srcFieldValue, state); //**recursion**
             	}
             } else {
             	validateIsAllowed(pair);
@@ -193,7 +205,7 @@ public class PlannerService extends PlannerServiceBase {
 	}
 	
 
-	private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue) throws Exception {
+	private ZClassPlan doCreateSubPlan(CopySpec copySpec, FieldPair pair, Class<?> srcType, Object srcFieldValue, PlanCreateState state) throws Exception {
         Class<?> destType = pair.getDestClass();
 		
         //look if client passed a mapping
@@ -204,7 +216,7 @@ public class PlannerService extends PlannerServiceBase {
         } else {
         	subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
         }
-		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec);
+		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec, state);
 	}
 	private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
 		if (CollectionUtils.isEmpty(mappingL)) {
@@ -327,7 +339,8 @@ public class PlannerService extends PlannerServiceBase {
 				pair.destProp = fieldPlan.destFd;
 				pair.srcProp = fieldPlan.srcFd;
 				logger.log("lazy-generate-plan %s", pair.destFieldName);
-				fieldPlan.subPlan = doCreateSubPlan(execPlan.copySpec, pair, srcClass, value);
+				PlanCreateState state = new PlanCreateState();
+				fieldPlan.subPlan = doCreateSubPlan(execPlan.copySpec, pair, srcClass, value, state);
 				if (fieldPlan.subPlan != null) {
 					fieldPlan.lazySubPlanFlag = false;
 				}
