@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
@@ -268,9 +269,9 @@ public class PlannerTests extends BaseTest {
 
 	@Override
 	protected FieldCopier createCopier() {
-		PlannerCopyFactory.setLogger(new SimpleConsoleLogger());
-		PlannerCopyFactory.Factory().createLogger().enableLogging(true);
+		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
+		DefaultCopyFactory.Factory().createLogger().enableLogging(true);
 		
-		return PlannerCopyFactory.Factory().createCopier();
+		return DefaultCopyFactory.Factory().createCopier();
 	}
 }

@@ -7,11 +7,11 @@ import java.util.Date;
 import java.util.Random;
 
 import org.dnal.fieldcopy.BaseTest;
-import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
+import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
 
 public class BaseScopeTest extends BaseTest {
 	
