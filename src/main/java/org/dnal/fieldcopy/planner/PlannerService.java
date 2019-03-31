@@ -22,6 +22,7 @@ import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 public class PlannerService extends PlannerServiceBase {
 	private static class PlanCreateState {
 		public String currentFieldName;
+		public int runawayCounter = 1;
 	}
 	
 	private Map<String,ZClassPlan> executionPlanMap = new ConcurrentHashMap<>();
@@ -122,6 +123,12 @@ public class PlannerService extends PlannerServiceBase {
 		}
 		//destObj can be null
 		
+		if (state.runawayCounter > copySpec.options.maxRecursionDepth) {
+			String error = String.format("maxRecursionDepth exceeded during plan creation. There may be a circular reference.");
+			throw new FieldCopyException(error);
+		}
+		
+		
 		ZClassPlan classPlan = new ZClassPlan();
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
@@ -216,6 +223,7 @@ public class PlannerService extends PlannerServiceBase {
         } else {
         	subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
         }
+        state.runawayCounter++;
 		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec, state);
 	}
 	private FieldCopyMapping findMapping(FieldPair pair, List<FieldCopyMapping> mappingL) throws Exception {
