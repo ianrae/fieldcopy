@@ -72,6 +72,7 @@ public class ListTests extends BaseTest {
 		HolderDest holder2 = new HolderDest();
 		
 		FieldCopier copier = createCopier();
+		enableLogging();
 		copier.copy(holder, holder2).autoCopy().execute();
 		assertEquals(55, holder2.getWidth());
 		assertEquals(1, holder2.getListSource1().size());

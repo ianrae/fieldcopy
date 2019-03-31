@@ -21,7 +21,7 @@ import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
-public abstract class BUPlannerServiceBase implements FieldCopyService {
+public abstract class BUCopyServiceBase implements FieldCopyService {
 	
 	protected SimpleLogger logger;
 	protected FieldRegistry registry;
@@ -30,7 +30,7 @@ public abstract class BUPlannerServiceBase implements FieldCopyService {
 	protected FieldFilter fieldFilter;
 	protected BUBeanDetectorService beanDetectorSvc;
 
-	public BUPlannerServiceBase(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+	public BUCopyServiceBase(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.registry = registry;
 		this.beanUtil =  BeanUtilsBean.getInstance();
@@ -226,7 +226,4 @@ public abstract class BUPlannerServiceBase implements FieldCopyService {
 			return s;
 		}
 	}
-
-	
-	
 }

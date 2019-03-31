@@ -25,7 +25,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * @author Ian Rae
  *
  */
-public class BUCopyService extends BUPlannerServiceBase {
+public class BUCopyService extends BUCopyServiceBase {
 	private static class PlanCreateState {
 		public String currentFieldName;
 		public int runawayCounter = 1;
@@ -59,7 +59,6 @@ public class BUCopyService extends BUPlannerServiceBase {
 	
 	@Override
 	public void copyFields(CopySpec copySpec) {
-		logger.log("PLAN!");
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
 
@@ -74,8 +73,7 @@ public class BUCopyService extends BUPlannerServiceBase {
 		
 		BUClassPlan classPlan = getOrCreatePlan(copySpec);
 		
-		logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
-				copySpec.destObj.getClass(), classPlan.fieldPlanL.size());
+		logStartOfCopy(copySpec, classPlan);
 		BUExecutePlan execPlan = new BUExecutePlan();
 		execPlan.srcObject = sourceObj;
 		execPlan.destObj = destObj;
@@ -87,6 +85,13 @@ public class BUCopyService extends BUPlannerServiceBase {
 		this.executePlan(execPlan, copySpec.runawayCounter);
 	}
 	
+	private void logStartOfCopy(CopySpec copySpec, BUClassPlan classPlan) {
+		//TODO copyOptions should have flag for log full name or simple name
+		String srcName = copySpec.sourceObj == null ? "" : copySpec.sourceObj.getClass().getSimpleName();
+		String destName = copySpec.destObj == null ? "" : copySpec.destObj.getClass().getSimpleName();
+		logger.log("COPY %s -> %s: using plan: %d fields", srcName, destName, classPlan.fieldPlanL.size());
+	}
+
 	private BUClassPlan getOrCreatePlan(CopySpec copySpec) {
 		Object sourceObj = copySpec.sourceObj;
 		Object destObj = copySpec.destObj;
@@ -122,7 +127,6 @@ public class BUCopyService extends BUPlannerServiceBase {
 	}
 
 	private BUClassPlan buildClassPlan(Object srcObj, Object destObj, Class<?> srcClass, Class<?> destClass, List<FieldPair> fieldPairs, CopySpec copySpec, PlanCreateState state) throws Exception {
-		logger.log("BUILDPLAN!");
 		if (srcObj == null) {
 			String error = String.format("buildClassPlan. srcObj is NULL");
 			throw new FieldCopyException(error);
