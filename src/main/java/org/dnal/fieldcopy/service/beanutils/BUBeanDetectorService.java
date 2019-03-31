@@ -12,10 +12,10 @@ import java.util.Map;
 
 import org.dnal.fieldcopy.core.BeanDetectorService;
 
-public class BeanUtilsBeanDetectorService implements BeanDetectorService {
+public class BUBeanDetectorService implements BeanDetectorService {
 	private Map<Class<?>, String> knownTypes = new HashMap<>();
 	
-	public BeanUtilsBeanDetectorService() {
+	public BUBeanDetectorService() {
 		//primitive types
 		add(Boolean.TYPE);
 		add(Byte.TYPE);

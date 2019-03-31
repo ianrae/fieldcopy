@@ -9,7 +9,7 @@ import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 /**
  * Converts the elements of an array.

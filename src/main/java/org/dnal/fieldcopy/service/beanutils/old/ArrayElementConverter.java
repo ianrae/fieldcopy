@@ -1,12 +1,15 @@
-package org.dnal.fieldcopy.converter;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.lang.reflect.Array;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 /**
  * Converts the elements of an array.
@@ -27,7 +30,7 @@ public class ArrayElementConverter implements ValueConverter {
 	private boolean sourceIsList;
 
 	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
-			BeanUtilsBeanDetectorService beanDetectorSvc) {
+			BUBeanDetectorService beanDetectorSvc) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;

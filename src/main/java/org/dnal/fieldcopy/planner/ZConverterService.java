@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.dnal.fieldcopy.converter.ArrayElementConverter;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -13,7 +12,8 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.old.ArrayElementConverter;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.old.ListSpec;
 import org.dnal.fieldcopy.service.beanutils.old.ReflectionUtil;
@@ -24,7 +24,7 @@ public class ZConverterService {
 	private List<ValueConverter> builtInConverterL = new ArrayList<>();
 	private FieldCopyService outerSvc;
 	
-	public ZConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
+	public ZConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
 		this.logger = logger;
 		this.converterFactory = new ZListElementConverterFactory(outerSvc);
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);

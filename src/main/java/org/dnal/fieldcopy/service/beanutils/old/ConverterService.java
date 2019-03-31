@@ -5,23 +5,20 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.dnal.fieldcopy.converter.ArrayElementConverter;
 import org.dnal.fieldcopy.converter.FieldInfo;
-import org.dnal.fieldcopy.converter.ListElementConverter;
-import org.dnal.fieldcopy.converter.ListElementConverterFactory;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 public class ConverterService {
 	private SimpleLogger logger;
 	private ListElementConverterFactory converterFactory;
 	private List<ValueConverter> builtInConverterL = new ArrayList<>();
 	
-	public ConverterService(SimpleLogger logger, BeanUtilsBeanDetectorService beanDetectorSvc) {
+	public ConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc) {
 		this.logger = logger;
 		this.converterFactory = new ListElementConverterFactory();
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);

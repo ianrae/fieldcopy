@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
@@ -17,9 +17,13 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.planner.ZClassPlan;
+import org.dnal.fieldcopy.planner.ZConverterService;
+import org.dnal.fieldcopy.planner.ZExecPlan;
+import org.dnal.fieldcopy.planner.ZFieldPlan;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
-public class PlannerService extends PlannerServiceBase {
+public class BUCopyService extends BUPlannerServiceBase {
 	private static class PlanCreateState {
 		public String currentFieldName;
 		public int runawayCounter = 1;
@@ -29,7 +33,7 @@ public class PlannerService extends PlannerServiceBase {
 	private boolean enablePlanCache = true;
 	private ZConverterService converterSvc;
 
-	public PlannerService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+	public BUCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		super(logger, registry, fieldFilter);
 		this.converterSvc = new ZConverterService(logger, this.beanDetectorSvc, this);
 	}

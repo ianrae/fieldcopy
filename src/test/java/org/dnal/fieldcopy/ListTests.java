@@ -12,8 +12,8 @@ import java.util.List;
 
 import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.converter.ListElementConverter;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.old.ListElementConverter;
 import org.junit.Test;
 
 
@@ -92,7 +92,7 @@ public class ListTests extends BaseTest {
 		
 		HolderDest holder2 = new HolderDest();
 		FieldCopier copier = createCopier();
-		BeanUtilsBeanDetectorService beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		BUBeanDetectorService beanDetectorSvc = new BUBeanDetectorService();
 		ListElementConverter converter = new ListElementConverter(Holder.class, "listSource1", 
 				Source.class, Dest.class, beanDetectorSvc);
 		

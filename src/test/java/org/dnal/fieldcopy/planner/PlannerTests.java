@@ -13,6 +13,7 @@ import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.service.beanutils.BUCopyService;
 import org.junit.Test;
 
 /**
@@ -206,7 +207,7 @@ public class PlannerTests extends BaseTest {
 		assertEquals("smith", dest.getName2());
 		assertEquals("toronto", dest.getbVal().getTitle());
 		
-		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
+		BUCopyService plannerSvc = (BUCopyService) copier.getCopyService();
 		assertEquals(1, plannerSvc.getPlanCacheSize());
 	}
 	
@@ -259,7 +260,7 @@ public class PlannerTests extends BaseTest {
 //		Des?St dest = holder2.getListSource1().get(0);
 		
 		
-		PlannerService plannerSvc = (PlannerService) copier.getCopyService();
+		BUCopyService plannerSvc = (BUCopyService) copier.getCopyService();
 		assertEquals(2, plannerSvc.getPlanCacheSize());
 		ZClassPlan plan = plannerSvc.findPlan(Holder.class.getName());
 		assertEquals(1, plan.converterL.size());

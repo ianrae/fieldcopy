@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.junit.Test;
 
 public class BeanDetectorServiceTests extends BaseTest {
 	
 	@Test
 	public void test() {
-		this.svc = new BeanUtilsBeanDetectorService();
+		this.svc = new BUBeanDetectorService();
 		chkFalse(String.class);
 		chkFalse(Integer.class);
 		chkFalse(Boolean.class);
@@ -21,7 +21,7 @@ public class BeanDetectorServiceTests extends BaseTest {
 	}
 	
 	//--
-	private BeanUtilsBeanDetectorService svc;
+	private BUBeanDetectorService svc;
 	
 	private void chkFalse(Class<?> clazz) {
 		assertEquals(false, svc.isBeanClass(clazz));

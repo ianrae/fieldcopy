@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.planner;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
@@ -20,25 +20,24 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
-public abstract class PlannerServiceBase implements FieldCopyService {
+public abstract class BUPlannerServiceBase implements FieldCopyService {
 	
 	protected SimpleLogger logger;
 	protected FieldRegistry registry;
 	protected BeanUtilsBean beanUtil;
 	protected PropertyUtilsBean propertyUtils;
 	protected FieldFilter fieldFilter;
-	protected BeanUtilsBeanDetectorService beanDetectorSvc;
+	protected BUBeanDetectorService beanDetectorSvc;
 
-	public PlannerServiceBase(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+	public BUPlannerServiceBase(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.registry = registry;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
-		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		this.beanDetectorSvc = new BUBeanDetectorService();
 		
 		//customize Date converter.  There is no good defaut for date conversions
 		//so well just do yyyy-MM-dd

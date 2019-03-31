@@ -21,7 +21,7 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 public class FastBeanUtilFieldCopyService {
 	private SimpleLogger logger;
@@ -29,14 +29,14 @@ public class FastBeanUtilFieldCopyService {
 	private PropertyUtilsBean propertyUtils;
 	private FieldFilter fieldFilter;
 	private ConverterService converterSvc;
-	private BeanUtilsBeanDetectorService beanDetectorSvc;
+	private BUBeanDetectorService beanDetectorSvc;
 	
 	public FastBeanUtilFieldCopyService(SimpleLogger logger, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
-		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		this.beanDetectorSvc = new BUBeanDetectorService();
 		this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
 	}
 

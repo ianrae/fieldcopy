@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 public class ZListElementConverterFactory {
-	private BeanUtilsBeanDetectorService beanDetectorSvc;
+	private BUBeanDetectorService beanDetectorSvc;
 	private FieldCopyService outerSvc;
 
 	public ZListElementConverterFactory(FieldCopyService outerSvc) {
@@ -56,7 +56,7 @@ public class ZListElementConverterFactory {
 		}
 		return !destElementClass.isEnum();
 	}
-	public void setBeanDetectorSvc(BeanUtilsBeanDetectorService beanDetectorSvc) {
+	public void setBeanDetectorSvc(BUBeanDetectorService beanDetectorSvc) {
 		this.beanDetectorSvc = beanDetectorSvc;
 	}
 	
