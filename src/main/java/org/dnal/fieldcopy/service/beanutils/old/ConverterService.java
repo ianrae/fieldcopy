@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.service.beanutils;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +14,7 @@ import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
 
 public class ConverterService {
 	private SimpleLogger logger;

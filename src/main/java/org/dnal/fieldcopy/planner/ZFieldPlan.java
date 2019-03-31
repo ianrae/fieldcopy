@@ -2,7 +2,7 @@ package org.dnal.fieldcopy.planner;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
 public class ZFieldPlan {
 	public FieldDescriptor srcFd;

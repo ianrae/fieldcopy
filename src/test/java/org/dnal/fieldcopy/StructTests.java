@@ -8,8 +8,8 @@ import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.service.beanutils.ExecuteCopyPlan;
-import org.dnal.fieldcopy.service.beanutils.FastBeanUtilFieldCopyService;
+import org.dnal.fieldcopy.service.beanutils.old.ExecuteCopyPlan;
+import org.dnal.fieldcopy.service.beanutils.old.FastBeanUtilFieldCopyService;
 import org.junit.Test;
 
 public class StructTests extends BaseTest {

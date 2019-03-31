@@ -14,9 +14,9 @@ import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.ListSpec;
-import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
+import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.old.ListSpec;
+import org.dnal.fieldcopy.service.beanutils.old.ReflectionUtil;
 
 public class ZConverterService {
 	private SimpleLogger logger;

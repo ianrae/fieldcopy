@@ -7,7 +7,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldCopyService;
+import org.dnal.fieldcopy.service.beanutils.old.XBeanUtilsFieldCopyService;
 
 /**
  * Creates a field copier that uses Apache BeanUtils (reflection-based),
@@ -41,7 +41,7 @@ public class DefaultCopyFactory implements CopyFactory {
 		FieldRegistry registry = new FieldRegistry();
 		FieldFilter fieldFilter = createFieldFilter();
 //		FieldCopyService copySvc = new BeanUtilFieldCopyService(logger, registry, fieldFilter);
-		FieldCopyService copySvc = new BeanUtilsFieldCopyService(logger, registry, fieldFilter);
+		FieldCopyService copySvc = new XBeanUtilsFieldCopyService(logger, registry, fieldFilter);
 		return copySvc;
 	}
 

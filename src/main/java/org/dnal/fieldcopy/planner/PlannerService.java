@@ -17,7 +17,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
 public class PlannerService extends PlannerServiceBase {
 	private static class PlanCreateState {

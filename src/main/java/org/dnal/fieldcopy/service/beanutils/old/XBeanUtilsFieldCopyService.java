@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.service.beanutils;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -32,7 +32,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * @author Ian Rae
  *
  */
-public class BeanUtilsFieldCopyService implements FieldCopyService {
+public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
@@ -41,7 +41,7 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		private FastBeanUtilFieldCopyService fastSvc;
 		private Map<String,ExecuteCopyPlan> executionPlanMap = new HashMap<>();
 		
-		public BeanUtilsFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+		public XBeanUtilsFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
