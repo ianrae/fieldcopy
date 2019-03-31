@@ -13,7 +13,6 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
-import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
@@ -190,12 +189,6 @@ public abstract class PlannerServiceBase implements FieldCopyService {
 	@Override
 	public FieldRegistry getRegistry() {
 		return registry;
-	}
-
-	@Override
-	public void addBuiltInConverter(ValueConverter converter) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

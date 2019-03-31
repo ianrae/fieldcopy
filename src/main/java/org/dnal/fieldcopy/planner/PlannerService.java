@@ -46,6 +46,11 @@ public class PlannerService extends PlannerServiceBase {
 	}
 	
 	@Override
+	public void addBuiltInConverter(ValueConverter converter) {
+		this.converterSvc.getBuiltInConverterL().add(converter);
+	}
+	
+	@Override
 	public void copyFields(CopySpec copySpec) {
 		logger.log("PLAN!");
 		Object sourceObj = copySpec.sourceObj;
@@ -62,22 +67,17 @@ public class PlannerService extends PlannerServiceBase {
 		
 		ZClassPlan classPlan = getOrCreatePlan(copySpec);
 		
-		try {
-			logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
-					copySpec.destObj.getClass(), classPlan.fieldPlanL.size());
-			ZExecPlan execPlan = new ZExecPlan();
-			execPlan.srcObject = sourceObj;
-			execPlan.destObj = destObj;
-			execPlan.classPlan = classPlan;
-			execPlan.copySpec = copySpec;
-			//TODO anything else to propagate?
-			//propogateStuff(execSpec, copySpec);
-			
-			this.executePlan(execPlan, copySpec.runawayCounter);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		logger.log("%s->%s: plan: %d fields", copySpec.sourceObj.getClass(), 
+				copySpec.destObj.getClass(), classPlan.fieldPlanL.size());
+		ZExecPlan execPlan = new ZExecPlan();
+		execPlan.srcObject = sourceObj;
+		execPlan.destObj = destObj;
+		execPlan.classPlan = classPlan;
+		execPlan.copySpec = copySpec;
+		//TODO anything else to propagate?
+		//propogateStuff(execSpec, copySpec);
+
+		this.executePlan(execPlan, copySpec.runawayCounter);
 	}
 	
 	private ZClassPlan getOrCreatePlan(CopySpec copySpec) {
