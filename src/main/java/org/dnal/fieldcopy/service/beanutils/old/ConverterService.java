@@ -12,6 +12,9 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.ListSpec;
+import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
 
 public class ConverterService {
 	private SimpleLogger logger;

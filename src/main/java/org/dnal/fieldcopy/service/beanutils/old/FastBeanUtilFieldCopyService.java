@@ -22,6 +22,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 
 public class FastBeanUtilFieldCopyService {
 	private SimpleLogger logger;

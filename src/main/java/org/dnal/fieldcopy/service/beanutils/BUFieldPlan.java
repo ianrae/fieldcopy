@@ -2,8 +2,14 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
+/**
+ * Copy plan for a single field that is being copied from a source object to a 
+ * destination object.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BUFieldPlan {
 	public FieldDescriptor srcFd;
 	public FieldDescriptor destFd;

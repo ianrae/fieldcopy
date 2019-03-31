@@ -5,6 +5,12 @@ import java.util.List;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 
+/**
+ * Plan for copying an object of type srcClass to an object of type destClass.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BUClassPlan {
 	public Class<?> srcClass;
 	public Class<?> destClass;

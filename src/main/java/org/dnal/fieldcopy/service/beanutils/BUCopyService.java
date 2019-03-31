@@ -17,8 +17,14 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
 
+/**
+ * Apache BeanUtils implementation of FieldCopyService.
+ * Generates (and caches) a copy plan.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BUCopyService extends BUPlannerServiceBase {
 	private static class PlanCreateState {
 		public String currentFieldName;

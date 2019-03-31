@@ -1,6 +1,6 @@
 package org.dnal.fieldcopy.core;
 
-import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 
 /**
  * Defines the copy of a source field to a destination field.

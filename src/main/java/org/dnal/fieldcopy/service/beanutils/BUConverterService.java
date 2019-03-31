@@ -12,11 +12,13 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.old.ArrayElementConverter;
-import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.old.ListSpec;
-import org.dnal.fieldcopy.service.beanutils.old.ReflectionUtil;
 
+/**
+ * Manages the converters, including converters for arrays and lists.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BUConverterService {
 	private SimpleLogger logger;
 	private BUListElementConverterFactory converterFactory;

@@ -2,6 +2,12 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.core.CopySpec;
 
+/**
+ * Instructions for doing a copy.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class BUExecutePlan {
 	public Object srcObject;
 	public Object destObj;

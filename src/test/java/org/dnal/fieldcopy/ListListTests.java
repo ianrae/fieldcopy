@@ -10,10 +10,10 @@ import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.old.BeanUtilsFieldDescriptor;
-import org.dnal.fieldcopy.service.beanutils.old.ListSpec;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.service.beanutils.ListSpec;
+import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
 import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
-import org.dnal.fieldcopy.service.beanutils.old.ReflectionUtil;
 import org.junit.Test;
 
 

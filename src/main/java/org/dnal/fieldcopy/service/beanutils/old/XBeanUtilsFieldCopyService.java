@@ -20,6 +20,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 
 /**
  * An implementation of FieldCopyService that uses Apache BeanUtils to do the
