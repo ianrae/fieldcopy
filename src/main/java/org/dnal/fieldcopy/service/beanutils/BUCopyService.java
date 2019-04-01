@@ -145,7 +145,9 @@ public class BUCopyService extends BUCopyServiceBase {
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
 		
-		copySpec.converterL.addIntoOtherList(classPlan.converterL);
+		if (copySpec.converterL != null) {
+			copySpec.converterL.addIntoOtherList(classPlan.converterL);
+		}
 //		if (! copySpec.converterL.isEmpty()) {
 //			Iterator<ValueConverter> iter = copySpec.converterL.iterator();
 //			while(iter.hasNext()) {
