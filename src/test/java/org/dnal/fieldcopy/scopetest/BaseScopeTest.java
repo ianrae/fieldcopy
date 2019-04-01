@@ -11,7 +11,6 @@ import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.scopetest.data.AllTypesDTO;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
-import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
 
 public class BaseScopeTest extends BaseTest {
 	

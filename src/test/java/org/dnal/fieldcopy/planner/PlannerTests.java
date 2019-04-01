@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.DefaultCopyFactory;
+import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
@@ -271,10 +271,9 @@ public class PlannerTests extends BaseTest {
 
 	@Override
 	protected FieldCopier createCopier() {
-		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
-		DefaultCopyFactory.Factory().createLogger().enableLogging(true);
+		FieldCopy.getLogger().enableLogging(true);
 		//for unit tests we want a fresh one each time
-		DefaultCopyFactory.clearCopyService();
-		return DefaultCopyFactory.Factory().createCopier();
+//		DefaultCopyFactory.clearCopyService();
+		return FieldCopy.createFactory().createCopier();
 	}
 }

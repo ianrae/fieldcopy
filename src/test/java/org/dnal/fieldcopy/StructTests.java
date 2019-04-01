@@ -4,22 +4,20 @@ import static org.junit.Assert.assertEquals;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.service.beanutils.old.ExecuteCopyPlan;
 import org.dnal.fieldcopy.service.beanutils.old.FastBeanUtilFieldCopyService;
-import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
 import org.junit.Test;
 
 public class StructTests extends BaseTest {
 
 	@Test
 	public void test() {
-		CopyFactory factory = OldDefaultCopyFactory.Factory();
-		FieldCopyService copySvc = factory.createCopyService();
+		FieldCopyService copySvc = this.createCopyService();
 		
-		FastBeanUtilFieldCopyService execSvc = new FastBeanUtilFieldCopyService(factory.createLogger(),factory.createFieldFilter());
+		FastBeanUtilFieldCopyService execSvc = new FastBeanUtilFieldCopyService(FieldCopy.getLogger(), new DefaultFieldFilter());
 		
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);

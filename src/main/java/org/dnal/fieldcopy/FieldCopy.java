@@ -3,10 +3,13 @@ package org.dnal.fieldcopy;
 import org.dnal.fieldcopy.core.CopierFactoryImpl;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.ServiceFactory;
+import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BUServiceFactory;
 
 public class FieldCopy {
 	private static FieldCopy theSingleton;
+	private static SimpleLogger theLogger = new SimpleConsoleLogger();
 	
 	private ServiceFactory svcFactory;
 	
@@ -22,6 +25,12 @@ public class FieldCopy {
 	 */
 	public static synchronized void setSingleton(FieldCopy factory) {
 		theSingleton = factory;
+	}
+	public static synchronized void setLogger(SimpleLogger logger) {
+		theLogger = logger;
+	}
+	public static SimpleLogger getLogger() {
+		return theLogger;
 	}
 	
 	/**
@@ -42,7 +51,7 @@ public class FieldCopy {
 	 * a new instance of a field copy service.
 	 */
 	private CopierFactory createCopierFactory() {
-		FieldCopyService copySvc = svcFactory.createService();
+		FieldCopyService copySvc = svcFactory.createService(theLogger);
 		CopierFactoryImpl dcf = new CopierFactoryImpl(copySvc);
 		return dcf;
 	}

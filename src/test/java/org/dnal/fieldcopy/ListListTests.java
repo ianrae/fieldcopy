@@ -13,7 +13,6 @@ import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.ListSpec;
 import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
-import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
 import org.junit.Test;
 
 
@@ -118,8 +117,7 @@ public class ListListTests extends BaseTest {
 	
 	@Test
 	public void testListInfo() {
-		
-		FieldCopyService copySvc = OldDefaultCopyFactory.Factory().createCopyService();
+		FieldCopyService copySvc = createCopyService();
 		List<FieldPair> pairL = copySvc.buildAutoCopyPairs(Taxi.class, TaxiDTO.class);
 		
 		Taxi taxi = new Taxi();

@@ -8,7 +8,6 @@ import org.dnal.fieldcopy.scope.core.Scope;
 import org.dnal.fieldcopy.scopetest.data.AllTypesEntity;
 import org.dnal.fieldcopy.scopetest.data.BaseListConverter;
 import org.dnal.fieldcopy.scopetest.data.Colour;
-import org.dnal.fieldcopy.service.beanutils.old.OldDefaultCopyFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
