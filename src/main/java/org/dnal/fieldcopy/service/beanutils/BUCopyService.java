@@ -56,7 +56,7 @@ public class BUCopyService extends BUCopyServiceBase {
 	
 	@Override
 	public void addBuiltInConverter(ValueConverter converter) {
-		this.converterSvc.getBuiltInConverterL().add(converter);
+		this.converterSvc.addBuiltInConverter(converter);
 	}
 	
 	@Override
@@ -145,7 +145,7 @@ public class BUCopyService extends BUCopyServiceBase {
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
 		if (copySpec.converterL != null) {
-			copySpec.converterL.addAll(classPlan.converterL);
+			classPlan.converterL.addAll(copySpec.converterL);
 		}
 
 		List<BUFieldPlan> tmpL = new ArrayList<>();

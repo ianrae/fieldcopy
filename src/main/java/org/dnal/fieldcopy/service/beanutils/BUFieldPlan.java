@@ -17,9 +17,9 @@ public class BUFieldPlan {
 	public Object defaultValue = null;
 	
 	public boolean isBean;
-	public BUClassPlan subPlan; //null if not-bean
+	public volatile BUClassPlan subPlan; //null if not-bean
 	//public boolean directMode; //later when we support plan backoff
-	public boolean lazySubPlanFlag = false; 
+	public volatile boolean lazySubPlanFlag = false; 
 
 	public Class<?> getSrcClass() {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) srcFd;

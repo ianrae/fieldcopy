@@ -24,7 +24,7 @@ import org.dnal.fieldcopy.util.ThreadSafeList;
 public class BUConverterService {
 	private SimpleLogger logger;
 	private BUListElementConverterFactory converterFactory;
-	private List<ValueConverter> builtInConverterL = new ArrayList<>();
+	private ThreadSafeList<ValueConverter> builtInConverterL = new ThreadSafeList<>();
 	private FieldCopyService outerSvc;
 	
 	public BUConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
@@ -210,7 +210,9 @@ public class BUConverterService {
 		}
 
 		//now try builtin converters
-		for(ValueConverter converter: builtInConverterL) {
+		iter = classPlan.converterL.iterator();
+		while(iter.hasNext()) {
+			ValueConverter converter = iter.next();
 			//a special use of converter. normally we pass field name and its class (and the dest class).
 			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 			if (converter.canConvert(sourceField, destField)) {
@@ -249,7 +251,7 @@ public class BUConverterService {
 
 
 	public ValueConverter findConverter(CopySpec copySpec, FieldPair pair, Object orig, ThreadSafeList<ValueConverter> converterL) {
-		if (ThreadSafeList.isNotEmpty(converterL) || CollectionUtils.isNotEmpty(builtInConverterL)) {
+		if (ThreadSafeList.isNotEmpty(converterL) || ThreadSafeList.isNotEmpty(builtInConverterL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
 			
@@ -281,7 +283,9 @@ public class BUConverterService {
 			}
 			
 			//now try builtin converters
-			for(ValueConverter converter: builtInConverterL) {
+			Iterator<ValueConverter> iter = builtInConverterL.iterator();
+			while(iter.hasNext()) {
+				ValueConverter converter = iter.next();
 				//a special use of converter. normally we pass field name and its class (and the dest class).
 				//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 				if (converter.canConvert(sourceField, destField)) {
@@ -293,8 +297,8 @@ public class BUConverterService {
 		return null;
 	}
 
-	public List<ValueConverter> getBuiltInConverterL() {
-		return builtInConverterL;
+	public void addBuiltInConverter(ValueConverter converter) {
+		builtInConverterL.add(converter);
 	}
 	
 }
