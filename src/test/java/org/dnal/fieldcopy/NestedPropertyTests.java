@@ -99,4 +99,24 @@ public class NestedPropertyTests extends BaseTest {
 		assertEquals("main", out.getStreet());
 	}
 	
+	@Test
+	public void testReverse() {
+		Person dest = new Person();
+		Address addr = new Address();
+		dest.setAddr(addr);
+		
+		PersonOut input = new PersonOut();
+		input.setName("bob");
+		input.setStreet("main");
+		FieldCopier copier = createCopier();
+		enableLogging();
+		//not supported
+		//copier.copy(src, out).autoCopy().field("street", "addr.street").execute();
+
+		copier.copy(input, dest).autoCopy().execute();
+		copier.copy(input, dest.getAddr()).autoCopy().execute();
+		
+		assertEquals("bob", dest.getName());
+		assertEquals("main", dest.getAddr().getStreet());
+	}
 }
