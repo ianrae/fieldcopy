@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Converts the elements of a list.
@@ -105,7 +106,8 @@ public class BUListElementConverter implements ValueConverter {
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
-		spec.converterL = ctx.converterL;
+		spec.converterL = new ThreadSafeList<>();
+		spec.converterL.addAll(ctx.converterL);
 		spec.runawayCounter = ctx.runawayCounter;
 
 		//list elements may be different classes (eg. List<Shape> and Circle, Square, ...)

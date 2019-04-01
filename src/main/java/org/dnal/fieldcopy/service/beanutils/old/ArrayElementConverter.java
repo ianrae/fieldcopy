@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Converts the elements of an array.
@@ -99,7 +100,8 @@ public class ArrayElementConverter implements ValueConverter {
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
-		spec.converterL = ctx.converterL;
+		spec.converterL = new ThreadSafeList<>();
+		spec.converterL.addAll(ctx.converterL);
 
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);

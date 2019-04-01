@@ -5,6 +5,7 @@ import java.util.List;
 import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ValueConverter;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 public class CopySpec {
 		public Object sourceObj;
@@ -12,7 +13,7 @@ public class CopySpec {
 		public List<FieldPair> fieldPairs;
 		public List<FieldCopyMapping> mappingL;
 		public CopyOptions options;
-		public List<ValueConverter> converterL;
+		public ThreadSafeList<ValueConverter> converterL;
 		public String executionPlanCacheKey;
 		public int runawayCounter = 1;
 }

@@ -8,6 +8,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * First-level Fluent API for FieldCopy
@@ -90,7 +91,10 @@ public class CopyBuilder1 {
 		spec.fieldPairs = fieldsToCopy;
 		spec.mappingL = mappingList;
 		spec.options = root.options;
-		spec.converterL = this.converters;
+		if (this.converters != null) {
+			spec.converterL = new ThreadSafeList<ValueConverter>();
+			spec.converterL.addAll(this.converters);
+		}
 		spec.executionPlanCacheKey = this.executionPlanCacheKey;
 		root.mostRecentCopySpec = spec;
 		FieldCopyService copySvc = root.getCopyService();

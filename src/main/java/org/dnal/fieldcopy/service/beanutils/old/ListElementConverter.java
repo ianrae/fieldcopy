@@ -11,6 +11,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.BeanDetectorService;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Converts the elements of a list.
@@ -105,7 +106,8 @@ public class ListElementConverter implements ValueConverter {
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
-		spec.converterL = ctx.converterL;
+		spec.converterL = new ThreadSafeList<>();
+		spec.converterL.addAll(ctx.converterL);
 
 		List<Object> list2 = new ArrayList<>();
 		for(Object el: list) {

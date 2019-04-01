@@ -21,6 +21,7 @@ import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * An implementation of FieldCopyService that uses Apache BeanUtils to do the
@@ -147,7 +148,7 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 				}
 				if (fplan.converter != null) {
 					if (copySpec.converterL == null) {
-						copySpec.converterL = new ArrayList<>();
+						copySpec.converterL = new ThreadSafeList<>();
 					}
 					if (! copySpec.converterL.contains(fplan.converter)) {
 						copySpec.converterL.add(fplan.converter);

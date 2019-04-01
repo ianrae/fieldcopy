@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -15,6 +16,7 @@ import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.ListSpec;
 import org.dnal.fieldcopy.service.beanutils.ReflectionUtil;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 public class ConverterService {
 	private SimpleLogger logger;
@@ -38,7 +40,7 @@ public class ConverterService {
 				Collection.class.isAssignableFrom(destFieldClass)) {
 			
 			if (copySpec.converterL == null) {
-				copySpec.converterL = new ArrayList<>();
+				copySpec.converterL = new ThreadSafeList<>();
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
@@ -76,7 +78,7 @@ public class ConverterService {
 		if (srcFieldClass.isArray() && Collection.class.isAssignableFrom(destFieldClass)) {
 			
 			if (copySpec.converterL == null) {
-				copySpec.converterL = new ArrayList<>();
+				copySpec.converterL = new ThreadSafeList<>();
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
@@ -115,7 +117,7 @@ public class ConverterService {
 		if (srcFieldClass.isArray() && destFieldClass.isArray()) { 
 			
 			if (copySpec.converterL == null) {
-				copySpec.converterL = new ArrayList<>();
+				copySpec.converterL = new ThreadSafeList<>();
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildArraySpec(copySpec.sourceObj.getClass(), fd1);
@@ -153,7 +155,7 @@ public class ConverterService {
 		if (Collection.class.isAssignableFrom(srcFieldClass) && destFieldClass.isArray()) { 
 			
 			if (copySpec.converterL == null) {
-				copySpec.converterL = new ArrayList<>();
+				copySpec.converterL = new ThreadSafeList<>();
 			}
 			
 			ListSpec listSpec1 = ReflectionUtil.buildListSpec(copySpec.sourceObj.getClass(), fd1);
@@ -195,7 +197,9 @@ public class ConverterService {
 		isArray = destFieldClass.isArray();
 		FieldInfo destField = buildDestFieldInfo(pair, destElementClass, copySpec, isArray);
 		
-		for(ValueConverter converter: copySpec.converterL) {
+		Iterator<ValueConverter> iter = copySpec.converterL.iterator();
+		while(iter.hasNext()) {
+			ValueConverter converter = iter.next();
 			//a special use of converter. normally we pass field name and its class (and the dest class).
 			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 			if (converter.canConvert(sourceField, destField)) {
@@ -243,8 +247,8 @@ public class ConverterService {
 	}
 
 
-	public ValueConverter findConverter(CopySpec copySpec, FieldPair pair, Object orig, List<ValueConverter> converterL) {
-		if (CollectionUtils.isNotEmpty(converterL) || CollectionUtils.isNotEmpty(builtInConverterL)) {
+	public ValueConverter findConverter(CopySpec copySpec, FieldPair pair, Object orig, ThreadSafeList<ValueConverter> converterL) {
+		if (ThreadSafeList.isNotEmpty(converterL) || CollectionUtils.isNotEmpty(builtInConverterL)) {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
 			
@@ -263,8 +267,10 @@ public class ConverterService {
 			//NOTE. destObj is sometimes null. Document this TODO
 			destField.beanClass = copySpec.destObj == null ? null : copySpec.destObj.getClass();
 
-			if (CollectionUtils.isNotEmpty(converterL)) {
-				for(ValueConverter converter: converterL) {
+			if (ThreadSafeList.isNotEmpty(converterL)) {
+				Iterator<ValueConverter> iter = converterL.iterator();
+				while(iter.hasNext()) {
+					ValueConverter converter = iter.next();
 					//TODO: fix value null issue
 					
 					if (converter.canConvert(sourceField, destField)) {

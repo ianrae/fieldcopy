@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Apache BeanUtils implementation of FieldCopyService.
@@ -142,9 +144,14 @@ public class BUCopyService extends BUCopyServiceBase {
 		BUClassPlan classPlan = new BUClassPlan();
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
-		if (CollectionUtils.isNotEmpty(copySpec.converterL)) {
-			classPlan.converterL.addAll(copySpec.converterL);
-		}
+		
+		copySpec.converterL.addIntoOtherList(classPlan.converterL);
+//		if (! copySpec.converterL.isEmpty()) {
+//			Iterator<ValueConverter> iter = copySpec.converterL.iterator();
+//			while(iter.hasNext()) {
+//				classPlan.converterL.add(iter.next());
+//			}
+//		}
 
 		for(FieldPair pair: fieldPairs) {
 			final FieldDescriptor origDescriptor = pair.srcProp;
@@ -193,7 +200,8 @@ public class BUCopyService extends BUCopyServiceBase {
 		}
 		
 		//need copySpec and classPlan to have same set of converters
-		copySpec.converterL = new ArrayList<>(classPlan.converterL);
+		copySpec.converterL = new ThreadSafeList<>();
+		copySpec.converterL.addAll(classPlan.converterL);
 		return classPlan;
 	}
 	
@@ -399,9 +407,10 @@ public class BUCopyService extends BUCopyServiceBase {
 			ctx.mappingL = new ArrayList<>();
 			ctx.mappingL.addAll(execPlan.copySpec.mappingL);
 		}
-		if (CollectionUtils.isNotEmpty(execPlan.copySpec.converterL)) {
+		if (ThreadSafeList.isNotEmpty(execPlan.copySpec.converterL)) {
 			ctx.converterL = new ArrayList<>();
-			ctx.converterL.addAll(execPlan.copySpec.converterL);
+			execPlan.copySpec.converterL.addIntoOtherList(ctx.converterL);
+//			ctx.converterL.addAll(execPlan.copySpec.converterL);
 		}
 	}
 
