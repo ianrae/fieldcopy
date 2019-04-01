@@ -144,17 +144,11 @@ public class BUCopyService extends BUCopyServiceBase {
 		BUClassPlan classPlan = new BUClassPlan();
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;
-		
 		if (copySpec.converterL != null) {
-			copySpec.converterL.addIntoOtherList(classPlan.converterL);
+			copySpec.converterL.addAll(classPlan.converterL);
 		}
-//		if (! copySpec.converterL.isEmpty()) {
-//			Iterator<ValueConverter> iter = copySpec.converterL.iterator();
-//			while(iter.hasNext()) {
-//				classPlan.converterL.add(iter.next());
-//			}
-//		}
 
+		List<BUFieldPlan> tmpL = new ArrayList<>();
 		for(FieldPair pair: fieldPairs) {
 			final FieldDescriptor origDescriptor = pair.srcProp;
 			final String name = origDescriptor.getName();
@@ -198,8 +192,9 @@ public class BUCopyService extends BUCopyServiceBase {
         			fieldPlan.converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
         		}
             }
-            classPlan.fieldPlanL.add(fieldPlan);
+            tmpL.add(fieldPlan);
 		}
+        classPlan.fieldPlanL.addAll(tmpL);
 		
 		//need copySpec and classPlan to have same set of converters
 		copySpec.converterL = new ThreadSafeList<>();
@@ -209,7 +204,7 @@ public class BUCopyService extends BUCopyServiceBase {
 	
 	private ValueConverter findOrCreateCollectionConverter(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan) {
 		if (classPlan.converterL == null) {
-			classPlan.converterL = new ArrayList<>();
+			classPlan.converterL = new ThreadSafeList<>();
 		}
 		
     	ValueConverter converter = converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
@@ -332,7 +327,9 @@ public class BUCopyService extends BUCopyServiceBase {
 	private boolean doExecutePlan(BUExecutePlan execPlan, int runawayCounter) throws Exception {
 		boolean ok = true;
 		BUClassPlan classPlan = execPlan.classPlan;
-		for(BUFieldPlan fieldPlan: classPlan.fieldPlanL) {
+		Iterator<BUFieldPlan> iter = classPlan.fieldPlanL.iterator();
+		while(iter.hasNext()) {
+			BUFieldPlan fieldPlan = iter.next();
 			String name = fieldPlan.srcFd.getName();
 			execPlan.currentFieldName = name;
     		Object value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);

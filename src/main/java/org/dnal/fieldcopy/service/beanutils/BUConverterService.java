@@ -198,7 +198,9 @@ public class BUConverterService {
 		isArray = destFieldClass.isArray();
 		FieldInfo destField = buildDestFieldInfo(pair, destElementClass, classPlan, isArray);
 		
-		for(ValueConverter converter: classPlan.converterL) {
+		Iterator<ValueConverter> iter = classPlan.converterL.iterator();
+		while(iter.hasNext()) {
+			ValueConverter converter = iter.next();
 			//a special use of converter. normally we pass field name and its class (and the dest class).
 			//Here we are passing the fieldName (which is a list) and source and destination *element* classes
 			if (converter.canConvert(sourceField, destField)) {
