@@ -70,12 +70,13 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
             }
 
         	PropertyDescriptor targetPd = findMatchingField(arDest, pd.getName());
-        	
-        	FieldPair pair = new FieldPair();
-        	pair.srcProp = new BeanUtilsFieldDescriptor(pd);
-        	pair.destFieldName = (targetPd == null) ? null : targetPd.getName();
-        	pair.destProp = new BeanUtilsFieldDescriptor(targetPd);
-        	fieldPairs.add(pair);
+        	if (targetPd != null) {
+        		FieldPair pair = new FieldPair();
+        		pair.srcProp = new BeanUtilsFieldDescriptor(pd);
+        		pair.destFieldName = (targetPd == null) ? null : targetPd.getName();
+        		pair.destProp = new BeanUtilsFieldDescriptor(targetPd);
+        		fieldPairs.add(pair);
+        	}
         }
         return fieldPairs;
 	}
