@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
@@ -60,6 +61,15 @@ public class FieldCopier {
 	
 	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
 			 List<String> excludeList, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
+		if (sourceObj == null) {
+			String error = String.format("NULL passed to sourceObj");
+			throw new FieldCopyException(error);
+		}
+		if (destObj == null && destClass == null) {
+			String error = String.format("Either destObj or destClass must be non-NULL");
+			throw new FieldCopyException(error);
+		}
+		
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
 		if (destObj == null) {

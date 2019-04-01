@@ -140,7 +140,6 @@ public class BUCopyService extends BUCopyServiceBase {
 			throw new FieldCopyException(error);
 		}
 		
-		
 		BUClassPlan classPlan = new BUClassPlan();
 		classPlan.srcClass = srcClass;
 		classPlan.destClass = destClass;

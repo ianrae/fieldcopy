@@ -7,12 +7,11 @@ import java.util.List;
 
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
+import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.ListTests.Holder;
 import org.dnal.fieldcopy.ListTests.HolderDest;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.service.beanutils.BUClassPlan;
 import org.dnal.fieldcopy.service.beanutils.BUCopyService;
 import org.junit.Test;
