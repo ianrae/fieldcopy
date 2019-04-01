@@ -14,12 +14,22 @@ import org.junit.Test;
 public class FactoryTests extends BaseTest {
 	
 	/**
-	 * A factory that creates FieldCopier objects.
-	 * FieldCopier objects are single-use objects.
-	 * Use one to do a single copy.
+	 * Creates FieldCopier objects.
 	 * 
-	 * The copier factory caches details of the classes
-	 * that it has copied.
+	 * FieldCopier objects are not thread-safe. Therefore they should be
+	 * created as local variables and used to do a single copy.
+	 * 
+	 * All FieldCopier objects created by an instance of CopierFactory
+	 * share the same FieldCopyService object.  This is important
+	 * for performance, because FieldCopyService caches details of 
+	 * the data classes that it copies, to minimize the use of Java
+	 * reflection.
+	 * 
+	 * Your application should arrange that each data class being copied
+	 * is being copied by the same copier factory.  This could be by
+	 * having a single copier factory in the application, or by having
+	 * a copier member variable in each service or controller that is doing
+	 * copying.
 	 * 
 	 * @author Ian Rae
 	 *
@@ -57,40 +67,43 @@ public class FactoryTests extends BaseTest {
 		}
 	}
 	
-	public static class FieldCopyFactory {
-		private static FieldCopyFactory theSingleton;
+	public static class FieldCopy {
+		private static FieldCopy theSingleton;
 		
 		private ServiceFactory svcFactory;
 		
-		public FieldCopyFactory(ServiceFactory factory) {
+		public FieldCopy(ServiceFactory factory) {
 			this.svcFactory = factory;
 		}
 		
 		/**
-		 * Optional method. Use this to set a custom factory.
+		 * Optional method. Use this to set a custom factory.  setSingleton must
+		 * be called before the first call to createFactory.
 		 * 
 		 * @param factory
 		 */
-		public static synchronized void setSingleton(FieldCopyFactory factory) {
+		public static synchronized void setSingleton(FieldCopy factory) {
 			theSingleton = factory;
 		}
 		
 		/**
-		 * Create a copier factory in a thread-safe way.
+		 * Create a copier factory.
+		 * This method is thread-safe.
+		 * 
 		 * @return new instance of a copier factory
 		 */
 		public static synchronized CopierFactory createFactory() {
 			if (theSingleton == null) {
-				theSingleton = new FieldCopyFactory(new BUServiceFactory());
+				theSingleton = new FieldCopy(new BUServiceFactory());
 			}
-			return theSingleton.createF();
+			return theSingleton.createCopierFactory();
 		}
 
 		/**
 		 * Create a new instance of a copier factory, which contains
 		 * a new instance of a field copy service.
 		 */
-		private CopierFactory createF() {
+		private CopierFactory createCopierFactory() {
 			FieldCopyService copySvc = svcFactory.createService();
 			CopierFactoryImpl dcf = new CopierFactoryImpl(copySvc);
 			return dcf;
@@ -99,14 +112,14 @@ public class FactoryTests extends BaseTest {
 	
 	@Test
 	public void test() {
-		CopierFactory fact1 = FieldCopyFactory.createFactory();
+		CopierFactory fact1 = FieldCopy.createFactory();
 		FieldCopier fc1a = fact1.createCopier();
 		FieldCopier fc1b = fact1.createCopier();
 		
 		assertNotSame(fc1a, fc1b);
 		assertSame(fc1a.getCopyService(), fc1b.getCopyService());
 		
-		CopierFactory fact2 = FieldCopyFactory.createFactory();
+		CopierFactory fact2 = FieldCopy.createFactory();
 		FieldCopier fc2a = fact2.createCopier();
 		
 		assertNotSame(fact1, fact2);
