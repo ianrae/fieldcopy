@@ -17,6 +17,7 @@ public class BaseTest {
 
 	protected FieldCopier createCopier() {
 		if (usePlannerSvc) {
+			DefaultCopyFactory.clearCopyService();
 			DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 			return DefaultCopyFactory.Factory().createCopier();
 		} else {

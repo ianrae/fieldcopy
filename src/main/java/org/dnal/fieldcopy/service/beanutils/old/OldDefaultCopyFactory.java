@@ -60,4 +60,10 @@ public class OldDefaultCopyFactory implements CopyFactory {
 	public FieldFilter createFieldFilter() {
 		return new DefaultFieldFilter();
 	}
+
+	@Override
+	public FieldCopier createCopier(FieldCopyService copySvc) {
+		FieldCopier builder = new FieldCopier(copySvc);
+		return builder;
+	}
 }

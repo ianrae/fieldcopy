@@ -14,4 +14,5 @@ public interface CopyFactory {
 	FieldFilter createFieldFilter();
 	FieldCopyService createCopyService();
 	FieldCopier createCopier();
+	FieldCopier createCopier(FieldCopyService copySvc);
 }

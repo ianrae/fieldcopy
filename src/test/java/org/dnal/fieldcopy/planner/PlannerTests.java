@@ -273,7 +273,8 @@ public class PlannerTests extends BaseTest {
 	protected FieldCopier createCopier() {
 		DefaultCopyFactory.setLogger(new SimpleConsoleLogger());
 		DefaultCopyFactory.Factory().createLogger().enableLogging(true);
-		
+		//for unit tests we want a fresh one each time
+		DefaultCopyFactory.clearCopyService();
 		return DefaultCopyFactory.Factory().createCopier();
 	}
 }
