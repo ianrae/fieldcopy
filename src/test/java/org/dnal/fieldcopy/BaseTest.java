@@ -2,6 +2,7 @@ package org.dnal.fieldcopy;
 
 
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.metrics.SimpleCopyMetrics;
 
 public class BaseTest {
 	protected boolean usePlannerSvc = true;
@@ -31,4 +32,19 @@ public class BaseTest {
 			return null; //OldDefaultCopyFactory.Factory().createCopyService();
 		}
 	}
+	
+	protected void initMetrics(FieldCopier copier) {
+		FieldCopyService svc = copier.getCopyService();
+		SimpleCopyMetrics metrics = new SimpleCopyMetrics();
+		svc.setMetrics(metrics);
+	}
+	protected void dumpMetrics(FieldCopier copier) {
+		FieldCopyService svc = copier.getCopyService();
+		SimpleCopyMetrics metrics = (SimpleCopyMetrics) svc.getMetrics();
+		String s = String.format("%d plans (%d lazy): exec %d (%d fields)", metrics.planCount,
+				metrics.lazyPlanCount, metrics.execCount, metrics.fieldExecCount);
+		log(s);
+	}
+	
+	
 }

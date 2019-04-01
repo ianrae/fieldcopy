@@ -20,6 +20,7 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.util.ThreadSafeList;
 
@@ -227,5 +228,17 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		@Override
 		public void addBuiltInConverter(ValueConverter converter) {
 			fastSvc.getConverterSvc().getBuiltInConverterL().add(converter);
+		}
+
+
+		@Override
+		public void setMetrics(CopyMetrics metrics) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public CopyMetrics getMetrics() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}

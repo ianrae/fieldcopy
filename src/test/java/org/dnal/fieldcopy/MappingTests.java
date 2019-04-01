@@ -3,6 +3,9 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.FieldCopierTests.Source;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
+import org.dnal.fieldcopy.metrics.SimpleCopyMetrics;
 import org.junit.Test;
 
 
@@ -52,12 +55,15 @@ public class MappingTests extends BaseTest {
 		Combo1 combo2 = new Combo1();
 		
 		FieldCopier copier = createCopier();
+		initMetrics(copier);
 		FieldCopyMapping mapping = copier.createMapping(Source.class, Source.class).autoCopy().build();
 		copier.getOptions().logEachCopy = true;
 		copier.copy(combo, combo2).autoCopy().execute();
 		assertEquals("bob", combo2.source.getName());
 		assertEquals(33, combo2.source.getAge());
 		assertEquals(15, combo2.getSize());
+		
+		dumpMetrics(copier);
 	}
 	
 	@Test

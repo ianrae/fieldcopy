@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
 
 /**
  * Implementation of the copy operation.  FieldCopy is designed so that different implementations
@@ -19,6 +20,8 @@ public interface FieldCopyService {
 	SimpleLogger getLogger();
 	FieldRegistry getRegistry();
 	void addBuiltInConverter(ValueConverter converter);
+	void setMetrics(CopyMetrics metrics);
+	CopyMetrics getMetrics();
 	
 	/**
 	 * Generate unique string that represents the spec. 

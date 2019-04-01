@@ -1,8 +1,11 @@
 package org.dnal.fieldcopy;
 
+import static org.junit.Assert.*;
+
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
 import org.dnal.fieldcopy.DefaultValueTests.Source;
 import org.dnal.fieldcopy.ListListTests.Taxi;
+import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.junit.Test;
 
@@ -38,11 +41,14 @@ public class ErrorTests extends BaseTest {
 	}
 
 	@Test
-	public void testNoMatchAutoCopoy() {
+	public void testNoMatchAutoCopy() {
 		Source src = new Source();
 		Taxi dest = new Taxi();
 		FieldCopier copier = createCopier();
 		enableLogging();
 		copier.copy(src, dest).autoCopy().execute();
+		
+		CopySpec copySpec = copier.getMostRecentCopySpec();
+		assertEquals(0, copySpec.fieldPairs.size());
 	}
 }

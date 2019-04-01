@@ -18,6 +18,8 @@ import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
+import org.dnal.fieldcopy.metrics.DoNothingMetrics;
 import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
@@ -36,6 +38,7 @@ public class BUCopyService extends BUCopyServiceBase {
 	private Map<String,BUClassPlan> executionPlanMap = new ConcurrentHashMap<>();
 	private boolean enablePlanCache = true;
 	private BUConverterService converterSvc;
+	private CopyMetrics metrics = new DoNothingMetrics();
 
 	public BUCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		super(logger, registry, fieldFilter);
@@ -123,6 +126,7 @@ public class BUCopyService extends BUCopyServiceBase {
 			
 			if (enablePlanCache) {
 				executionPlanMap.put(copySpec.executionPlanCacheKey, classPlan);
+				metrics.incrementPlanCount();
 			}
 		}
 		return classPlan;
@@ -325,6 +329,7 @@ public class BUCopyService extends BUCopyServiceBase {
 
 	private boolean doExecutePlan(BUExecutePlan execPlan, int runawayCounter) throws Exception {
 		boolean ok = true;
+		metrics.incrementPlanExecutionCount();
 		BUClassPlan classPlan = execPlan.classPlan;
 		Iterator<BUFieldPlan> iter = classPlan.fieldPlanL.iterator();
 		while(iter.hasNext()) {
@@ -367,6 +372,7 @@ public class BUCopyService extends BUCopyServiceBase {
 				fieldPlan.subPlan = doCreateSubPlan(execPlan.copySpec, pair, srcClass, value, state);
 				if (fieldPlan.subPlan != null) {
 					fieldPlan.lazySubPlanFlag = false;
+					metrics.incrementLazyPlanGenerationCount();
 				}
 			}
 			
@@ -393,6 +399,7 @@ public class BUCopyService extends BUCopyServiceBase {
 			} else {
 				String destFieldName = fieldPlan.destFd.getName();
 				beanUtil.copyProperty(execPlan.destObj, destFieldName, value);
+				metrics.incrementFieldExecutionCount();
 			}
 		}
 		return ok;
@@ -418,5 +425,15 @@ public class BUCopyService extends BUCopyServiceBase {
 
 	public void setEnablePlanCache(boolean enablePlanCache) {
 		this.enablePlanCache = enablePlanCache;
+	}
+
+	@Override
+	public void setMetrics(CopyMetrics metrics) {
+		this.metrics = metrics;
+	}
+
+	@Override
+	public CopyMetrics getMetrics() {
+		return metrics;
 	}
 }
