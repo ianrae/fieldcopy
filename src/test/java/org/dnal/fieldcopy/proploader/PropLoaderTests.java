@@ -20,6 +20,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
@@ -30,9 +31,9 @@ import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.junit.Test;
 
 public class PropLoaderTests extends BaseTest {
-	
+
 	public class PropLoaderService implements FieldCopyService {
-		
+
 		protected SimpleLogger logger;
 		protected FieldRegistry registry;
 		protected BeanUtilsBean beanUtil;
@@ -47,50 +48,50 @@ public class PropLoaderTests extends BaseTest {
 			this.propertyUtils =  new PropertyUtilsBean();
 			this.fieldFilter = fieldFilter;
 			this.beanDetectorSvc = new BUBeanDetectorService();
-			
+
 			//customize Date converter.  There is no good defaut for date conversions
 			//so well just do yyyy-MM-dd
 			DateConverter dateConverter = new DateConverter();
 			dateConverter.setPattern("yyyy-MM-dd");
 			ConvertUtils.register(dateConverter, Date.class);
 		}
-		
+
 
 		@Override
 		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
-	        List<FieldPair> fieldPairs = null; //registry.findAutoCopyInfo(class1, class2);
-//			if (fieldPairs != null) {
-//				return fieldPairs;
-//			}
-			
-	        fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
-			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
-	        return fieldPairs;
-		}
-		
-		public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
-//	        final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
-	        final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
-			
-	        List<FieldPair> fieldPairs = new ArrayList<>();
-	        for (int i = 0; i < arDest.length; i++) {
-	        	PropertyDescriptor pd = arDest[i];
-	        	if (! fieldFilter.shouldProcess(class2, pd.getName())) {
-	        		continue; // No point in trying to set an object's class
-	            }
+			List<FieldPair> fieldPairs = null; //registry.findAutoCopyInfo(class1, class2);
+			//			if (fieldPairs != null) {
+			//				return fieldPairs;
+			//			}
 
-	        	//since we have no way to enumerate all properties we'll
-	        	//autocopy all of class2's fields
-	        	//TODO: maybe do nothing here. autocopy doesn't really make sense
-	        	FieldPair pair = new FieldPair();
-	        	pair.srcProp = null; //new BeanUtilsFieldDescriptor(pd);
-	        	pair.destFieldName = pd.getName();
-	        	pair.destProp = new BeanUtilsFieldDescriptor(pd);
-	        	fieldPairs.add(pair);
-	        }
-	        return fieldPairs;
+			fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
+			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+			return fieldPairs;
 		}
-		
+
+		public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
+			//	        final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
+			final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+
+			List<FieldPair> fieldPairs = new ArrayList<>();
+			for (int i = 0; i < arDest.length; i++) {
+				PropertyDescriptor pd = arDest[i];
+				if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+					continue; // No point in trying to set an object's class
+				}
+
+				//since we have no way to enumerate all properties we'll
+				//autocopy all of class2's fields
+				//TODO: maybe do nothing here. autocopy doesn't really make sense
+				FieldPair pair = new FieldPair();
+				pair.srcProp = null; //new BeanUtilsFieldDescriptor(pd);
+				pair.destFieldName = pd.getName();
+				pair.destProp = new BeanUtilsFieldDescriptor(pd);
+				fieldPairs.add(pair);
+			}
+			return fieldPairs;
+		}
+
 		protected void validateIsAllowed(FieldPair pair) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
 			Class<?> destClass = isNotAllowed(pair);
 			if (destClass != null) {
@@ -108,7 +109,7 @@ public class PropLoaderTests extends BaseTest {
 		 */
 		private Class<?> isNotAllowed(FieldPair pair) {
 			Class<?> type = pair.getDestClass();
-			
+
 			if (Number.class.isAssignableFrom(type) || isNumberPrimitive(type)) {
 				return null;
 			} else if (Date.class.isAssignableFrom(type)) {
@@ -133,7 +134,7 @@ public class PropLoaderTests extends BaseTest {
 			}
 			return false;
 		}
-		
+
 		@Override
 		public void dumpFields(Object sourceObj) {
 			try {
@@ -175,12 +176,12 @@ public class PropLoaderTests extends BaseTest {
 			String class2Name = spec.destObj == null ? "" : spec.destObj.getClass().getName();
 			return String.format("%s--%s", class1Name, class2Name);
 		}
-		
+
 		protected Object getLoggableString(Object value) {
 			if (value == null || ! logger.isEnabled()) {
 				return null;
 			}
-			
+
 			if (value.getClass().isArray()) {
 				int n = Array.getLength(value);
 				String s = String.format("array(len=%d): ", n);
@@ -204,42 +205,98 @@ public class PropLoaderTests extends BaseTest {
 
 		@Override
 		public void copyFields(CopySpec copySpec) {
-			// TODO Auto-generated method stub
-			
+			Object srcObj = copySpec.sourceObj;
+			Object destObj = copySpec.destObj;
+
+			for(FieldPair pair: copySpec.fieldPairs) {
+				final FieldDescriptor origDescriptor = pair.srcProp;
+				final String name = origDescriptor.getName();
+				//				state.currentFieldName = name; //for logging errors
+
+				//check for readability and writability
+				//				if (! propertyUtils.isReadable(srcObj, name)) {
+				//					String error = String.format("Source Field '%s' is not readable", name);
+				//					throw new FieldCopyException(error);
+				//				}
+				if (!propertyUtils.isWriteable(destObj, pair.destFieldName)) {
+					String error = String.format("Destination Field '%s' is not writeable", name);
+					throw new FieldCopyException(error);
+				}				
+				fillInDestPropIfNeeded(pair, destObj.getClass());
+
+				//	            validateIsAllowed(pair);
+
+				//handle list, array, list to array, and viceversa
+				//	            ValueConverter converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
+				//add converter if one matches
+				//	        		if (converter == null) {
+				//	        			converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
+				//	        		}
+
+				//val = findProperty ....
+				//apply converter
+				//store in destObj
+			}
 		}
 
+		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
+			if (pair.destProp != null) {
+				return;
+			}
+			final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+
+			for (int i = 0; i < arDest.length; i++) {
+				PropertyDescriptor pd = arDest[i];
+				if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+					continue; // No point in trying to set an object's class
+				}
+
+				if (pd.getName().equals(pair.destFieldName)) {
+					pair.destProp = new BeanUtilsFieldDescriptor(pd);
+					return;
+				}
+			}
+		}
 
 		@Override
 		public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
-			// TODO Auto-generated method stub
-			return null;
+			T destObj = (T) createDestObject(destClass);
+			copySpec.destObj = destObj;
+			copyFields(copySpec);
+			return destObj;
 		}
 
+		@SuppressWarnings("unchecked")
+		private <T> T createDestObject(Class<T> destClass) {
+			T obj = null;
+			try {
+				obj = (T) destClass.newInstance();
+			} catch (InstantiationException e) {
+				throw new FieldCopyException(e.getMessage());
+			} catch (IllegalAccessException e) {
+				throw new FieldCopyException(e.getMessage());
+			}
+			return obj;
+		}
 
 		@Override
 		public void addBuiltInConverter(ValueConverter converter) {
 			// TODO Auto-generated method stub
-			
 		}
-
-
 		@Override
 		public void setMetrics(CopyMetrics metrics) {
 			// TODO Auto-generated method stub
-			
 		}
-
-
 		@Override
 		public CopyMetrics getMetrics() {
 			// TODO Auto-generated method stub
 			return null;
 		}
 	}	
-	
-	
+
+
 	@Test
 	public void test() {
-		assertEquals("t2", "sdf");
+		//assertEquals("t2", "sdf");
 	}
 }
