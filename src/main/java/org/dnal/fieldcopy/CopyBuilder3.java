@@ -19,9 +19,9 @@ public class CopyBuilder3 {
 	 * @param srcFieldName - name of a field in the source object.
 	 * @return
 	 */
-	public CopyBuilder2 field(String srcFieldName) {
+	public CopyBuilder3 field(String srcFieldName) {
 		fcb2.field(srcFieldName);
-		return fcb2;
+		return this;
 	}
 	/**
 	 * Specifies that a source field whose name equals srcFieldName will be copied to a field whose
@@ -30,11 +30,16 @@ public class CopyBuilder3 {
 	 * @param destFieldName - name of a field in the destination object
 	 * @return
 	 */
-	public CopyBuilder2 field(String srcFieldName, String destFieldName) {
+	public CopyBuilder3 field(String srcFieldName, String destFieldName) {
 		fcb2.field(srcFieldName, destFieldName);
-		return fcb2;
+		return this;
 	}
 	
+	/**
+	 * Specifies the default value to use if the source value is null
+	 * @param defaultValue
+	 * @return
+	 */
 	public CopyBuilder3 defaultValue(Object defaultValue) {
 		fcb2.replaceDefaultValue(defaultValue);
 		return this;

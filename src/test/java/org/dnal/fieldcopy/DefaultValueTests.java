@@ -69,7 +69,7 @@ public class DefaultValueTests extends BaseTest {
 		assertEquals(null, dest.getTitle());
 		
 		dest = new Dest(null, null);
-		copier.copy(src, dest).cacheKey("key2").field("name", "name", "sam").field("title", "title", "t2").execute();
+		copier.copy(src, dest).cacheKey("key2").field("name", "name").defaultValue("sam").field("title", "title").defaultValue("t2").execute();
 		assertEquals("sam", dest.getName());
 		assertEquals("t2", dest.getTitle());
 	}
@@ -84,7 +84,7 @@ public class DefaultValueTests extends BaseTest {
 		assertEquals("t1", dest.getTitle());
 		
 		dest = new Dest(null, null);
-		copier.copy(src, dest).cacheKey("key2").field("name", "name", "sam").field("title", "title", "t2").execute();
+		copier.copy(src, dest).cacheKey("key2").field("name", "name").defaultValue("sam").field("title", "title").defaultValue("t2").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals("t1", dest.getTitle());
 	}

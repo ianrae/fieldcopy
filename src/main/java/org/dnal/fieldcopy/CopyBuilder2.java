@@ -47,21 +47,6 @@ public class CopyBuilder2 {
 		defaultValueList.add(null);
 		return new CopyBuilder3(this);
 	}
-	/**
-	 * Specifies that a source field whose name equals srcFieldName will be copied to a field whose
-	 * name equals destFieldName in the destination object.
-	 * @param srcFieldName - name of a field in the source object.
-	 * @param destFieldName - name of a field in the destination object
-	 * @param defaultValue - value to use if source field is null
-	 * @return
-	 */
-	public CopyBuilder3 field(String srcFieldName, String destFieldName, Object defaultValue) {
-		srcList.add(srcFieldName);
-		destList.add(destFieldName);
-		defaultValueList.add(defaultValue);
-		return new CopyBuilder3(this);
-	}
-	
 	
 	/**
 	 * Perform the copy.

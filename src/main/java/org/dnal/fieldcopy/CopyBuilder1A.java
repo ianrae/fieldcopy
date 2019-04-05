@@ -106,8 +106,4 @@ public class CopyBuilder1A {
 	public CopyBuilder2A field(String srcFieldName, String destFieldName) {
 		return new CopyBuilder2A(this, srcFieldName, destFieldName, null);
 	}
-	public CopyBuilder2A field(String srcFieldName, String destFieldName, Object defaultValue) {
-		return new CopyBuilder2A(this, srcFieldName, destFieldName, defaultValue);
-	}
-
 }

@@ -102,13 +102,12 @@ public class CopyBuilder1 {
 		return null;
 	}
 	
-	public CopyBuilder2 field(String srcFieldName) {
-		return new CopyBuilder2(this, srcFieldName, srcFieldName, null);
+	public CopyBuilder3 field(String srcFieldName) {
+		CopyBuilder2 fcb2 = new CopyBuilder2(this, srcFieldName, srcFieldName, null);
+		return new CopyBuilder3(fcb2);
 	}
-	public CopyBuilder2 field(String srcFieldName, String destFieldName) {
-		return new CopyBuilder2(this, srcFieldName, destFieldName, null);
-	}
-	public CopyBuilder2 field(String srcFieldName, String destFieldName, Object defaultValue) {
-		return new CopyBuilder2(this, srcFieldName, destFieldName, defaultValue);
+	public CopyBuilder3 field(String srcFieldName, String destFieldName) {
+		CopyBuilder2 fcb2 = new CopyBuilder2(this, srcFieldName, destFieldName, null);
+		return new CopyBuilder3(fcb2);
 	}
 }
