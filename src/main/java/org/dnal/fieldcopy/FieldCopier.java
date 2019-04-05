@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
@@ -105,20 +106,34 @@ public class FieldCopier {
 				String destField = destList.get(i);
 				Object defaultValue = (defaultValueList == null) ? null : defaultValueList.get(i);
 				
-				FieldPair pair = new FieldPair();
-				pair.srcProp = findInPairs(srcField, fieldPairs);
-				pair.destFieldName = destField;
-				pair.defaultValue = defaultValue;
+				FieldPair existing = findPairInPairs(srcField, fieldsToCopy);
 				
-				fieldsToCopy.add(pair);
+				if (existing == null) {
+					FieldPair pair = new FieldPair();
+					pair.srcProp = findInPairs(srcField, fieldPairs);
+					pair.destFieldName = destField;
+					pair.defaultValue = defaultValue;
+					fieldsToCopy.add(pair);
+				} else {
+					existing.destFieldName = destField;
+					existing.defaultValue = defaultValue;
+					existing.destProp = findInPairs(destField, fieldPairs);
+				}
 			}
 		}
 		return fieldsToCopy;
 	}
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {
+		FieldPair pair = findPairInPairs(srcField, fieldPairs);
+		if (pair != null) {
+			return pair.srcProp;
+		}
+		return null;
+	}
+	private FieldPair findPairInPairs(String srcField, List<FieldPair> fieldPairs) {
 		for(FieldPair pair: fieldPairs) {
 			if (pair.srcProp.getName().equals(srcField)) {
-				return pair.srcProp;
+				return pair;
 			}
 		}
 		return null;
