@@ -34,6 +34,12 @@ public class CopyBuilder2A {
 		defaultValueList.add(null);
 		return this;
 	}
+
+	void replaceDefaultValue(Object defaultValue) {
+		int n = defaultValueList.size();
+		defaultValueList.remove(n - 1);
+		defaultValueList.add(defaultValue);
+	}
 	
 	public <T> T execute(Class<T> destClass) {
 		return fcb1.doExecute(destClass, srcList, destList, defaultValueList);
