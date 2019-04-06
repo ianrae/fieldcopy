@@ -16,14 +16,19 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.CopierFactory;
+import org.dnal.fieldcopy.DefaultValueTests.Dest;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
@@ -31,6 +36,24 @@ import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.junit.Test;
 
 public class PropLoaderTests extends BaseTest {
+	
+	public interface ConfigLoader {
+		String load(String propertyName);
+	}
+	
+	public static class ConfigFieldDescriptor implements FieldDescriptor {
+		private String name;
+		
+		public ConfigFieldDescriptor(String name) {
+			this.name = name;
+		}
+		
+		@Override
+		public String getName() {
+			return name;
+		}
+		
+	}
 
 	public class PropLoaderService implements FieldCopyService {
 
@@ -59,17 +82,22 @@ public class PropLoaderTests extends BaseTest {
 
 		@Override
 		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
-			List<FieldPair> fieldPairs = null; //registry.findAutoCopyInfo(class1, class2);
-			//			if (fieldPairs != null) {
-			//				return fieldPairs;
-			//			}
+			if (!ConfigLoader.class.isAssignableFrom(class1)) {
+				String err = String.format("%s is not be a ConfigLoader", class1.getName());
+				throw new FieldCopyException(err);
+			}
+			
+			List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
+			if (fieldPairs != null) {
+				return fieldPairs;
+			}
 
-			fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
+			fieldPairs = buildAutoCopyPairsNoRegister(class2);
 			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
 			return fieldPairs;
 		}
 
-		public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
+		private List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class2) {
 			//	        final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
 			final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
 
@@ -84,7 +112,7 @@ public class PropLoaderTests extends BaseTest {
 				//autocopy all of class2's fields
 				//TODO: maybe do nothing here. autocopy doesn't really make sense
 				FieldPair pair = new FieldPair();
-				pair.srcProp = null; //new BeanUtilsFieldDescriptor(pd);
+				pair.srcProp = new ConfigFieldDescriptor("?");
 				pair.destFieldName = pd.getName();
 				pair.destProp = new BeanUtilsFieldDescriptor(pd);
 				fieldPairs.add(pair);
@@ -234,8 +262,21 @@ public class PropLoaderTests extends BaseTest {
 				//	        		}
 
 				//val = findProperty ....
-				//apply converter
+				ConfigLoader loader = (ConfigLoader) copySpec.sourceObj;
+				String pname = "name";
+				String value = loader.load(pname);
+				//apply converter!!!
 				//store in destObj
+				String destFieldName = pair.destFieldName;
+				try {
+					beanUtil.copyProperty(copySpec.destObj, destFieldName, value);
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -293,10 +334,45 @@ public class PropLoaderTests extends BaseTest {
 			return null;
 		}
 	}	
+	
+	
+	public static class MyLoader implements ConfigLoader {
 
+		@Override
+		public String load(String propertyName) {
+			return "bob";
+		}
+	}
+	public class MyFactory implements CopierFactory {
+		public FieldCopyService copySvc;
+		
+		public MyFactory(FieldCopyService copySvc) {
+			this.copySvc = copySvc;
+		}
+		
+		@Override
+		public FieldCopier createCopier() {
+			return new FieldCopier(copySvc);
+		}
+	}
 
 	@Test
 	public void test() {
-		//assertEquals("t2", "sdf");
+		MyLoader loader = new MyLoader();
+		Dest dest = new Dest(null, null);
+		
+		FieldCopier copier = createConfigCopier();
+		copier.copy(loader, dest).field("name", "name").execute();
+		assertEquals(null, dest.getName());
+		assertEquals(null, dest.getTitle());
+	}
+
+	private FieldCopier createConfigCopier() {
+		FieldRegistry registry = new FieldRegistry();
+		DefaultFieldFilter filter = new DefaultFieldFilter();
+		SimpleConsoleLogger logger = new SimpleConsoleLogger();
+		PropLoaderService copySvc = new PropLoaderService(logger, registry, filter);
+		MyFactory factory = new MyFactory(copySvc);
+		return factory.createCopier();
 	}
 }
