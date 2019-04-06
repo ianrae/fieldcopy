@@ -19,6 +19,7 @@ import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 
 public abstract class BUCopyServiceBase implements FieldCopyService {
@@ -47,14 +48,14 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
 	
 
 	@Override
-	public List<FieldPair> buildAutoCopyPairs(Object srcObj, Object destObj, Class<?> class1, Class<?> class2) {
-        List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
+	public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+        List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass());
 		if (fieldPairs != null) {
 			return fieldPairs;
 		}
 		
-        fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
-		registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+        fieldPairs = buildAutoCopyPairsNoRegister(targetPair.getSrcClass(), targetPair.getDestClass());
+		registry.registerAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass(), fieldPairs);
         return fieldPairs;
 	}
 	

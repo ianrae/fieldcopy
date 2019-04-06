@@ -7,6 +7,7 @@ import org.dnal.fieldcopy.FieldCopierTests.Source;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.service.beanutils.old.ExecuteCopyPlan;
 import org.dnal.fieldcopy.service.beanutils.old.FastBeanUtilFieldCopyService;
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class StructTests extends BaseTest {
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = src;
 		spec.destObj = dest;
-		spec.fieldPairs = copySvc.buildAutoCopyPairs(null, null, src.getClass(), dest.getClass());
+		spec.fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()));
 		spec.mappingL = null;
 		spec.options = new CopyOptions();
 		spec.converterL = null;;

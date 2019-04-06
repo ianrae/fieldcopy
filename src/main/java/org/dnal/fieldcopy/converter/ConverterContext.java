@@ -8,6 +8,7 @@ import org.dnal.fieldcopy.core.BeanDetectorService;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 
 /**
  * Context object used by ValueConverters
@@ -32,7 +33,7 @@ public class ConverterContext {
 	 * @return spec
 	 */
 	public CopySpec createCopySpec(Class<?> clazz1, Class<?> clazz2)  {
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(null, null, clazz1, clazz2);
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(clazz1, clazz2));
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;

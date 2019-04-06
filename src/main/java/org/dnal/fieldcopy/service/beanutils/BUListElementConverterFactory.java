@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 
 public class BUListElementConverterFactory {
 	private BUBeanDetectorService beanDetectorSvc;
@@ -23,7 +24,7 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(null, null, srcElementClass, destElementClass);
+			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass));
 		}
 		
 		return new BUListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
@@ -36,7 +37,7 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(null, null, srcElementClass, destElementClass);
+			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass));
 		}
 		return new BUArrayElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}

@@ -17,6 +17,7 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.metrics.DoNothingMetrics;
@@ -239,7 +240,7 @@ public class BUCopyService extends BUCopyServiceBase {
         if (mapping != null) {
         	subFieldPairs = mapping.getFieldPairs();
         } else {
-        	subFieldPairs = this.buildAutoCopyPairs(null, null, srcType, destType);
+        	subFieldPairs = this.buildAutoCopyPairs(new TargetPair(srcType, destType));
         }
         state.runawayCounter++;
 		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec, state);

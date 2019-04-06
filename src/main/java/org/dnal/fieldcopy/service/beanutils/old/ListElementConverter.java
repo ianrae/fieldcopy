@@ -11,6 +11,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.BeanDetectorService;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
@@ -100,7 +101,7 @@ public class ListElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(null, null, srcElClass, destElClass);
+		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(new TargetPair(srcElClass, destElClass));
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;

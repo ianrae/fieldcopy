@@ -19,6 +19,7 @@ import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
@@ -60,7 +61,9 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj, Class<? extends Object> class1, Class<? extends Object> class2) {
+		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+			Class<?> class1 = targetPair.getSrcClass();
+			Class<?> class2 = targetPair.getDestClass();
             List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;

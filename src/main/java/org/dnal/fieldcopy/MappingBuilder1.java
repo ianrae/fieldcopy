@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 
 /**
  * First-level fluent API for creating a mapping.
@@ -61,7 +62,7 @@ public class MappingBuilder1 {
 	
 	FieldCopyMapping doBuild(List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(null, null, srcClass, destClass);
+		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(new TargetPair(srcClass, destClass));
 		
 		if (this.doAutoCopy) {
 			if (includeList == null && excludeList == null) {

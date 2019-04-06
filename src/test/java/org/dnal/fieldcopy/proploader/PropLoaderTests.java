@@ -28,6 +28,7 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
@@ -54,50 +55,6 @@ public class PropLoaderTests extends BaseTest {
 		}
 	}
 	
-	public static class TargetPair {
-		private Object srcObj;
-		private Class<?> srcClass;
-		private Object destObj;
-		private Class<?> destClass;
-		
-		public TargetPair(Object srcObj, Object destObj) {
-			this.srcObj = srcObj;
-			this.destObj = destObj;
-			this.srcClass = srcObj.getClass();
-			this.destClass = destObj.getClass();
-		}
-		public TargetPair(Object srcObj, Class<?> destClass) {
-			this.srcObj = srcObj;
-			this.destObj = null;
-			this.srcClass = srcObj.getClass();
-			this.destClass = destObj.getClass();
-		}
-		public TargetPair(Class<?> srcClass, Object destObj) {
-			this.srcObj = null;
-			this.destObj = destObj;
-			this.srcClass = srcObj.getClass();
-			this.destClass = destObj.getClass();
-		}
-		public TargetPair(Class<?> srcClass, Class<?> destClass) {
-			this.srcObj = null;
-			this.destObj = null;
-			this.srcClass = srcObj.getClass();
-			this.destClass = destObj.getClass();
-		}
-		public Object getSrcObj() {
-			return srcObj;
-		}
-		public Class<?> getSrcClass() {
-			return srcClass;
-		}
-		public Object getDestObj() {
-			return destObj;
-		}
-		public Class<?> getDestClass() {
-			return destClass;
-		}
-	}
-
 	public class PropLoaderService implements FieldCopyService {
 
 		protected SimpleLogger logger;
@@ -124,14 +81,15 @@ public class PropLoaderTests extends BaseTest {
 
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj, Class<?> srcClass, Class<?> destClass) {
+		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+			Object sourceObj = targetPair.getSrcObj();
 			if (! (sourceObj instanceof ConfigLoader)) {
 				String err = String.format("sourceObj is not be a ConfigLoader");
 				throw new FieldCopyException(err);
 			}
 			
 			Class<?> class1 = sourceObj.getClass();
-			Class<?> class2 = (destObj == null) ? destClass : destObj.getClass();
+			Class<?> class2 = targetPair.getDestClass();
 			List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;

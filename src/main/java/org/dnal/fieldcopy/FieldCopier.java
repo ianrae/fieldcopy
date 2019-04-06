@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 
 /**
  * The main API for FieldCopy.
@@ -74,9 +75,9 @@ public class FieldCopier {
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
 		if (destObj == null) {
-			fieldPairs = copier.buildAutoCopyPairs(sourceObj, null, sourceObj.getClass(), destClass);
+			fieldPairs = copier.buildAutoCopyPairs(new TargetPair(sourceObj, destClass));
 		} else {
-			fieldPairs = copier.buildAutoCopyPairs(sourceObj, destObj, sourceObj.getClass(), destObj.getClass());
+			fieldPairs = copier.buildAutoCopyPairs(new TargetPair(sourceObj, destObj));
 		}
 		
 		if (doAutoCopy) {
