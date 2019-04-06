@@ -190,21 +190,30 @@ public class PropLoaderTests extends BaseTest {
 					}
 				} else {
 					try {
-						Field field = FieldUtils.getField(copySpec.destObj.getClass(), destFieldName);
-						value = convertForField(field, value);
-						FieldUtils.writeField(copySpec.destObj, destFieldName, value, true);
+						Field field = FieldUtils.getField(copySpec.destObj.getClass(), destFieldName, true);
+						Object objValue = convertForField(field, value);
+						FieldUtils.writeField(copySpec.destObj, destFieldName, objValue, true);
 					} catch (Exception ex) {
-						String err = String.format(ex.getMessage());
+						String err = String.format("copy to field '%s' failed. %s", destFieldName, ex.getMessage());
 						throw new FieldCopyException(err, ex);
 					}
 				}
 			}
 		}
 		
-		private String convertForField(Field field, String value) {
-//			if (field.getType())
-			// TODO Auto-generated method stub
-			return null;
+		private Object convertForField(Field field, String value) {
+			Class<?> clazz = field.getType();
+			if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
+				return Integer.parseInt(value);
+			} else if (Long.class.equals(clazz) || Long.TYPE.equals(clazz)) {
+				return Long.parseLong(value);
+			} else if (Double.class.equals(clazz) || Double.TYPE.equals(clazz)) {
+				return Double.parseDouble(value);
+			} else if (Boolean.class.equals(clazz) || Boolean.TYPE.equals(clazz)) {
+				return Boolean.parseBoolean(value);
+			} else {
+				return value;
+			}
 		}
 
 		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec copySpec) {
@@ -374,10 +383,6 @@ public class PropLoaderTests extends BaseTest {
 			copier.copy(loader, this).field("name").field("title").field("app.port", "port").execute();
 		}
 		
-		public void init() {
-			
-		}
-
 		public String getName() {
 			return name;
 		}
@@ -460,6 +465,7 @@ public class PropLoaderTests extends BaseTest {
 		MyPrivateFields dest = new MyPrivateFields(loader, copier);
 		assertEquals("bob", dest.getName());
 		assertEquals("Mr", dest.getTitle());
+		assertEquals(3000, dest.getPort());
 	}
 	
 
