@@ -112,7 +112,7 @@ public class PropLoaderTests extends BaseTest {
 				//autocopy all of class2's fields
 				//TODO: maybe do nothing here. autocopy doesn't really make sense
 				FieldPair pair = new FieldPair();
-				pair.srcProp = new ConfigFieldDescriptor("?");
+				pair.srcProp = new ConfigFieldDescriptor(pd.getName());
 				pair.destFieldName = pd.getName();
 				pair.destProp = new BeanUtilsFieldDescriptor(pd);
 				fieldPairs.add(pair);
@@ -363,7 +363,7 @@ public class PropLoaderTests extends BaseTest {
 		
 		FieldCopier copier = createConfigCopier();
 		copier.copy(loader, dest).field("name", "name").execute();
-		assertEquals(null, dest.getName());
+		assertEquals("bob", dest.getName());
 		assertEquals(null, dest.getTitle());
 	}
 
