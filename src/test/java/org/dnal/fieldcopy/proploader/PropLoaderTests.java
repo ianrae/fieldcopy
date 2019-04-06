@@ -3,7 +3,6 @@ package org.dnal.fieldcopy.proploader;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -140,12 +139,6 @@ public class PropLoaderTests extends BaseTest {
 				final String name = origDescriptor.getName();
 				//				state.currentFieldName = name; //for logging errors
 
-				//check for readability and writability
-				//				if (! propertyUtils.isReadable(srcObj, name)) {
-				//					String error = String.format("Source Field '%s' is not readable", name);
-				//					throw new FieldCopyException(error);
-				//				}
-
 				boolean hasSetterMethod = propertyUtils.isWriteable(destObj, pair.destFieldName);
 				fillInDestPropIfNeeded(pair, destObj.getClass());
 				
@@ -182,12 +175,9 @@ public class PropLoaderTests extends BaseTest {
 				if (hasSetterMethod) {
 					try {
 						beanUtil.copyProperty(copySpec.destObj, destFieldName, value);
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception ex) {
+						String err = String.format("copyProperty field '%s' failed. %s", destFieldName, ex.getMessage());
+						throw new FieldCopyException(err, ex);
 					}
 				} else {
 					fieldSetterSvc.setFieldFromString(copySpec.destObj, destFieldName, value);
@@ -197,14 +187,9 @@ public class PropLoaderTests extends BaseTest {
 		
 		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec copySpec) {
 			//mappings are not supported
-//			if (CollectionUtils.isNotEmpty(copySpec.mappingL)) {
-//				ctx.mappingL = new ArrayList<>();
-//				ctx.mappingL.addAll(copySpec.mappingL);
-//			}
 			if (ThreadSafeList.isNotEmpty(copySpec.converterL)) {
 				ctx.converterL = new ArrayList<>();
 				copySpec.converterL.addIntoOtherList(ctx.converterL);
-//				ctx.converterL.addAll(execPlan.copySpec.converterL);
 			}
 		}
 		
@@ -426,12 +411,10 @@ public class PropLoaderTests extends BaseTest {
 	}
 	@Test
 	public void testFieldWrite() {
-		MyLoader loader = new MyLoader();
 		Dest destx = new Dest();
 		try {
 			FieldUtils.writeField(destx, "name", "bill", true);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		assertEquals("bill", destx.getName());
