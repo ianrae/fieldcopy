@@ -118,7 +118,7 @@ public class ListListTests extends BaseTest {
 	@Test
 	public void testListInfo() {
 		FieldCopyService copySvc = createCopyService();
-		List<FieldPair> pairL = copySvc.buildAutoCopyPairs(Taxi.class, TaxiDTO.class);
+		List<FieldPair> pairL = copySvc.buildAutoCopyPairs(null, null, Taxi.class, TaxiDTO.class);
 		
 		Taxi taxi = new Taxi();
 		for(FieldPair pair: pairL) {

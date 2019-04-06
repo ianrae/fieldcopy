@@ -13,7 +13,7 @@ import org.dnal.fieldcopy.metrics.CopyMetrics;
  *
  */
 public interface FieldCopyService {
-	List<FieldPair> buildAutoCopyPairs(Class<?> sourceClass, Class<?> destClass);
+	List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj, Class<?> sourceClass, Class<?> destClass);
 	void copyFields(CopySpec copySpec);
 	<T> T copyFields(CopySpec copySpec, Class<T> destClass);
 	void dumpFields(Object sourceObj);

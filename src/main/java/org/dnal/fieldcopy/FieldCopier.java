@@ -74,9 +74,9 @@ public class FieldCopier {
 		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
 		if (destObj == null) {
-			fieldPairs = copier.buildAutoCopyPairs(sourceObj.getClass(), destClass);
+			fieldPairs = copier.buildAutoCopyPairs(sourceObj, null, sourceObj.getClass(), destClass);
 		} else {
-			fieldPairs = copier.buildAutoCopyPairs(sourceObj.getClass(), destObj.getClass());
+			fieldPairs = copier.buildAutoCopyPairs(sourceObj, destObj, sourceObj.getClass(), destObj.getClass());
 		}
 		
 		if (doAutoCopy) {

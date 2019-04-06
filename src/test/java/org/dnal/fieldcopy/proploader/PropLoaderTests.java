@@ -52,7 +52,50 @@ public class PropLoaderTests extends BaseTest {
 		public String getName() {
 			return name;
 		}
+	}
+	
+	public static class TargetPair {
+		private Object srcObj;
+		private Class<?> srcClass;
+		private Object destObj;
+		private Class<?> destClass;
 		
+		public TargetPair(Object srcObj, Object destObj) {
+			this.srcObj = srcObj;
+			this.destObj = destObj;
+			this.srcClass = srcObj.getClass();
+			this.destClass = destObj.getClass();
+		}
+		public TargetPair(Object srcObj, Class<?> destClass) {
+			this.srcObj = srcObj;
+			this.destObj = null;
+			this.srcClass = srcObj.getClass();
+			this.destClass = destObj.getClass();
+		}
+		public TargetPair(Class<?> srcClass, Object destObj) {
+			this.srcObj = null;
+			this.destObj = destObj;
+			this.srcClass = srcObj.getClass();
+			this.destClass = destObj.getClass();
+		}
+		public TargetPair(Class<?> srcClass, Class<?> destClass) {
+			this.srcObj = null;
+			this.destObj = null;
+			this.srcClass = srcObj.getClass();
+			this.destClass = destObj.getClass();
+		}
+		public Object getSrcObj() {
+			return srcObj;
+		}
+		public Class<?> getSrcClass() {
+			return srcClass;
+		}
+		public Object getDestObj() {
+			return destObj;
+		}
+		public Class<?> getDestClass() {
+			return destClass;
+		}
 	}
 
 	public class PropLoaderService implements FieldCopyService {
@@ -81,12 +124,14 @@ public class PropLoaderTests extends BaseTest {
 
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
-			if (!ConfigLoader.class.isAssignableFrom(class1)) {
-				String err = String.format("%s is not be a ConfigLoader", class1.getName());
+		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj, Class<?> srcClass, Class<?> destClass) {
+			if (! (sourceObj instanceof ConfigLoader)) {
+				String err = String.format("sourceObj is not be a ConfigLoader");
 				throw new FieldCopyException(err);
 			}
 			
+			Class<?> class1 = sourceObj.getClass();
+			Class<?> class2 = (destObj == null) ? destClass : destObj.getClass();
 			List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;

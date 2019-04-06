@@ -94,7 +94,7 @@ public class ArrayElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarArray(srcArray);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
+		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(null, null, srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;

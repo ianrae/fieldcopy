@@ -239,7 +239,7 @@ public class BUCopyService extends BUCopyServiceBase {
         if (mapping != null) {
         	subFieldPairs = mapping.getFieldPairs();
         } else {
-        	subFieldPairs = this.buildAutoCopyPairs(srcType, destType);
+        	subFieldPairs = this.buildAutoCopyPairs(null, null, srcType, destType);
         }
         state.runawayCounter++;
 		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec, state);

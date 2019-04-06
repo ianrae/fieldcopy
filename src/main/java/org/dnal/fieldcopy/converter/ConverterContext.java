@@ -32,7 +32,7 @@ public class ConverterContext {
 	 * @return spec
 	 */
 	public CopySpec createCopySpec(Class<?> clazz1, Class<?> clazz2)  {
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(clazz1, clazz2);
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(null, null, clazz1, clazz2);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;

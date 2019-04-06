@@ -60,7 +60,7 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
+		public List<FieldPair> buildAutoCopyPairs(Object sourceObj, Object destObj, Class<? extends Object> class1, Class<? extends Object> class2) {
             List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;

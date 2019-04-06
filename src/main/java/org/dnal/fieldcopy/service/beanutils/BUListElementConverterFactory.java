@@ -23,7 +23,7 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(srcElementClass, destElementClass);
+			fieldPairs = outerSvc.buildAutoCopyPairs(null, null, srcElementClass, destElementClass);
 		}
 		
 		return new BUListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
@@ -36,7 +36,7 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(srcElementClass, destElementClass);
+			fieldPairs = outerSvc.buildAutoCopyPairs(null, null, srcElementClass, destElementClass);
 		}
 		return new BUArrayElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}

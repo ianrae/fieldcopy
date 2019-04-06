@@ -118,7 +118,7 @@ public class FieldCopierTests extends BaseTest {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(null, null, src.getClass(), dest.getClass());
 		
 		
 		CopySpec spec = new CopySpec();
@@ -140,8 +140,8 @@ public class FieldCopierTests extends BaseTest {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
-		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(null, null, src.getClass(), dest.getClass());
+		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(null, null, src.getClass(), dest.getClass());
 		
 		assertSame(fieldPairs, fieldPairs2);
 	}
