@@ -5,13 +5,10 @@ import static org.junit.Assert.assertEquals;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.beanutils.converters.DateConverter;
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.CopierFactory;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
@@ -29,7 +26,9 @@ import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleConsoleLogger;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
+import org.dnal.fieldcopy.metrics.DoNothingMetrics;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUConverterService;
 import org.dnal.fieldcopy.service.beanutils.BUHelperService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.junit.Test;
@@ -62,6 +61,8 @@ public class PropLoaderTests extends BaseTest {
 		protected FieldFilter fieldFilter;
 		protected BUBeanDetectorService beanDetectorSvc;
 		protected BUHelperService helperSvc;
+		private BUConverterService converterSvc;
+		private CopyMetrics metrics = new DoNothingMetrics();
 
 		public PropLoaderService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
@@ -71,6 +72,7 @@ public class PropLoaderTests extends BaseTest {
 			this.fieldFilter = fieldFilter;
 			this.beanDetectorSvc = new BUBeanDetectorService();
 			this.helperSvc = new BUHelperService(logger);
+			this.converterSvc = new BUConverterService(logger, this.beanDetectorSvc, this);
 		}
 
 		@Override
@@ -93,20 +95,18 @@ public class PropLoaderTests extends BaseTest {
 			return fieldPairs;
 		}
 
-		private List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class2) {
-			//	        final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
-			final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
+		private List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> destClass) {
+			final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(destClass);
 
 			List<FieldPair> fieldPairs = new ArrayList<>();
 			for (int i = 0; i < arDest.length; i++) {
 				PropertyDescriptor pd = arDest[i];
-				if (! fieldFilter.shouldProcess(class2, pd.getName())) {
+				if (! fieldFilter.shouldProcess(destClass, pd.getName())) {
 					continue; // No point in trying to set an object's class
 				}
 
 				//since we have no way to enumerate all properties we'll
-				//autocopy all of class2's fields
-				//TODO: maybe do nothing here. autocopy doesn't really make sense
+				//generate field pairs for destClass's fields
 				FieldPair pair = new FieldPair();
 				pair.srcProp = new ConfigFieldDescriptor(pd.getName());
 				pair.destFieldName = pd.getName();
@@ -115,25 +115,11 @@ public class PropLoaderTests extends BaseTest {
 			}
 			return fieldPairs;
 		}
+		
 
 		@Override
-		public void dumpFields(Object sourceObj) {
-			helperSvc.dumpFields(sourceObj);
-		}
-
-		@Override
-		public SimpleLogger getLogger() {
-			return logger;
-		}
-
-		@Override
-		public FieldRegistry getRegistry() {
-			return registry;
-		}
-
-		@Override
-		public String generateExecutionPlanCacheKey(CopySpec spec) {
-			return helperSvc.generateExecutionPlanCacheKey(spec);
+		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+			return new ConfigFieldDescriptor(srcField);
 		}
 
 		@Override
@@ -155,20 +141,25 @@ public class PropLoaderTests extends BaseTest {
 					throw new FieldCopyException(error);
 				}				
 				fillInDestPropIfNeeded(pair, destObj.getClass());
-
+				
 				//	            validateIsAllowed(pair);
 
 				//handle list, array, list to array, and viceversa
 				//	            ValueConverter converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
 				//add converter if one matches
-				//	        		if (converter == null) {
-				//	        			converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
-				//	        		}
+				ValueConverter converter = null;
+//				if (converter == null) {
+//					converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
+//				}
 
 				//val = findProperty ....
 				ConfigLoader loader = (ConfigLoader) copySpec.sourceObj;
 				String pname = pair.srcProp.getName();
 				String value = loader.load(pname);
+				if (value == null && pair.defaultValue != null) {
+					value = pair.defaultValue.toString();
+				}
+				
 				//apply converter!!!
 				//store in destObj
 				String destFieldName = pair.destFieldName;
@@ -210,19 +201,40 @@ public class PropLoaderTests extends BaseTest {
 			copyFields(copySpec);
 			return destObj;
 		}
+		
 
 		@Override
 		public void addBuiltInConverter(ValueConverter converter) {
-			// TODO Auto-generated method stub
+			this.converterSvc.addBuiltInConverter(converter);
 		}
 		@Override
 		public void setMetrics(CopyMetrics metrics) {
-			// TODO Auto-generated method stub
+			this.metrics = metrics;
 		}
+
 		@Override
 		public CopyMetrics getMetrics() {
-			// TODO Auto-generated method stub
-			return null;
+			return metrics;
+		}
+
+		@Override
+		public void dumpFields(Object sourceObj) {
+			helperSvc.dumpFields(sourceObj);
+		}
+
+		@Override
+		public SimpleLogger getLogger() {
+			return logger;
+		}
+
+		@Override
+		public FieldRegistry getRegistry() {
+			return registry;
+		}
+
+		@Override
+		public String generateExecutionPlanCacheKey(CopySpec spec) {
+			return helperSvc.generateExecutionPlanCacheKey(spec);
 		}
 	}	
 	
@@ -236,6 +248,8 @@ public class PropLoaderTests extends BaseTest {
 				return "bob";
 			case "title":
 				return "Mr";
+			case "app.port":
+				return "3000";
 			default:
 				return null;
 			}
@@ -253,6 +267,40 @@ public class PropLoaderTests extends BaseTest {
 			return new FieldCopier(copySvc);
 		}
 	}
+	
+	public static class Dest2 {
+		private String name;
+		private String title;
+		private int port;
+		
+		public Dest2() {
+		}
+		public Dest2(String name, String title) {
+			this.name = name;
+			this.title = title;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public void setTitle(String title) {
+			this.title = title;
+		}
+		public int getPort() {
+			return port;
+		}
+		public void setPort(int port) {
+			this.port = port;
+		}
+	}
+	
 
 	@Test
 	public void test() {
@@ -273,6 +321,25 @@ public class PropLoaderTests extends BaseTest {
 		copier.copy(loader, dest).field("name", "name").field("title").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals("Mr", dest.getTitle());
+	}
+	@Test
+	public void test2a() {
+		MyLoader loader = new MyLoader();
+		Dest dest = new Dest(null, null);
+		
+		FieldCopier copier = createConfigCopier();
+		copier.copy(loader, dest).field("app.port", "name").execute();
+		assertEquals("3000", dest.getName());
+		assertEquals(null, dest.getTitle());
+	}
+	@Test
+	public void test3() {
+		MyLoader loader = new MyLoader();
+		Dest2 dest = new Dest2(null, null);
+		
+		FieldCopier copier = createConfigCopier();
+		copier.copy(loader, dest).field("nosuchname", "port").defaultValue(3000).execute();
+		assertEquals(3000, dest.getPort());
 	}
 
 	private FieldCopier createConfigCopier() {

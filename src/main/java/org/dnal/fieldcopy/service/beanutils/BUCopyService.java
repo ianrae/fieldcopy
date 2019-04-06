@@ -423,4 +423,9 @@ public class BUCopyService extends BUCopyServiceBase {
 	public CopyMetrics getMetrics() {
 		return metrics;
 	}
+
+	@Override
+	public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+		return null; //not supported
+	}
 }

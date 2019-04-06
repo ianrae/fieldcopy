@@ -14,6 +14,7 @@ import org.dnal.fieldcopy.metrics.CopyMetrics;
  */
 public interface FieldCopyService {
 	List<FieldPair> buildAutoCopyPairs(TargetPair targetPair);
+	FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair);
 	void copyFields(CopySpec copySpec);
 	<T> T copyFields(CopySpec copySpec, Class<T> destClass);
 	void dumpFields(Object sourceObj);

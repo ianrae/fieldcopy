@@ -72,14 +72,16 @@ public class FieldCopier {
 			throw new FieldCopyException(error);
 		}
 		
-		List<FieldPair> fieldsToCopy;
 		List<FieldPair> fieldPairs;
+		TargetPair targetPair;
 		if (destObj == null) {
-			fieldPairs = copier.buildAutoCopyPairs(new TargetPair(sourceObj, destClass));
+			targetPair = new TargetPair(sourceObj, destClass);
 		} else {
-			fieldPairs = copier.buildAutoCopyPairs(new TargetPair(sourceObj, destObj));
+			targetPair = new TargetPair(sourceObj, destObj);
 		}
+		fieldPairs = copier.buildAutoCopyPairs(targetPair);
 		
+		List<FieldPair> fieldsToCopy;
 		if (doAutoCopy) {
 			if (includeList == null && excludeList == null) {
 				fieldsToCopy = fieldPairs;
@@ -112,6 +114,9 @@ public class FieldCopier {
 				if (existing == null) {
 					FieldPair pair = new FieldPair();
 					pair.srcProp = findInPairs(srcField, fieldPairs);
+					if (pair.srcProp == null) {
+						pair.srcProp = copier.resolveSourceField(srcField, targetPair);
+					}
 					pair.destFieldName = destField;
 					pair.defaultValue = defaultValue;
 					fieldsToCopy.add(pair);

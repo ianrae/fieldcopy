@@ -16,6 +16,7 @@ import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
@@ -243,5 +244,10 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		public CopyMetrics getMetrics() {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+			return null; //not supported
 		}
 	}
