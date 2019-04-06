@@ -1,11 +1,8 @@
 package org.dnal.fieldcopy.service.beanutils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -270,19 +267,25 @@ public class BUConverterService {
 			//NOTE. destObj is sometimes null. Document this TODO
 			destField.beanClass = copySpec.destObj == null ? null : copySpec.destObj.getClass();
 
-			if (ThreadSafeList.isNotEmpty(converterL)) {
-				Iterator<ValueConverter> iter = converterL.iterator();
-				while(iter.hasNext()) {
-					//TODO: fix value null issue
-					ValueConverter converter = iter.next();
-					
-					if (converter.canConvert(sourceField, destField)) {
-						return converter;
-					}
+			return findConverter(sourceField, destField, converterL);
+		}
+		return null;
+	}
+	public ValueConverter findConverter(FieldInfo sourceField, FieldInfo destField, ThreadSafeList<ValueConverter> converterL) {
+		if (ThreadSafeList.isNotEmpty(converterL)) {
+			Iterator<ValueConverter> iter = converterL.iterator();
+			while(iter.hasNext()) {
+				//TODO: fix value null issue
+				ValueConverter converter = iter.next();
+
+				if (converter.canConvert(sourceField, destField)) {
+					return converter;
 				}
 			}
-			
-			//now try builtin converters
+		}
+
+		//now try builtin converters
+		if (ThreadSafeList.isNotEmpty(builtInConverterL)) {
 			Iterator<ValueConverter> iter = builtInConverterL.iterator();
 			while(iter.hasNext()) {
 				ValueConverter converter = iter.next();

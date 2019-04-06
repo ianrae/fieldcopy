@@ -13,6 +13,9 @@ import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.CopierFactory;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.DefaultFieldFilter;
@@ -31,6 +34,7 @@ import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BUConverterService;
 import org.dnal.fieldcopy.service.beanutils.BUHelperService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 import org.junit.Test;
 
 public class PropLoaderTests extends BaseTest {
@@ -144,13 +148,7 @@ public class PropLoaderTests extends BaseTest {
 				
 				//	            validateIsAllowed(pair);
 
-				//handle list, array, list to array, and viceversa
-				//	            ValueConverter converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
-				//add converter if one matches
-				ValueConverter converter = null;
-//				if (converter == null) {
-//					converter = converterSvc.findConverter(copySpec, pair, srcObj, copySpec.converterL);
-//				}
+				ValueConverter converter = findAConverter(copySpec, pair);
 
 				//val = findProperty ....
 				ConfigLoader loader = (ConfigLoader) copySpec.sourceObj;
@@ -160,7 +158,22 @@ public class PropLoaderTests extends BaseTest {
 					value = pair.defaultValue.toString();
 				}
 				
-				//apply converter!!!
+				if (converter != null) {
+					Class<?> destClass = pair.getDestClass();
+					
+					ConverterContext ctx = new ConverterContext();
+					ctx.destClass = destClass;
+					ctx.srcClass = String.class;
+					ctx.copySvc = this;
+					ctx.copyOptions = copySpec.options;
+					ctx.runawayCounter = 1; //no recursion here
+					addConverterAndMappingLists(ctx, copySpec);
+//					execPlan.inConverter = true;
+					Object obj = converter.convertValue(copySpec.sourceObj, value, ctx);
+					value = (obj == null) ? null : obj.toString();
+//					execPlan.inConverter = false;
+				}
+				
 				//store in destObj
 				String destFieldName = pair.destFieldName;
 				try {
@@ -173,6 +186,38 @@ public class PropLoaderTests extends BaseTest {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec copySpec) {
+			//mappings are not supported
+//			if (CollectionUtils.isNotEmpty(copySpec.mappingL)) {
+//				ctx.mappingL = new ArrayList<>();
+//				ctx.mappingL.addAll(copySpec.mappingL);
+//			}
+			if (ThreadSafeList.isNotEmpty(copySpec.converterL)) {
+				ctx.converterL = new ArrayList<>();
+				copySpec.converterL.addIntoOtherList(ctx.converterL);
+//				ctx.converterL.addAll(execPlan.copySpec.converterL);
+			}
+		}
+		
+		private ValueConverter findAConverter(CopySpec copySpec, FieldPair pair)  {
+			//lists,arrays not supported for now.
+			//handle list, array, list to array, and viceversa
+			//	            ValueConverter converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
+			
+			//add converter if one matches
+			FieldInfo sourceField = new FieldInfo();
+			sourceField.fieldName = pair.srcProp.getName();
+			sourceField.fieldClass = String.class;
+			sourceField.beanClass = copySpec.sourceObj.getClass();
+			
+			FieldInfo destField = new FieldInfo();
+			destField.fieldName = pair.destProp.getName();
+			destField.fieldClass = pair.getDestClass();
+			destField.beanClass = copySpec.destObj.getClass();
+			
+			return converterSvc.findConverter(sourceField, destField, copySpec.converterL);
 		}
 
 		private void fillInDestPropIfNeeded(FieldPair pair, Class<? extends Object> class2) {
@@ -340,6 +385,17 @@ public class PropLoaderTests extends BaseTest {
 		FieldCopier copier = createConfigCopier();
 		copier.copy(loader, dest).field("nosuchname", "port").defaultValue(3000).execute();
 		assertEquals(3000, dest.getPort());
+	}
+	@Test
+	public void test4() {
+		MyLoader loader = new MyLoader();
+		Dest2 dest = new Dest2(null, null);
+		
+		MyConverter1 conv = new MyConverter1();
+		
+		FieldCopier copier = createConfigCopier();
+		copier.copy(loader, dest).withConverters(conv).field("name").execute();
+		assertEquals("BOB", dest.getName());
 	}
 
 	private FieldCopier createConfigCopier() {
