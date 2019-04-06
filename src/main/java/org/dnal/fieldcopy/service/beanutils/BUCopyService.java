@@ -186,7 +186,7 @@ public class BUCopyService extends BUCopyServiceBase {
             		fieldPlan.subPlan = doCreateSubPlan(copySpec, pair, srcType, srcFieldValue, state); //**recursion**
             	}
             } else {
-            	validateIsAllowed(pair);
+            	helperSvc.validateIsAllowed(pair);
             	
     			//handle list, array, list to array, and viceversa
             	fieldPlan.converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
@@ -288,26 +288,12 @@ public class BUCopyService extends BUCopyServiceBase {
 
 	@Override
 	public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
-		T destObj = (T) createDestObject(destClass);
+		T destObj = (T) helperSvc.createObject(destClass);
 		copySpec.destObj = destObj;
 		copyFields(copySpec);
 		return destObj;
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T createDestObject(Class<T> destClass) {
-		T obj = null;
-		try {
-			obj = (T) destClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new FieldCopyException(e.getMessage());
-		} catch (IllegalAccessException e) {
-			throw new FieldCopyException(e.getMessage());
-		}
-		return obj;
-	}
-	
-	
 	private boolean executePlan(BUExecutePlan execPlan, int runawayCounter)  {
 		if (runawayCounter > execPlan.copySpec.options.maxRecursionDepth) {
 			String error = String.format("maxRecursionDepth exceeded. There may be a circular reference.");

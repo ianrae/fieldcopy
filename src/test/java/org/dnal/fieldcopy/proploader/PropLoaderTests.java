@@ -266,7 +266,7 @@ public class PropLoaderTests extends BaseTest {
 
 				//val = findProperty ....
 				ConfigLoader loader = (ConfigLoader) copySpec.sourceObj;
-				String pname = "name";
+				String pname = pair.srcProp.getName();
 				String value = loader.load(pname);
 				//apply converter!!!
 				//store in destObj
@@ -343,7 +343,14 @@ public class PropLoaderTests extends BaseTest {
 
 		@Override
 		public String load(String propertyName) {
-			return "bob";
+			switch(propertyName) {
+			case "name":
+				return "bob";
+			case "title":
+				return "Mr";
+			default:
+				return null;
+			}
 		}
 	}
 	public class MyFactory implements CopierFactory {
@@ -368,6 +375,16 @@ public class PropLoaderTests extends BaseTest {
 		copier.copy(loader, dest).field("name", "name").execute();
 		assertEquals("bob", dest.getName());
 		assertEquals(null, dest.getTitle());
+	}
+	@Test
+	public void test2() {
+		MyLoader loader = new MyLoader();
+		Dest dest = new Dest(null, null);
+		
+		FieldCopier copier = createConfigCopier();
+		copier.copy(loader, dest).field("name", "name").field("title").execute();
+		assertEquals("bob", dest.getName());
+		assertEquals("Mr", dest.getTitle());
 	}
 
 	private FieldCopier createConfigCopier() {
