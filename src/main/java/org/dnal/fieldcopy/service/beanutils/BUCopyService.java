@@ -13,6 +13,7 @@ import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
+import org.dnal.fieldcopy.core.FieldCopyUtils;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
@@ -288,7 +289,7 @@ public class BUCopyService extends BUCopyServiceBase {
 
 	@Override
 	public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
-		T destObj = (T) helperSvc.createObject(destClass);
+		T destObj = (T) FieldCopyUtils.createObject(destClass);
 		copySpec.destObj = destObj;
 		copyFields(copySpec);
 		return destObj;

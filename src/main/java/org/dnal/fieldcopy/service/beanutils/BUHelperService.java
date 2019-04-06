@@ -146,19 +146,4 @@ public class BUHelperService {
 			return s;
 		}
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public <T> T createObject(Class<T> destClass) {
-		T obj = null;
-		try {
-			obj = (T) destClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new FieldCopyException(e.getMessage());
-		} catch (IllegalAccessException e) {
-			throw new FieldCopyException(e.getMessage());
-		}
-		return obj;
-	}
-	
 }

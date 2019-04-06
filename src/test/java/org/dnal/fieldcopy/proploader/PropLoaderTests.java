@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.proploader;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldCopyUtils;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
@@ -188,15 +190,23 @@ public class PropLoaderTests extends BaseTest {
 					}
 				} else {
 					try {
+						Field field = FieldUtils.getField(copySpec.destObj.getClass(), destFieldName);
+						value = convertForField(field, value);
 						FieldUtils.writeField(copySpec.destObj, destFieldName, value, true);
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (Exception ex) {
+						String err = String.format(ex.getMessage());
+						throw new FieldCopyException(err, ex);
 					}
 				}
 			}
 		}
 		
+		private String convertForField(Field field, String value) {
+//			if (field.getType())
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec copySpec) {
 			//mappings are not supported
 //			if (CollectionUtils.isNotEmpty(copySpec.mappingL)) {
@@ -250,7 +260,7 @@ public class PropLoaderTests extends BaseTest {
 
 		@Override
 		public <T> T copyFields(CopySpec copySpec, Class<T> destClass) {
-			T destObj = (T) helperSvc.createObject(destClass);
+			T destObj = (T) FieldCopyUtils.createObject(destClass);
 			copySpec.destObj = destObj;
 			copyFields(copySpec);
 			return destObj;
@@ -361,7 +371,7 @@ public class PropLoaderTests extends BaseTest {
 		private int port;
 		
 		public MyPrivateFields(MyLoader loader, FieldCopier copier) {
-			copier.copy(loader, this).field("name").field("title").execute();
+			copier.copy(loader, this).field("name").field("title").field("app.port", "port").execute();
 		}
 		
 		public void init() {

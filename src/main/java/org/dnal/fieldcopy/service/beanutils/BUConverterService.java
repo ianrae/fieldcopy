@@ -22,13 +22,11 @@ public class BUConverterService {
 	private SimpleLogger logger;
 	private BUListElementConverterFactory converterFactory;
 	private ThreadSafeList<ValueConverter> builtInConverterL = new ThreadSafeList<>();
-	private FieldCopyService outerSvc;
 	
 	public BUConverterService(SimpleLogger logger, BUBeanDetectorService beanDetectorSvc, FieldCopyService outerSvc) {
 		this.logger = logger;
 		this.converterFactory = new BUListElementConverterFactory(outerSvc);
 		this.converterFactory.setBeanDetectorSvc(beanDetectorSvc);
-		this.outerSvc = outerSvc;
 	}
 
 	// List -> List
