@@ -3,10 +3,7 @@ package org.dnal.fieldcopy.proploader;
 import static org.junit.Assert.assertEquals;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 

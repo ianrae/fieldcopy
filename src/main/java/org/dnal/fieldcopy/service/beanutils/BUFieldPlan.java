@@ -15,7 +15,9 @@ public class BUFieldPlan {
 	public FieldDescriptor destFd;
 	public ValueConverter converter;
 	public Object defaultValue = null;
-	
+	public boolean hasSetterMethod;
+	public boolean hasSetterMethodIsResolved;
+
 	public boolean isBean;
 	public volatile BUClassPlan subPlan; //null if not-bean
 	//public boolean directMode; //later when we support plan backoff

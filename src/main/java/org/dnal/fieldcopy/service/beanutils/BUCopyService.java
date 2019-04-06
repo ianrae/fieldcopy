@@ -41,10 +41,12 @@ public class BUCopyService extends BUCopyServiceBase {
 	private boolean enablePlanCache = true;
 	private BUConverterService converterSvc;
 	private CopyMetrics metrics = new DoNothingMetrics();
+	private BUFieldSetterService fieldSetterSvc;
 
 	public BUCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 		super(logger, registry, fieldFilter);
 		this.converterSvc = new BUConverterService(logger, this.beanDetectorSvc, this);
+		this.fieldSetterSvc = new BUFieldSetterService(logger);
 	}
 	
 	public int getPlanCacheSize() {
@@ -164,16 +166,19 @@ public class BUCopyService extends BUCopyServiceBase {
 				String error = String.format("Source Field '%s' is not readable", name);
 				throw new FieldCopyException(error);
 			}
-			if (destObj != null && !propertyUtils.isWriteable(destObj, pair.destFieldName)) {
-				String error = String.format("Destination Field '%s' is not writeable", name);
-				throw new FieldCopyException(error);
-			}				
             fillInDestPropIfNeeded(pair, destClass);
 
             BUFieldPlan fieldPlan = new BUFieldPlan();
             fieldPlan.srcFd = origDescriptor;
             fieldPlan.destFd = pair.destProp;
             fieldPlan.defaultValue = pair.defaultValue;
+            if (destObj != null) {
+            	fieldPlan.hasSetterMethod =  propertyUtils.isWriteable(destObj, pair.destFieldName); 
+            	fieldPlan.hasSetterMethodIsResolved = true;
+            } else {
+            	fieldPlan.hasSetterMethod =  false; 
+            	fieldPlan.hasSetterMethodIsResolved = false;
+            }
             Class<?> srcType = pair.getSrcClass();
 
             if (beanDetectorSvc.isBeanClass(srcType)) {
@@ -376,7 +381,7 @@ public class BUCopyService extends BUCopyServiceBase {
 				if (destValue == null) {
 					Class<?> destClass = fieldPlan.getDestClass();
 					destValue = createObject(destClass);
-					beanUtil.copyProperty(execPlan.destObj, destFieldName, destValue);
+					doCopyProperty(fieldPlan, execPlan.destObj, destFieldName, destValue);
 				}
 				
 				subexec.destObj = destValue;
@@ -386,12 +391,31 @@ public class BUCopyService extends BUCopyServiceBase {
 				}
 			} else {
 				String destFieldName = fieldPlan.destFd.getName();
-				beanUtil.copyProperty(execPlan.destObj, destFieldName, value);
+				doCopyProperty(fieldPlan, execPlan.destObj, destFieldName, value);
 				metrics.incrementFieldExecutionCount();
 			}
 		}
 		return ok;
 	}
+	
+	/**
+	 * Copy destValue into the destination property. Use setter or field reflection to set the value.
+	 */
+	private void doCopyProperty(BUFieldPlan fieldPlan, Object destObj, String destFieldName, Object destValue) throws Exception {
+		boolean useSetter = false;
+		if (! fieldPlan.hasSetterMethodIsResolved) {
+			useSetter = propertyUtils.isWriteable(destObj, destFieldName); 
+		} else {
+			useSetter = fieldPlan.hasSetterMethod;
+		}
+		
+		if (useSetter) {
+			beanUtil.copyProperty(destObj, destFieldName, destValue);
+		} else {
+			fieldSetterSvc.setField(destObj, destFieldName, destValue);
+		}
+	}
+
 	private Object createObject(Class<?> clazzDest) throws InstantiationException, IllegalAccessException {
 		return clazzDest.newInstance();
 	}
