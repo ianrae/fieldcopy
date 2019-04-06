@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.CopierFactory;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
@@ -140,10 +141,9 @@ public class PropLoaderTests extends BaseTest {
 				//					String error = String.format("Source Field '%s' is not readable", name);
 				//					throw new FieldCopyException(error);
 				//				}
-				if (!propertyUtils.isWriteable(destObj, pair.destFieldName)) {
-					String error = String.format("Destination Field '%s' is not writeable", name);
-					throw new FieldCopyException(error);
-				}				
+				
+
+				boolean hasSetterMethod = propertyUtils.isWriteable(destObj, pair.destFieldName);
 				fillInDestPropIfNeeded(pair, destObj.getClass());
 				
 				//	            validateIsAllowed(pair);
@@ -176,14 +176,23 @@ public class PropLoaderTests extends BaseTest {
 				
 				//store in destObj
 				String destFieldName = pair.destFieldName;
-				try {
-					beanUtil.copyProperty(copySpec.destObj, destFieldName, value);
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				if (hasSetterMethod) {
+					try {
+						beanUtil.copyProperty(copySpec.destObj, destFieldName, value);
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						FieldUtils.writeField(copySpec.destObj, destFieldName, value, true);
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -346,6 +355,30 @@ public class PropLoaderTests extends BaseTest {
 		}
 	}
 	
+	public static class MyPrivateFields {
+		private String name;
+		private String title;
+		private int port;
+		
+		public MyPrivateFields(MyLoader loader, FieldCopier copier) {
+			copier.copy(loader, this).field("name").field("title").execute();
+		}
+		
+		public void init() {
+			
+		}
+
+		public String getName() {
+			return name;
+		}
+		public String getTitle() {
+			return title;
+		}
+		public int getPort() {
+			return port;
+		}
+	}
+	
 
 	@Test
 	public void test() {
@@ -397,6 +430,28 @@ public class PropLoaderTests extends BaseTest {
 		copier.copy(loader, dest).withConverters(conv).field("name").execute();
 		assertEquals("BOB", dest.getName());
 	}
+	@Test
+	public void testFieldWrite() {
+		MyLoader loader = new MyLoader();
+		Dest destx = new Dest();
+		try {
+			FieldUtils.writeField(destx, "name", "bill", true);
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals("bill", destx.getName());
+	}
+	@Test
+	public void test5() {
+		MyLoader loader = new MyLoader();
+
+		FieldCopier copier = createConfigCopier();
+		MyPrivateFields dest = new MyPrivateFields(loader, copier);
+		assertEquals("bob", dest.getName());
+		assertEquals("Mr", dest.getTitle());
+	}
+	
 
 	private FieldCopier createConfigCopier() {
 		FieldRegistry registry = new FieldRegistry();
