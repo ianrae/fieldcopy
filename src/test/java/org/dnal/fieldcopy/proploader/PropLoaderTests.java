@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -203,7 +205,9 @@ public class PropLoaderTests extends BaseTest {
 		
 		private Object convertForField(Field field, String value) {
 			Class<?> clazz = field.getType();
-			if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
+			if (String.class.equals(clazz)) {
+				return value;
+			} else if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
 				return Integer.parseInt(value);
 			} else if (Long.class.equals(clazz) || Long.TYPE.equals(clazz)) {
 				return Long.parseLong(value);
@@ -211,6 +215,20 @@ public class PropLoaderTests extends BaseTest {
 				return Double.parseDouble(value);
 			} else if (Boolean.class.equals(clazz) || Boolean.TYPE.equals(clazz)) {
 				return Boolean.parseBoolean(value);
+			} else if (Float.class.equals(clazz) || Float.TYPE.equals(clazz)) {
+				return Float.parseFloat(value);
+			} else if (Short.class.equals(clazz) || Short.TYPE.equals(clazz)) {
+				return Short.parseShort(value);
+			} else if (Byte.class.equals(clazz) || Byte.TYPE.equals(clazz)) {
+				return Byte.parseByte(value);
+			} else if (Character.class.equals(clazz) || Character.TYPE.equals(clazz)) {
+				return value.charAt(0);
+			} else if (BigDecimal.class.equals(clazz)) {
+				return new BigDecimal(value);
+			} else if (BigInteger.class.equals(clazz)) {
+				return new BigInteger(value);
+			} else if (Byte.class.equals(clazz)) {
+				return new Byte(value);
 			} else {
 				return value;
 			}

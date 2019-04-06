@@ -21,7 +21,6 @@ public class BUHelperService {
 		this.logger = logger;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 	}
-	
 
 	public void validateIsAllowed(FieldPair pair) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
 		Class<?> destClass = isNotAllowed(pair);
