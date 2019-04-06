@@ -37,6 +37,7 @@ import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.metrics.DoNothingMetrics;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BUConverterService;
+import org.dnal.fieldcopy.service.beanutils.BUFieldSetterService;
 import org.dnal.fieldcopy.service.beanutils.BUHelperService;
 import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
 import org.dnal.fieldcopy.util.ThreadSafeList;
@@ -72,6 +73,7 @@ public class PropLoaderTests extends BaseTest {
 		protected BUHelperService helperSvc;
 		private BUConverterService converterSvc;
 		private CopyMetrics metrics = new DoNothingMetrics();
+		private BUFieldSetterService fieldSetterSvc;
 
 		public PropLoaderService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
@@ -82,6 +84,7 @@ public class PropLoaderTests extends BaseTest {
 			this.beanDetectorSvc = new BUBeanDetectorService();
 			this.helperSvc = new BUHelperService(logger);
 			this.converterSvc = new BUConverterService(logger, this.beanDetectorSvc, this);
+			this.fieldSetterSvc = new BUFieldSetterService(logger);
 		}
 
 		@Override
@@ -145,7 +148,6 @@ public class PropLoaderTests extends BaseTest {
 				//					String error = String.format("Source Field '%s' is not readable", name);
 				//					throw new FieldCopyException(error);
 				//				}
-				
 
 				boolean hasSetterMethod = propertyUtils.isWriteable(destObj, pair.destFieldName);
 				fillInDestPropIfNeeded(pair, destObj.getClass());
@@ -191,49 +193,11 @@ public class PropLoaderTests extends BaseTest {
 						e.printStackTrace();
 					}
 				} else {
-					try {
-						Field field = FieldUtils.getField(copySpec.destObj.getClass(), destFieldName, true);
-						Object objValue = convertForField(field, value);
-						FieldUtils.writeField(copySpec.destObj, destFieldName, objValue, true);
-					} catch (Exception ex) {
-						String err = String.format("copy to field '%s' failed. %s", destFieldName, ex.getMessage());
-						throw new FieldCopyException(err, ex);
-					}
+					fieldSetterSvc.setFieldFromString(copySpec.destObj, destFieldName, value);
 				}
 			}
 		}
 		
-		private Object convertForField(Field field, String value) {
-			Class<?> clazz = field.getType();
-			if (String.class.equals(clazz)) {
-				return value;
-			} else if (Integer.class.equals(clazz) || Integer.TYPE.equals(clazz)) {
-				return Integer.parseInt(value);
-			} else if (Long.class.equals(clazz) || Long.TYPE.equals(clazz)) {
-				return Long.parseLong(value);
-			} else if (Double.class.equals(clazz) || Double.TYPE.equals(clazz)) {
-				return Double.parseDouble(value);
-			} else if (Boolean.class.equals(clazz) || Boolean.TYPE.equals(clazz)) {
-				return Boolean.parseBoolean(value);
-			} else if (Float.class.equals(clazz) || Float.TYPE.equals(clazz)) {
-				return Float.parseFloat(value);
-			} else if (Short.class.equals(clazz) || Short.TYPE.equals(clazz)) {
-				return Short.parseShort(value);
-			} else if (Byte.class.equals(clazz) || Byte.TYPE.equals(clazz)) {
-				return Byte.parseByte(value);
-			} else if (Character.class.equals(clazz) || Character.TYPE.equals(clazz)) {
-				return value.charAt(0);
-			} else if (BigDecimal.class.equals(clazz)) {
-				return new BigDecimal(value);
-			} else if (BigInteger.class.equals(clazz)) {
-				return new BigInteger(value);
-			} else if (Byte.class.equals(clazz)) {
-				return new Byte(value);
-			} else {
-				return value;
-			}
-		}
-
 		private void addConverterAndMappingLists(ConverterContext ctx, CopySpec copySpec) {
 			//mappings are not supported
 //			if (CollectionUtils.isNotEmpty(copySpec.mappingL)) {
