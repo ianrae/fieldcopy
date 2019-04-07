@@ -8,8 +8,19 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.CopyBuilder1;
+import org.dnal.fieldcopy.CopyBuilder1A;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.MappingBuilder1;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
+import org.dnal.fieldcopy.converter.ValueConverter;
+import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.FieldCopyException;
+import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.propertyloader.PropertyCopy;
 import org.dnal.fieldcopy.propertyloader.PropertyLoader;
 import org.dnal.fieldcopy.proploader.PropLoaderTests.MyLoader;
@@ -231,6 +242,36 @@ public class PropertyReaderTests extends BaseTest {
 		}
 	}
 	
+	public static class PCopy {
+		private FieldCopier copier;
+		private ZZZ zzz;
+		
+		public PCopy(FieldCopier copier) {
+			this.copier = copier;
+			this.zzz = new ZZZ();
+		}
+		
+		public CopyBuilder1 copyInto(Object destObj) {
+			return copier.copy(zzz.multiLoader, destObj);
+		}
+		
+		public void addBuiltInConverter(ValueConverter converter) {
+			copier.addBuiltInConverter(converter);
+		}
+		
+		public FieldCopyService getCopyService() {
+			return copier.getCopyService();
+		}
+
+		public CopyOptions getOptions() {
+			return copier.getOptions();
+		}
+		
+		public CopySpec getMostRecentCopySpec() {
+			return copier.getMostRecentCopySpec();
+		}
+	}
+	
 	@Test
 	public void test() {
 		String s = System.getProperty("java.runtime.name");
@@ -266,6 +307,15 @@ public class PropertyReaderTests extends BaseTest {
 		ZZZ zz = new ZZZ();
 		FieldCopier copier = createConfigCopier();
 		copier.copy(zz.multiLoader, dest).field("java.specification.version", "name").execute();
+		assertEquals("1.8", dest.getName());
+		assertEquals(null, dest.getTitle());
+	}
+	@Test
+	public void test4() {
+		Dest dest = new Dest(null, null);
+		PCopy pc = new PCopy(createConfigCopier());
+		
+		pc.copyInto(dest).field("java.specification.version", "name").execute();
 		assertEquals("1.8", dest.getName());
 		assertEquals(null, dest.getTitle());
 	}
