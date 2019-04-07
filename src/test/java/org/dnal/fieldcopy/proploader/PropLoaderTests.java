@@ -4,17 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.dnal.fieldcopy.BaseTest;
-import org.dnal.fieldcopy.CopierFactory;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
-import org.dnal.fieldcopy.core.DefaultFieldFilter;
-import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
-import org.dnal.fieldcopy.core.FieldRegistry;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
+import org.dnal.fieldcopy.propertyloader.PropertyCopy;
 import org.dnal.fieldcopy.propertyloader.PropertyLoader;
-import org.dnal.fieldcopy.propertyloader.PropertyLoaderService;
 import org.junit.Test;
 
 public class PropLoaderTests extends BaseTest {
@@ -46,18 +41,6 @@ public class PropLoaderTests extends BaseTest {
 			default:
 				return null;
 			}
-		}
-	}
-	public class MyFactory implements CopierFactory {
-		public FieldCopyService copySvc;
-		
-		public MyFactory(FieldCopyService copySvc) {
-			this.copySvc = copySvc;
-		}
-		
-		@Override
-		public FieldCopier createCopier() {
-			return new FieldCopier(copySvc);
 		}
 	}
 	
@@ -185,13 +168,9 @@ public class PropLoaderTests extends BaseTest {
 		assertEquals("Mr", dest.getTitle());
 		assertEquals(3000, dest.getPort());
 	}
-
+	
+	
 	private FieldCopier createConfigCopier() {
-		FieldRegistry registry = new FieldRegistry();
-		DefaultFieldFilter filter = new DefaultFieldFilter();
-		SimpleConsoleLogger logger = new SimpleConsoleLogger();
-		PropertyLoaderService copySvc = new PropertyLoaderService(logger, registry, filter);
-		MyFactory factory = new MyFactory(copySvc);
-		return factory.createCopier();
+		return PropertyCopy.createFactory().createCopier();
 	}
 }
