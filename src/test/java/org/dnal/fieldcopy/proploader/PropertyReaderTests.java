@@ -1,6 +1,6 @@
 package org.dnal.fieldcopy.proploader;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +60,9 @@ public class PropertyReaderTests extends BaseTest {
 		
 		public void setLoadOrder(List<PLoader> list) {
 			this.loaders = list;
+		}
+		public void add(PLoader loader) {
+			loaders.add(loader);
 		}
 		
 		@Override
@@ -129,7 +132,7 @@ public class PropertyReaderTests extends BaseTest {
 			if (val == null && searchRawName) {
 				val = loader.load(name);
 			}
-			return null;
+			return val;
 		}
 
 		private String makePropertyName(String prefix2, String name) {
@@ -171,8 +174,17 @@ public class PropertyReaderTests extends BaseTest {
 	public static class XLoader {
 		private List<PLoader> loaders = new ArrayList<>();
 		
-		public void setLoadOrder(List<PLoader> list) {
+		public void setLoaders(List<PLoader> list) {
 			this.loaders = list;
+		}
+		public List<PLoader> getLoaders() {
+			return this.loaders;
+		}
+		public void addLoader(PLoader loader) {
+			loaders.add(loader);
+		}
+		public void clearLoaders() {
+			loaders.clear();
 		}
 		
 		public Object load(String propertyName, Object defaultValue) {
@@ -192,13 +204,54 @@ public class PropertyReaderTests extends BaseTest {
 		}
 	}
 	
-	@Test
-	public void test0() {
+	public static class SysPropLoader implements PLoader {
+		@Override
+		public Object load(String propertyName) {
+			return System.getProperty(propertyName);
+		}
+	}
+	public static class EnvLoader implements PLoader {
+		@Override
+		public Object load(String propertyName) {
+			return System.getenv(propertyName);
+		}
+	}
+	
+	public static class ZZZ {
+		private XLoader xloader;
+		private MultiLoader multiLoader;
+		private String prefix1;
+
+		public ZZZ() {
+			this.xloader = new XLoader();
+			this.multiLoader = new MultiLoader();
+			multiLoader.add(new SysPropLoader());
+			multiLoader.add(new EnvLoader());
+			xloader.addLoader(multiLoader);
+		}
 		
+		public void addPrefix(String prefix) {
+			if (this.prefix1 == null) {
+				this.prefix1 = prefix;
+				OptionalPrefixLoader oploader = new OptionalPrefixLoader(multiLoader);
+				oploader.setPrefix1(prefix);
+				xloader.clearLoaders();
+				xloader.addLoader(oploader);
+			} else {
+				OptionalPrefixLoader oploader = (OptionalPrefixLoader) xloader.getLoaders().get(0);
+				oploader.setPrefix1(prefix);
+			}
+		}
 		
-		
-		
-	}	
+		public Object getAsObj(String propertyName, Object defaultValue) {
+			return xloader.load(propertyName, defaultValue);
+		}
+		public String getString(String propertyName, Object defaultValue) {
+			String s = (String) getAsObj(propertyName, defaultValue);
+			return s;
+		}
+	}
+	
 	@Test
 	public void test() {
 		String s = System.getProperty("java.runtime.name");
@@ -213,4 +266,18 @@ public class PropertyReaderTests extends BaseTest {
 			log(String.format("%s: %s", key, value));
 		}		
 	}	
+	@Test
+	public void test1() {
+		ZZZ zz = new ZZZ();
+		String s = zz.getString("java.specification.version", "A");
+		assertEquals("1.8", s);
+	}	
+	@Test
+	public void test2() {
+		ZZZ zz = new ZZZ();
+		zz.addPrefix("java");
+		String s = zz.getString("specification.version", "A");
+		assertEquals("1.8", s);
+	}	
+	
 }
