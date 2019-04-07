@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.proploader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,22 +9,15 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.CopierFactory;
 import org.dnal.fieldcopy.CopyBuilder1;
-import org.dnal.fieldcopy.CopyBuilder1A;
 import org.dnal.fieldcopy.CopyOptions;
-import org.dnal.fieldcopy.FieldCopier;
-import org.dnal.fieldcopy.MappingBuilder1;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
+import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.converter.ValueConverter;
-import org.dnal.fieldcopy.core.CopySpec;
-import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.FieldDescriptor;
-import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.propertyloader.PropertyCopy;
 import org.dnal.fieldcopy.propertyloader.PropertyLoader;
-import org.dnal.fieldcopy.proploader.PropLoaderTests.MyLoader;
 import org.junit.Test;
 
 /*
@@ -246,14 +240,24 @@ public class PropertyReaderTests extends BaseTest {
 		private FieldCopier copier;
 		private ZZZ zzz;
 		
-		public PCopy(FieldCopier copier) {
-			this.copier = copier;
+		public PCopy() {
+			this.copier = PropertyCopy.createFactory().createCopier();
+			this.zzz = new ZZZ();
+		}
+		public PCopy(CopierFactory factory) {
+			this.copier = factory.createCopier();
 			this.zzz = new ZZZ();
 		}
 		
 		public CopyBuilder1 copyInto(Object destObj) {
 			return copier.copy(zzz.multiLoader, destObj);
 		}
+		
+		//void addOptionalPrefix("gongo")
+		//void tryPrefixedPropertiesBefore(true);
+		//getLoader(), setLoader()
+		//
+		//getProperty,getIntProperty,getBoolProperty(...
 		
 		public void addBuiltInConverter(ValueConverter converter) {
 			copier.addBuiltInConverter(converter);
@@ -267,8 +271,8 @@ public class PropertyReaderTests extends BaseTest {
 			return copier.getOptions();
 		}
 		
-		public CopySpec getMostRecentCopySpec() {
-			return copier.getMostRecentCopySpec();
+		public FieldCopier getCopier() {
+			return copier;
 		}
 	}
 	
@@ -313,16 +317,18 @@ public class PropertyReaderTests extends BaseTest {
 	@Test
 	public void test4() {
 		Dest dest = new Dest(null, null);
-		PCopy pc = new PCopy(createConfigCopier());
+		PCopy pc = new PCopy();
 		
 		pc.copyInto(dest).field("java.specification.version", "name").execute();
 		assertEquals("1.8", dest.getName());
+		assertEquals(null, dest.getTitle());
+		
+		pc.copyInto(dest).field("nosuchvalue", "name").defaultValue("x").execute();
+		assertEquals("x", dest.getName());
 		assertEquals(null, dest.getTitle());
 	}
 
 	private FieldCopier createConfigCopier() {
 		return PropertyCopy.createFactory().createCopier();
 	}
-	
-	
 }
