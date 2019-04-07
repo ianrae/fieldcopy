@@ -8,6 +8,11 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldcopy.FieldCopier;
+import org.dnal.fieldcopy.DefaultValueTests.Dest;
+import org.dnal.fieldcopy.propertyloader.PropertyCopy;
+import org.dnal.fieldcopy.propertyloader.PropertyLoader;
+import org.dnal.fieldcopy.proploader.PropLoaderTests.MyLoader;
 import org.junit.Test;
 
 /*
@@ -24,51 +29,34 @@ load subj.instance.name
 load sub.name
 load zzz.name
 then apply defaultValue
-
-resolver(name, ctx)
- ctx.load ...
- 
- 		private List<String> loaders = new ArrayList<>();
-		
-		public void setLoadOrder(String...loaders) {
-			
-		}
-
-
- */
+*/
 
 public class PropertyReaderTests extends BaseTest {
-	
-	/**
-	 * Attempts to read a property.
-	 * 
-	 * @author Ian Rae
-	 */
-	public interface PLoader {
-		Object load(String propertyName);
-	}
-	
 	/**
 	 * A list of loaders. They are tried in order. 
 	 * The first one that returns a non-null value is returned.
 	 * 
+	 * TODO
+	 * -thread-safe
+	 * -get prop bool, int, etc
+	 * 
 	 * @author Ian Rae
 	 *
 	 */
-	public static class MultiLoader implements PLoader {
-		private List<PLoader> loaders = new ArrayList<>();
+	public static class MultiLoader implements PropertyLoader {
+		private List<PropertyLoader> loaders = new ArrayList<>();
 		
-		public void setLoadOrder(List<PLoader> list) {
+		public void setLoadOrder(List<PropertyLoader> list) {
 			this.loaders = list;
 		}
-		public void add(PLoader loader) {
+		public void add(PropertyLoader loader) {
 			loaders.add(loader);
 		}
 		
 		@Override
 		public Object load(String name) {
 			Object val = null;
-			for(PLoader loader: loaders) {
+			for(PropertyLoader loader: loaders) {
 				val = loader.load(name);
 				if (val != null) {
 					break;
@@ -85,7 +73,7 @@ public class PropertyReaderTests extends BaseTest {
 	 * @author Ian Rae
 	 *
 	 */
-	public static abstract class WrapperLoader implements PLoader {
+	public static abstract class WrapperLoader implements PropertyLoader {
 		protected MultiLoader loader;
 
 		public WrapperLoader(MultiLoader loader) {
@@ -151,37 +139,28 @@ public class PropertyReaderTests extends BaseTest {
 		public String getPrefix2() {
 			return prefix2;
 		}
-
 		public void setPrefix2(String prefix2) {
 			this.prefix2 = prefix2;
 		}
-
 		public boolean isSearchRawName() {
 			return searchRawName;
 		}
-
 		public void setSearchRawName(boolean searchRawName) {
 			this.searchRawName = searchRawName;
 		}
 	}
 	
-	//xloaderbuilder.addLoader(..).addWrapperLoader..
-	//..addPrefixLoader(prefix1, prefix2)
-	//copier(loader,dest)....
-	//copier(dest).withPrefixes(tenantName, catName)....
-	
-	
 	public static class XLoader {
-		private List<PLoader> loaders = new ArrayList<>();
+		private List<PropertyLoader> loaders = new ArrayList<>();
 		
-		public void setLoaders(List<PLoader> list) {
+		public void addLoader(PropertyLoader loader) {
+			loaders.add(loader);
+		}
+		public void setLoaders(List<PropertyLoader> list) {
 			this.loaders = list;
 		}
-		public List<PLoader> getLoaders() {
+		public List<PropertyLoader> getLoaders() {
 			return this.loaders;
-		}
-		public void addLoader(PLoader loader) {
-			loaders.add(loader);
 		}
 		public void clearLoaders() {
 			loaders.clear();
@@ -189,7 +168,7 @@ public class PropertyReaderTests extends BaseTest {
 		
 		public Object load(String propertyName, Object defaultValue) {
 			Object val = null;
-			for(PLoader loader: loaders) {
+			for(PropertyLoader loader: loaders) {
 				val = loader.load(propertyName);
 				if (val != null) {
 					break;
@@ -204,13 +183,13 @@ public class PropertyReaderTests extends BaseTest {
 		}
 	}
 	
-	public static class SysPropLoader implements PLoader {
+	public static class SysPropLoader implements PropertyLoader {
 		@Override
 		public Object load(String propertyName) {
 			return System.getProperty(propertyName);
 		}
 	}
-	public static class EnvLoader implements PLoader {
+	public static class EnvLoader implements PropertyLoader {
 		@Override
 		public Object load(String propertyName) {
 			return System.getenv(propertyName);
@@ -218,8 +197,8 @@ public class PropertyReaderTests extends BaseTest {
 	}
 	
 	public static class ZZZ {
-		private XLoader xloader;
-		private MultiLoader multiLoader;
+		public XLoader xloader;
+		public MultiLoader multiLoader;
 		private String prefix1;
 
 		public ZZZ() {
@@ -279,5 +258,21 @@ public class PropertyReaderTests extends BaseTest {
 		String s = zz.getString("specification.version", "A");
 		assertEquals("1.8", s);
 	}	
+	
+	@Test
+	public void test3() {
+		Dest dest = new Dest(null, null);
+		
+		ZZZ zz = new ZZZ();
+		FieldCopier copier = createConfigCopier();
+		copier.copy(zz.multiLoader, dest).field("java.specification.version", "name").execute();
+		assertEquals("1.8", dest.getName());
+		assertEquals(null, dest.getTitle());
+	}
+
+	private FieldCopier createConfigCopier() {
+		return PropertyCopy.createFactory().createCopier();
+	}
+	
 	
 }

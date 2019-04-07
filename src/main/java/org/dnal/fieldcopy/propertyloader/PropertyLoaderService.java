@@ -59,7 +59,7 @@ public class PropertyLoaderService implements FieldCopyService {
 		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
 			Object sourceObj = targetPair.getSrcObj();
 			if (! (sourceObj instanceof PropertyLoader)) {
-				String err = String.format("sourceObj is not be a ConfigLoader");
+				String err = String.format("sourceObj is not be a PropertyLoader");
 				throw new FieldCopyException(err);
 			}
 			
@@ -121,9 +121,9 @@ public class PropertyLoaderService implements FieldCopyService {
 				//val = findProperty ....
 				PropertyLoader loader = (PropertyLoader) copySpec.sourceObj;
 				String pname = pair.srcProp.getName();
-				String value = loader.load(pname);
+				Object value = loader.load(pname);
 				if (value == null && pair.defaultValue != null) {
-					value = pair.defaultValue.toString();
+					value = pair.defaultValue;
 				}
 				
 				if (converter != null) {
@@ -152,7 +152,7 @@ public class PropertyLoaderService implements FieldCopyService {
 						throw new FieldCopyException(err, ex);
 					}
 				} else {
-					fieldSetterSvc.setFieldFromString(copySpec.destObj, destFieldName, value);
+					fieldSetterSvc.setField(copySpec.destObj, destFieldName, value);
 				}
 			}
 		}
