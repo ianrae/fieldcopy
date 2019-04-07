@@ -1,10 +1,13 @@
 package org.dnal.fieldcopy.proploader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -429,7 +432,6 @@ public class PropLoaderTests extends BaseTest {
 		assertEquals("Mr", dest.getTitle());
 		assertEquals(3000, dest.getPort());
 	}
-	
 
 	private FieldCopier createConfigCopier() {
 		FieldRegistry registry = new FieldRegistry();
