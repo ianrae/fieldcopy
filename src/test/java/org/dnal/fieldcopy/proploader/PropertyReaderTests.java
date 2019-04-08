@@ -103,55 +103,51 @@ public class PropertyReaderTests extends BaseTest {
 	 *
 	 */
 	public static class OptionalPrefixLoader extends WrapperLoader {
-		private String prefix1;
-		private String prefix2;
-		private boolean searchRawName;
+		private List<String> prefixL = new ArrayList<>();
+		private boolean loadPrefixedPropertiesFirst;
 		
 		public OptionalPrefixLoader(MultiLoader loader) {
 			super(loader);
-			searchRawName = true;
+			loadPrefixedPropertiesFirst = true;
 		}
 
 		@Override
 		public Object load(String name) {
 			Object val = null;
-			if (prefix1 != null) {
-				val = loader.load(makePropertyName(prefix1, name));
-			}
-			if (val == null && prefix2 != null) {
-				val = loader.load(makePropertyName(prefix2, name));
+			
+			if (! loadPrefixedPropertiesFirst) {
+				val = loader.load(name);
+				if (val != null) {
+					return val;
+				}
 			}
 			
-			if (val == null && searchRawName) {
-				val = loader.load(name);
+			for(String prefix: prefixL) {
+				val = loader.load(makePropertyName(prefix, name));
+				if (val != null) {
+					return val;
+				}
 			}
+			
+			val = loader.load(name);
 			return val;
 		}
 
-		private String makePropertyName(String prefix2, String name) {
-			String propName = String.format("%s.%s", prefix1, name);
+		private String makePropertyName(String prefix, String name) {
+			String propName = String.format("%s.%s", prefix, name);
 			return propName;
 		}
 
-		public String getPrefix1() {
-			return prefix1;
+		public void addPrefix(String prefix) {
+			prefixL.add(prefix);
 		}
 
-		public void setPrefix1(String prefix) {
-			this.prefix1 = prefix;
+		public boolean isLoadPrefixedPropertiesFirst() {
+			return loadPrefixedPropertiesFirst;
 		}
 
-		public String getPrefix2() {
-			return prefix2;
-		}
-		public void setPrefix2(String prefix2) {
-			this.prefix2 = prefix2;
-		}
-		public boolean isSearchRawName() {
-			return searchRawName;
-		}
-		public void setSearchRawName(boolean searchRawName) {
-			this.searchRawName = searchRawName;
+		public void setLoadPrefixedPropertiesFirst(boolean loadPrefixedPropertiesFirst) {
+			this.loadPrefixedPropertiesFirst = loadPrefixedPropertiesFirst;
 		}
 	}
 	
@@ -204,27 +200,23 @@ public class PropertyReaderTests extends BaseTest {
 	public static class ZZZ {
 		public XLoader xloader;
 		public MultiLoader multiLoader;
-		private String prefix1;
+		private OptionalPrefixLoader oploader;
 
 		public ZZZ() {
 			this.xloader = new XLoader();
 			this.multiLoader = new MultiLoader();
 			multiLoader.add(new SysPropLoader());
 			multiLoader.add(new EnvLoader());
-			xloader.addLoader(multiLoader);
+			this.oploader = new OptionalPrefixLoader(multiLoader);
+			xloader.addLoader(oploader);
+		}
+		
+		public void setLoadPrefixedPropertiesFirst(boolean b) {
+			oploader.setLoadPrefixedPropertiesFirst(b);
 		}
 		
 		public void addPrefix(String prefix) {
-			if (this.prefix1 == null) {
-				this.prefix1 = prefix;
-				OptionalPrefixLoader oploader = new OptionalPrefixLoader(multiLoader);
-				oploader.setPrefix1(prefix);
-				xloader.clearLoaders();
-				xloader.addLoader(oploader);
-			} else {
-				OptionalPrefixLoader oploader = (OptionalPrefixLoader) xloader.getLoaders().get(0);
-				oploader.setPrefix1(prefix);
-			}
+			oploader.addPrefix(prefix);
 		}
 		
 		public Object getAsObj(String propertyName, Object defaultValue) {
@@ -253,14 +245,26 @@ public class PropertyReaderTests extends BaseTest {
 			return copier.copy(zzz.multiLoader, destObj);
 		}
 		
-		//void addOptionalPrefix("gongo")
-		//void tryPrefixedPropertiesBefore(true);
-		//getLoader(), setLoader()
-		//
+		public PCopy addOptionalPrefix(String prefix) {
+			zzz.oploader.addPrefix(prefix);
+			return this;
+		}
+		public PCopy loadPrefixedPropertiesFirst(boolean b) {
+			zzz.oploader.setLoadPrefixedPropertiesFirst(b);
+			return this;
+		}
+		public PropertyLoader getLoader() {
+			return zzz.oploader;
+		}
+		public void setLoader(PropertyLoader loader) {
+			//zzz.oploader = loader;
+			//TODO: support this
+		}
 		//getProperty,getIntProperty,getBoolProperty(...
 		
-		public void addBuiltInConverter(ValueConverter converter) {
+		public PCopy addBuiltInConverter(ValueConverter converter) {
 			copier.addBuiltInConverter(converter);
+			return this;
 		}
 		
 		public FieldCopyService getCopyService() {
