@@ -21,8 +21,6 @@ import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
 import org.dnal.fieldcopy.metrics.DoNothingMetrics;
-import org.dnal.fieldcopy.proploader.PropLoaderTests;
-import org.dnal.fieldcopy.proploader.PropLoaderTests.ConfigFieldDescriptor;
 import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 import org.dnal.fieldcopy.service.beanutils.BUConverterService;
 import org.dnal.fieldcopy.service.beanutils.BUFieldSetterService;

@@ -7,25 +7,11 @@ import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldcopy.DefaultValueTests.Dest;
 import org.dnal.fieldcopy.FieldCopier;
 import org.dnal.fieldcopy.TransitiveTests.MyConverter1;
-import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.propertyloader.PropertyCopy;
 import org.dnal.fieldcopy.propertyloader.PropertyLoader;
 import org.junit.Test;
 
 public class PropLoaderTests extends BaseTest {
-	
-	public static class ConfigFieldDescriptor implements FieldDescriptor {
-		private String name;
-		
-		public ConfigFieldDescriptor(String name) {
-			this.name = name;
-		}
-		
-		@Override
-		public String getName() {
-			return name;
-		}
-	}
 	
 	public static class MyLoader implements PropertyLoader {
 
