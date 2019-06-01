@@ -1,8 +1,8 @@
 package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -10,6 +10,7 @@ import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.SourceValueFieldDescriptor;
 import org.dnal.fieldcopy.core.TargetPair;
 
 /**
@@ -62,7 +63,8 @@ public class FieldCopier {
 	}
 	
 	List<FieldPair> buildFieldsToCopy(Class<?> destClass, boolean doAutoCopy,  List<String> includeList,
-			 List<String> excludeList, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
+			 List<String> excludeList, List<String> srcList, List<String> destList, 
+			 List<Object> defaultValueList, Map<String, Object> additionalSourceValMap) {
 		if (sourceObj == null) {
 			String error = String.format("NULL passed to sourceObj");
 			throw new FieldCopyException(error);
@@ -127,6 +129,24 @@ public class FieldCopier {
 				}
 			}
 		}
+		
+		//add or merge any additional source vals
+		if (additionalSourceValMap != null) {
+			for(FieldPair pair : fieldsToCopy) {
+				String name = pair.srcProp.getName();
+				if (additionalSourceValMap.containsKey(name)) {
+					Object value = additionalSourceValMap.get(name);
+					if (value == null) {
+						String error = String.format("SourceValue value '%s' cannot be null", name);
+						throw new FieldCopyException(error);
+					}
+					
+					SourceValueFieldDescriptor svfd = new SourceValueFieldDescriptor(name, value);
+					pair.srcProp = svfd;
+				}
+			}
+		}
+		
 		return fieldsToCopy;
 	}
 	private FieldDescriptor findInPairs(String srcField, List<FieldPair> fieldPairs) {

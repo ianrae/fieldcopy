@@ -250,8 +250,8 @@ public class BUConverterService {
 			BeanUtilsFieldDescriptor desc = (BeanUtilsFieldDescriptor) pair.destProp;
 			Class<?> destClass = desc.pd.getPropertyType();
 			
-			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
-			Class<?> srcClass = fd1.pd.getPropertyType();
+//			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+			Class<?> srcClass = pair.getClass(); //fd1.pd.getPropertyType();
 
 			//TODO: can we make this faster with a map??
 			FieldInfo sourceField = new FieldInfo();

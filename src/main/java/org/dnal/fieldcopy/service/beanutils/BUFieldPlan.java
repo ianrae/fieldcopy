@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.service.beanutils;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.FieldDescriptor;
+import org.dnal.fieldcopy.core.SourceValueFieldDescriptor;
 
 /**
  * Copy plan for a single field that is being copied from a source object to a 
@@ -24,6 +25,10 @@ public class BUFieldPlan {
 	public volatile boolean lazySubPlanFlag = false; 
 
 	public Class<?> getSrcClass() {
+		if (srcFd instanceof SourceValueFieldDescriptor) {
+			SourceValueFieldDescriptor svfd = (SourceValueFieldDescriptor) srcFd;
+			return svfd.getValue().getClass();
+		}
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) srcFd;
 		Class<?> srcClass = fd1.pd.getPropertyType();
 		return srcClass;

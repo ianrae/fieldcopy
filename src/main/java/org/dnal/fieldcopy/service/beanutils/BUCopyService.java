@@ -18,6 +18,7 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.SourceValueFieldDescriptor;
 import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
@@ -162,7 +163,8 @@ public class BUCopyService extends BUCopyServiceBase {
 			state.currentFieldName = name; //for logging errors
 			
 			//check for readability and writability
-			if (! propertyUtils.isReadable(srcObj, name)) {
+			boolean isSourceValue = origDescriptor instanceof SourceValueFieldDescriptor;
+			if (! isSourceValue && ! propertyUtils.isReadable(srcObj, name)) {
 				String error = String.format("Source Field '%s' is not readable", name);
 				throw new FieldCopyException(error);
 			}
@@ -213,6 +215,11 @@ public class BUCopyService extends BUCopyServiceBase {
 	}
 	
 	private ValueConverter findOrCreateCollectionConverter(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan) {
+		//TODO. fix this. SourceValueDescriptor not supported
+		if (pair.srcProp instanceof SourceValueFieldDescriptor) {
+			return null;
+		}
+		
 		if (classPlan.converterL == null) {
 			classPlan.converterL = new ThreadSafeList<>();
 		}
@@ -329,7 +336,14 @@ public class BUCopyService extends BUCopyServiceBase {
 			BUFieldPlan fieldPlan = iter.next();
 			String name = fieldPlan.srcFd.getName();
 			execPlan.currentFieldName = name;
-    		Object value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
+    		Object value;
+    		if (fieldPlan.srcFd instanceof SourceValueFieldDescriptor) {
+    			SourceValueFieldDescriptor svfd = (SourceValueFieldDescriptor) fieldPlan.srcFd;
+    			value = svfd.getValue();
+    			
+    		} else {
+    			value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
+    		}
     		
     		logger.log("  field %s: %s", name, getLoggableString(value));
     		Class<?> srcClass = fieldPlan.getSrcClass();

@@ -2,7 +2,9 @@ package org.dnal.fieldcopy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -24,7 +26,7 @@ public class CopyBuilder1 {
 	private List<FieldCopyMapping> mappingList;
 	private List<ValueConverter> converters;
 	private String executionPlanCacheKey;
-	
+	private Map<String,Object> additionalSourceValMap;
 
 	public CopyBuilder1(FieldCopier fieldCopierBuilder) {
 		this.root = fieldCopierBuilder;
@@ -41,6 +43,13 @@ public class CopyBuilder1 {
 	}
 	public CopyBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
+		return this;
+	}
+	public CopyBuilder1 includeSourceValues(String name, Object value) {
+		if (additionalSourceValMap == null) {
+			additionalSourceValMap = new HashMap<>();
+		}
+		additionalSourceValMap.put(name, value);
 		return this;
 	}
 	
@@ -83,7 +92,7 @@ public class CopyBuilder1 {
 	
 	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy = root.buildFieldsToCopy(destClass, doAutoCopy, includeList, 
-				excludeList, srcList, destList, defaultValueList);
+				excludeList, srcList, destList, defaultValueList, additionalSourceValMap);
 			
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = root.sourceObj;

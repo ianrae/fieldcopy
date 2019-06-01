@@ -15,6 +15,10 @@ public class FieldPair {
 	public Object defaultValue = null; //use if src field is null
 	
 	public Class<?> getSrcClass() {
+		if (srcProp instanceof SourceValueFieldDescriptor) {
+			SourceValueFieldDescriptor svfd = (SourceValueFieldDescriptor) srcProp;
+			return svfd.getValue().getClass();
+		}
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) srcProp;
 		Class<?> srcClass = fd1.pd.getPropertyType();
 		return srcClass;

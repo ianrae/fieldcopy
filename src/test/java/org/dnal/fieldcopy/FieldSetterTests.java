@@ -2,6 +2,7 @@ package org.dnal.fieldcopy;
 
 import static org.junit.Assert.assertEquals;
 
+import org.dnal.fieldcopy.service.beanutils.BUFieldSetterService;
 import org.junit.Test;
 
 public class FieldSetterTests extends BaseTest {
@@ -59,6 +60,16 @@ public class FieldSetterTests extends BaseTest {
 		}
 	}
 	
+	public static class Pojo1 {
+		private String name;
+		private String title;
+		private int port;
+		
+		public String calcName() {
+			return name;
+		}
+	}
+	
 	@Test
 	public void test() {
 		Dest2 src = new Dest2("bill", "abc");
@@ -71,5 +82,12 @@ public class FieldSetterTests extends BaseTest {
 		assertEquals(3000, dest.getPort());
 	}
 	
+	@Test
+	public void test2() {
+		BUFieldSetterService svc = new BUFieldSetterService(FieldCopy.getLogger());
+		Pojo1 pojo = new Pojo1();
+		svc.setField(pojo, "name", "bob");
+		assertEquals("bob", pojo.calcName());
+	}	
 	//--
 }

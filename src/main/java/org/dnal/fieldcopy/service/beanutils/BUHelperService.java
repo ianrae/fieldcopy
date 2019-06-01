@@ -25,7 +25,7 @@ public class BUHelperService {
 	public void validateIsAllowed(FieldPair pair) throws NoSuchMethodException, InstantiationException, IllegalAccessException {
 		Class<?> destClass = isNotAllowed(pair);
 		if (destClass != null) {
-			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
+			BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp; //TODO: support SourceValueDescriptor
 			String err = String.format("Not allowed to copy %s to %s", fd1.pd.getPropertyType().getName(), destClass.getName());
 			throw new FieldCopyException(err);
 		}
