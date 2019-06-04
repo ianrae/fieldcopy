@@ -100,6 +100,7 @@ public class CopyBuilder1 {
 		spec.fieldPairs = fieldsToCopy;
 		spec.mappingL = mappingList;
 		spec.options = root.options;
+		spec.additionalSourceValMap = additionalSourceValMap;
 		if (this.converters != null) {
 			spec.converterL = new ThreadSafeList<ValueConverter>();
 			spec.converterL.addAll(this.converters);

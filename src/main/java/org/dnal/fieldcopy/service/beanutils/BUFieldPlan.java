@@ -18,11 +18,25 @@ public class BUFieldPlan {
 	public Object defaultValue = null;
 	public boolean hasSetterMethod;
 	public boolean hasSetterMethodIsResolved;
-
 	public boolean isBean;
 	public volatile BUClassPlan subPlan; //null if not-bean
 	//public boolean directMode; //later when we support plan backoff
 	public volatile boolean lazySubPlanFlag = false; 
+	
+	public BUFieldPlan clone() {
+		//TODO: always add here when add new field
+		BUFieldPlan fp = new BUFieldPlan();
+		fp.converter = this.converter;
+		fp.defaultValue = this.defaultValue;
+		fp.destFd = this.destFd;
+		fp.hasSetterMethod = this.hasSetterMethod;
+		fp.hasSetterMethodIsResolved = this.hasSetterMethodIsResolved;
+		fp.isBean = this.isBean;
+		fp.lazySubPlanFlag = this.lazySubPlanFlag;
+		fp.srcFd = this.srcFd;
+		fp.subPlan = this.subPlan;
+		return fp;
+	}
 
 	public Class<?> getSrcClass() {
 		if (srcFd instanceof SourceValueFieldDescriptor) {

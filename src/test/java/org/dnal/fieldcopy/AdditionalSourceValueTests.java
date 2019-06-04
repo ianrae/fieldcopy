@@ -55,4 +55,27 @@ public class AdditionalSourceValueTests extends BaseTest {
 		assertEquals(44, dto.getId());
 	}
 	
+	@Test
+	public void testExecPlanCaching() {
+		SomeEntity src = new SomeEntity();
+		src.setId(44);
+		src.setName("sue");
+		SomeDTO dto = new SomeDTO();
+		
+		FieldCopier copier = createCopier();
+		enableLogging();
+		copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
+		assertEquals("sue", dto.getName());
+		assertEquals(44, dto.getId());
+		
+		log("again..");
+		src = new SomeEntity();
+		src.setId(45);
+		src.setName("suex");
+		dto = new SomeDTO();
+		copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
+		assertEquals("suex", dto.getName());
+		assertEquals(45, dto.getId());
+	}
+	
 }

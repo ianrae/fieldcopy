@@ -133,7 +133,42 @@ public class BUCopyService extends BUCopyServiceBase {
 				executionPlanMap.put(copySpec.executionPlanCacheKey, classPlan);
 				metrics.incrementPlanCount();
 			}
+		} else if (copySpec.hasSourceValueMap()) { 
+			classPlan = cloneClassPlanForSourceValueFDs(classPlan, copySpec);
 		}
+		
+		return classPlan;
+	}
+
+	/**
+	 * To be thread-safe we can't update a cached plan, so clone and update the clone.
+	 * @param param
+	 * @param copySpec
+	 * @return copy of param
+	 */
+	private BUClassPlan cloneClassPlanForSourceValueFDs(BUClassPlan param, CopySpec copySpec) {
+		BUClassPlan classPlan = new BUClassPlan();
+		classPlan.converterL = param.converterL;
+		classPlan.destClass = param.destClass;
+		classPlan.srcClass = param.srcClass;
+
+		List<BUFieldPlan> list = new ArrayList<>();
+		Iterator<BUFieldPlan> iter = param.fieldPlanL.iterator();
+		while(iter.hasNext()) {
+			BUFieldPlan fieldPlan = iter.next();
+			if (fieldPlan.srcFd instanceof SourceValueFieldDescriptor) {
+				BUFieldPlan clone = fieldPlan.clone();
+				SourceValueFieldDescriptor existing = (SourceValueFieldDescriptor) fieldPlan.srcFd;
+				String key = existing.getName();
+				//TODO: throw error if map doesn't have non-null value for key
+				clone.srcFd = new SourceValueFieldDescriptor(key, copySpec.additionalSourceValMap.get(key));
+				list.add(clone);
+			} else {
+				list.add(fieldPlan);
+			}
+		}
+		classPlan.fieldPlanL = new ThreadSafeList<>();
+		classPlan.fieldPlanL.addAll(list);
 		return classPlan;
 	}
 
