@@ -101,7 +101,7 @@ public class ListElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(new TargetPair(srcElClass, destElClass));
+		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(new TargetPair(srcElClass, destElClass), ctx.copyOptions);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;

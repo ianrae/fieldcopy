@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.core;
 
 import java.util.List;
 
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.log.SimpleLogger;
 import org.dnal.fieldcopy.metrics.CopyMetrics;
@@ -13,8 +14,8 @@ import org.dnal.fieldcopy.metrics.CopyMetrics;
  *
  */
 public interface FieldCopyService {
-	List<FieldPair> buildAutoCopyPairs(TargetPair targetPair);
-	FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair);
+	List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options);
+	FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options);
 	void copyFields(CopySpec copySpec);
 	<T> T copyFields(CopySpec copySpec, Class<T> destClass);
 	void dumpFields(Object sourceObj);

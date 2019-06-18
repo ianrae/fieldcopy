@@ -26,9 +26,9 @@ public class StructTests extends BaseTest {
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = src;
 		spec.destObj = dest;
-		spec.fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()));
-		spec.mappingL = null;
 		spec.options = new CopyOptions();
+		spec.fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()), spec.options);
+		spec.mappingL = null;
 		spec.converterL = null;;
 		
 		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec, null); //TODO: fix null later

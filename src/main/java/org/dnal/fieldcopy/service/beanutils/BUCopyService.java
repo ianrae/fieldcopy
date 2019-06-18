@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.FieldCopyMapping;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.ValueConverter;
@@ -232,7 +233,7 @@ public class BUCopyService extends BUCopyServiceBase {
             	helperSvc.validateIsAllowed(pair);
             	
     			//handle list, array, list to array, and viceversa
-            	fieldPlan.converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan);
+            	fieldPlan.converter = findOrCreateCollectionConverter(fieldPlan, pair, classPlan, copySpec);
             	
             	//add converter if one matches
         		if (fieldPlan.converter == null) {
@@ -249,7 +250,7 @@ public class BUCopyService extends BUCopyServiceBase {
 		return classPlan;
 	}
 	
-	private ValueConverter findOrCreateCollectionConverter(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan) {
+	private ValueConverter findOrCreateCollectionConverter(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, CopySpec copySpec) {
 		//TODO. fix this. SourceValueDescriptor not supported
 		if (pair.srcProp instanceof SourceValueFieldDescriptor) {
 			return null;
@@ -259,19 +260,19 @@ public class BUCopyService extends BUCopyServiceBase {
 			classPlan.converterL = new ThreadSafeList<>();
 		}
 		
-    	ValueConverter converter = converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+    	ValueConverter converter = converterSvc.addListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass, copySpec.options);
     	if (converter != null) {
     		return converter;
     	}
-		converter = converterSvc.addArrayListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+		converter = converterSvc.addArrayListConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass, copySpec.options);
     	if (converter != null) {
     		return converter;
     	}
-		converter = converterSvc.addArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+		converter = converterSvc.addArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass, copySpec.options);
     	if (converter != null) {
     		return converter;
     	}
-		converter = converterSvc.addListArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass);
+		converter = converterSvc.addListArrayConverterIfNeeded(fieldPlan, pair, classPlan, classPlan.destClass, copySpec.options);
     	if (converter != null) {
     		return converter;
     	}
@@ -288,7 +289,7 @@ public class BUCopyService extends BUCopyServiceBase {
         if (mapping != null) {
         	subFieldPairs = mapping.getFieldPairs();
         } else {
-        	subFieldPairs = this.buildAutoCopyPairs(new TargetPair(srcType, destType));
+        	subFieldPairs = this.buildAutoCopyPairs(new TargetPair(srcType, destType), copySpec.options);
         }
         state.runawayCounter++;
 		return buildClassPlan(srcFieldValue, null, srcType, destType, subFieldPairs, copySpec, state);
@@ -499,7 +500,7 @@ public class BUCopyService extends BUCopyServiceBase {
 	}
 
 	@Override
-	public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+	public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options) {
 		return null; //not supported
 	}
 }

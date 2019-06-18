@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.service.beanutils;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
@@ -30,7 +31,7 @@ public class BUConverterService {
 	}
 
 	// List -> List
-	public ValueConverter addListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass, CopyOptions options) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -55,7 +56,7 @@ public class BUConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass, options);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -68,7 +69,7 @@ public class BUConverterService {
 	}
 	
 	// Array -> List
-	public ValueConverter addArrayListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayListConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass, CopyOptions options) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -92,7 +93,7 @@ public class BUConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUListElementConverter converter = converterFactory.createListConverter(classPlan.srcClass, name, srcElementClass, destElementClass, options);
 			if (converter == null) {
 				String error = String.format("Copying list<%s> to list<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -106,7 +107,7 @@ public class BUConverterService {
 	}
 	
 	// Array -> Array
-	public ValueConverter addArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass, CopyOptions options) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -130,7 +131,7 @@ public class BUConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass, options);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);
@@ -143,7 +144,7 @@ public class BUConverterService {
 	}
 
 	// List -> Array
-	public ValueConverter addListArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass) {
+	public ValueConverter addListArrayConverterIfNeeded(BUFieldPlan fieldPlan, FieldPair pair, BUClassPlan classPlan, Class<?> destClass, CopyOptions options) {
 		BeanUtilsFieldDescriptor fd1 = (BeanUtilsFieldDescriptor) pair.srcProp;
 		BeanUtilsFieldDescriptor fd2 = (BeanUtilsFieldDescriptor) pair.destProp;
 		
@@ -167,7 +168,7 @@ public class BUConverterService {
 			
 			//add one
 			String name = pair.srcProp.getName();
-			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass);
+			BUArrayElementConverter converter = converterFactory.createArrayConverter(classPlan.srcClass, name, srcElementClass, destElementClass, options);
 			if (converter == null) {
 				String error = String.format("Copying array<%s> to array<%s> is not supported.", srcElementClass.getName(), destElementClass.getName());
 				throw new FieldCopyException(error);

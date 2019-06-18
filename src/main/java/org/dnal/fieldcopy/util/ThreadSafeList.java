@@ -23,6 +23,12 @@ public class ThreadSafeList<T> {
 	public void addAll(ThreadSafeList<T> anotherList) {
 		list.addAll(anotherList.list);
 	}
+	public void remove(T el) {
+		list.remove(el);
+	}
+	public void removeByIndex(int index) {
+		list.remove(index);
+	}
 	
 	public Iterator<T> iterator() {
 		return list.iterator();

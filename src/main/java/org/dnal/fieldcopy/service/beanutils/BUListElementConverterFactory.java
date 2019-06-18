@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.TargetPair;
@@ -16,7 +17,7 @@ public class BUListElementConverterFactory {
 		this.outerSvc = outerSvc;
 	}
 	
-	public BUListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public BUListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass, CopyOptions options) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
@@ -24,12 +25,12 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass));
+			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass), options);
 		}
 		
 		return new BUListElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}
-	public BUArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
+	public BUArrayElementConverter createArrayConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass, CopyOptions options) {
 		if (! isSupported(srcElementClass, destElementClass)) {
 			return null;
 		}
@@ -37,7 +38,7 @@ public class BUListElementConverterFactory {
 		boolean useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElementClass) && ! beanDetectorSvc.isBeanClass(destElementClass);
 		List<FieldPair> fieldPairs = null;
 		if (!useScalarCopy) {
-			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass));
+			fieldPairs = outerSvc.buildAutoCopyPairs(new TargetPair(srcElementClass, destElementClass), options);
 		}
 		return new BUArrayElementConverter(beanClass, name, srcElementClass, destElementClass, useScalarCopy, fieldPairs);
 	}

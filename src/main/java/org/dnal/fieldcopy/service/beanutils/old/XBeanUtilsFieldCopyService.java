@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
@@ -62,7 +63,7 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
 			Class<?> class1 = targetPair.getSrcClass();
 			Class<?> class2 = targetPair.getDestClass();
             List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
@@ -247,7 +248,7 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options) {
 			return null; //not supported
 		}
 	}

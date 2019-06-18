@@ -62,7 +62,7 @@ public class MappingBuilder1 {
 	
 	FieldCopyMapping doBuild(List<String> srcList, List<String> destList, List<Object> defaultValueList) {
 		List<FieldPair> fieldsToCopy;
-		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(new TargetPair(srcClass, destClass));
+		List<FieldPair> fieldPairs = root.copier.buildAutoCopyPairs(new TargetPair(srcClass, destClass), root.options);
 		
 		if (this.doAutoCopy) {
 			if (includeList == null && excludeList == null) {

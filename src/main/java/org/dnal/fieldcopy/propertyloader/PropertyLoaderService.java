@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.ConverterContext;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.converter.ValueConverter;
@@ -54,7 +55,7 @@ public class PropertyLoaderService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
 			Object sourceObj = targetPair.getSrcObj();
 			if (! (sourceObj instanceof PropertyLoader)) {
 				String err = String.format("sourceObj is not be a PropertyLoader");
@@ -96,7 +97,7 @@ public class PropertyLoaderService implements FieldCopyService {
 		
 
 		@Override
-		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair) {
+		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options) {
 			return new ConfigFieldDescriptor(srcField);
 		}
 

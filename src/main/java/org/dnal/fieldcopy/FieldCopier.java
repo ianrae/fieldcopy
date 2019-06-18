@@ -81,7 +81,7 @@ public class FieldCopier {
 		} else {
 			targetPair = new TargetPair(sourceObj, destObj);
 		}
-		fieldPairs = copier.buildAutoCopyPairs(targetPair);
+		fieldPairs = copier.buildAutoCopyPairs(targetPair, options);
 		
 		List<FieldPair> fieldsToCopy;
 		if (doAutoCopy) {
@@ -117,7 +117,7 @@ public class FieldCopier {
 					FieldPair pair = new FieldPair();
 					pair.srcProp = findInPairs(srcField, fieldPairs);
 					if (pair.srcProp == null) {
-						pair.srcProp = copier.resolveSourceField(srcField, targetPair);
+						pair.srcProp = copier.resolveSourceField(srcField, targetPair, options);
 					}
 					pair.destFieldName = destField;
 					pair.defaultValue = defaultValue;

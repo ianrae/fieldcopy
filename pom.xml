@@ -5,7 +5,7 @@
 	<groupId>org.dnal-lang</groupId>
 	<artifactId>fieldcopy</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 
 	<name>fieldcopy</name>
 	<url>http://dnal-lang.org</url>

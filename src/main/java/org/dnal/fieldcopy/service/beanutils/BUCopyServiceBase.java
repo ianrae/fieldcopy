@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldFilter;
@@ -45,7 +46,7 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
 	
 
 	@Override
-	public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair) {
+	public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
         List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass());
 		if (fieldPairs != null) {
 			return fieldPairs;
