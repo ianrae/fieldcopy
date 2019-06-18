@@ -3,7 +3,6 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.DefaultValueTests.Source;
-import org.dnal.fieldcopy.DefaultValueTests.Dest;
 import org.junit.Test;
 
 public class AutoCopyTests extends BaseTest {
@@ -40,6 +39,29 @@ public class AutoCopyTests extends BaseTest {
 			this.title2 = title2;
 		}
 	}
+	public static class Destination2 {
+		private String naMe;
+		private String tiTle;
+
+		public Destination2() {
+		}
+		public Destination2(String name, String title) {
+			this.naMe = name;
+			this.tiTle = title;
+		}
+		public String getNaMe() {
+			return naMe;
+		}
+		public void setNaMe(String naMe) {
+			this.naMe = naMe;
+		}
+		public String getTiTle() {
+			return tiTle;
+		}
+		public void setTiTle(String tiTle) {
+			this.tiTle = tiTle;
+		}
+	}
 	
 	
 	@Test
@@ -63,6 +85,32 @@ public class AutoCopyTests extends BaseTest {
 		assertEquals("abc", dest.getName());
 		assertEquals(null, dest.getTitle());
 		assertEquals("def", dest.getTitle2());
+		assertEquals(2, copier.mostRecentCopySpec.fieldPairs.size());
+	}
+	
+	@Test
+	public void testCaseSensitive() {
+		Source src = new Source("abc", "def");
+		Destination2 dest = new Destination2(null, null);
+		
+		FieldCopier copier = createCopier();
+		copier.options.autoCopyCaseSensitiveMatch = true;
+		copier.copy(src, dest).autoCopy().execute();
+		//no match name != naMe
+		assertEquals(null, dest.getNaMe());
+		assertEquals(null, dest.getTiTle());
+		assertEquals(0, copier.mostRecentCopySpec.fieldPairs.size());
+	}
+	
+	@Test
+	public void testCaseInsensitive() {
+		Source src = new Source("abc", "def");
+		Destination2 dest = new Destination2(null, null);
+		
+		FieldCopier copier = createCopier();
+		copier.copy(src, dest).autoCopy().execute();
+		assertEquals("abc", dest.getNaMe());
+		assertEquals("def", dest.getTiTle());
 		assertEquals(2, copier.mostRecentCopySpec.fieldPairs.size());
 	}
 	

@@ -52,12 +52,12 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
 			return fieldPairs;
 		}
 		
-        fieldPairs = buildAutoCopyPairsNoRegister(targetPair.getSrcClass(), targetPair.getDestClass());
+        fieldPairs = buildAutoCopyPairsNoRegister(targetPair.getSrcClass(), targetPair.getDestClass(), options);
 		registry.registerAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass(), fieldPairs);
         return fieldPairs;
 	}
 	
-	public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2) {
+	public List<FieldPair> buildAutoCopyPairsNoRegister(Class<? extends Object> class1, Class<? extends Object> class2, CopyOptions options) {
         final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(class1);
         final PropertyDescriptor[] arDest = propertyUtils.getPropertyDescriptors(class2);
 		
@@ -68,7 +68,7 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
         		continue; // No point in trying to set an object's class
             }
 
-        	PropertyDescriptor targetPd = findMatchingField(arDest, pd.getName());
+        	PropertyDescriptor targetPd = findMatchingField(arDest, pd.getName(), options);
         	if (targetPd != null) {
         		FieldPair pair = new FieldPair();
         		pair.srcProp = new BeanUtilsFieldDescriptor(pd);
@@ -80,12 +80,18 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
         return fieldPairs;
 	}
 	
-	private PropertyDescriptor findMatchingField(PropertyDescriptor[] arDest, String name) {
+	private PropertyDescriptor findMatchingField(PropertyDescriptor[] arDest, String name, CopyOptions options) {
 		for (int i = 0; i < arDest.length; i++) {
 			
 			PropertyDescriptor pd = arDest[i];
-			if (pd.getName().equals(name)) {
-				return pd;
+			if (options.autoCopyCaseSensitiveMatch) {
+				if (pd.getName().equals(name)) {
+					return pd;
+				}
+			} else {
+				if (pd.getName().equalsIgnoreCase(name)) {
+					return pd;
+				}
 			}
 		}
 		return null;
