@@ -37,8 +37,8 @@ public class BuiltInConverterTests extends BaseTest {
 		assertEquals("SUE", dest.getSource().getName()); 
 		
 		CopySpec spec = copier.getMostRecentCopySpec();
-		assertEquals(null, spec.converterL);
-		assertEquals(1, spec.mappingL.size());
+		assertEquals(0, spec.converterL.size());
+		assertEquals(null, spec.mappingL);
 
 		log("again..");
 		copier.copy(src, dest).autoCopy().execute();
@@ -49,7 +49,7 @@ public class BuiltInConverterTests extends BaseTest {
 		assertEquals("SUE", dest.getSource().getName()); 
 		
 		spec = copier.getMostRecentCopySpec();
-		assertEquals(1, spec.converterL.size());
-		assertEquals(1, spec.mappingL.size());
+		assertEquals(null, spec.converterL);
+		assertEquals(null, spec.mappingL);
 	}
 }

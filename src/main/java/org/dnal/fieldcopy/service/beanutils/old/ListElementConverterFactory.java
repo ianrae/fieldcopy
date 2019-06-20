@@ -1,13 +1,13 @@
-package org.dnal.fieldcopy.converter;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
 
 public class ListElementConverterFactory {
-	private BeanUtilsBeanDetectorService beanDetectorSvc;
+	private BUBeanDetectorService beanDetectorSvc;
 
 	
 	public ListElementConverter createListConverter(Class<?> beanClass, String name, Class<?> srcElementClass, Class<?> destElementClass) {
@@ -39,7 +39,7 @@ public class ListElementConverterFactory {
 		}
 		return !destElementClass.isEnum();
 	}
-	public void setBeanDetectorSvc(BeanUtilsBeanDetectorService beanDetectorSvc) {
+	public void setBeanDetectorSvc(BUBeanDetectorService beanDetectorSvc) {
 		this.beanDetectorSvc = beanDetectorSvc;
 	}
 	

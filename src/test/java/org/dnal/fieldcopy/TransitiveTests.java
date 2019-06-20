@@ -189,7 +189,7 @@ public class TransitiveTests extends BaseTest {
 		
 		CopySpec spec = copier.getMostRecentCopySpec();
 		assertEquals(1, spec.converterL.size());
-		assertEquals(1, spec.mappingL.size());
+		assertEquals(null, spec.mappingL);
 
 		log("again..");
 		copier.copy(src, dest).withConverters(conv).autoCopy().execute();
@@ -201,7 +201,7 @@ public class TransitiveTests extends BaseTest {
 		
 		spec = copier.getMostRecentCopySpec();
 		assertEquals(1, spec.converterL.size());
-		assertEquals(1, spec.mappingL.size());
+		assertEquals(null, spec.mappingL);
 	}
 
 	@Test

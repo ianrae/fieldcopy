@@ -1,12 +1,15 @@
-package org.dnal.fieldcopy.converter;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.lang.reflect.Array;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
-import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Converts the elements of an array.
@@ -17,7 +20,7 @@ import org.dnal.fieldcopy.service.beanutils.BeanUtilsBeanDetectorService;
  * @author Ian Rae
  *
  */
-public class ArrayElementConverter implements ValueConverter {
+public class BUArrayElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
@@ -25,14 +28,16 @@ public class ArrayElementConverter implements ValueConverter {
 	private int depth;
 	private Class<?> beanClass;
 	private boolean sourceIsList;
+	private List<FieldPair> fieldPairs;
 
-	public ArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
-			BeanUtilsBeanDetectorService beanDetectorSvc) {
+	public BUArrayElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+			boolean useScalarCopy, List<FieldPair> fieldPairs) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
-		this.useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElClass) && ! beanDetectorSvc.isBeanClass(destElClass);
+		this.useScalarCopy = useScalarCopy;
+		this.fieldPairs = fieldPairs;
 	}
 
 	@Override
@@ -90,16 +95,17 @@ public class ArrayElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarArray(srcArray);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
-
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
-		spec.converterL = ctx.converterL;
+		spec.converterL = new ThreadSafeList<ValueConverter>();
+		spec.converterL.addAll(ctx.converterL);
+		spec.runawayCounter = ctx.runawayCounter;
 
 		int n = Array.getLength(srcArray);
 		Object arrayObj2 = Array.newInstance(destElClass, n);
+		Class<?> prevSrcClass = null;
 		for(int i = 0; i < n; i++) {
 			Object el = Array.get(srcArray, i);
 			spec.sourceObj = el;
@@ -107,6 +113,12 @@ public class ArrayElementConverter implements ValueConverter {
 			ctx.copySvc.copyFields(spec);
 			
 			Array.set(arrayObj2, i, spec.destObj);
+			
+			if (prevSrcClass == null || prevSrcClass.equals(el.getClass())) {
+			} else {
+				spec.executionPlanCacheKey = null; //clear so re-calc key on each element
+			}
+			prevSrcClass = el.getClass();
 		}
 		return arrayObj2;
 	}

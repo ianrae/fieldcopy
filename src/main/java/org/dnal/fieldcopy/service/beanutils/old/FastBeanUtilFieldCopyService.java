@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.service.beanutils;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
@@ -21,6 +21,9 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.service.beanutils.BUBeanDetectorService;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 public class FastBeanUtilFieldCopyService {
 	private SimpleLogger logger;
@@ -28,14 +31,14 @@ public class FastBeanUtilFieldCopyService {
 	private PropertyUtilsBean propertyUtils;
 	private FieldFilter fieldFilter;
 	private ConverterService converterSvc;
-	private BeanUtilsBeanDetectorService beanDetectorSvc;
+	private BUBeanDetectorService beanDetectorSvc;
 	
 	public FastBeanUtilFieldCopyService(SimpleLogger logger, FieldFilter fieldFilter) {
 		this.logger = logger;
 		this.beanUtil =  BeanUtilsBean.getInstance();
 		this.propertyUtils =  new PropertyUtilsBean();
 		this.fieldFilter = fieldFilter;
-		this.beanDetectorSvc = new BeanUtilsBeanDetectorService();
+		this.beanDetectorSvc = new BUBeanDetectorService();
 		this.converterSvc = new ConverterService(logger, this.beanDetectorSvc);
 	}
 
@@ -265,12 +268,12 @@ public class FastBeanUtilFieldCopyService {
 	}
 
 	private FieldCopyMapping doAutoGenMapping(FieldPair zpair, FieldCopyService outerSvc, CopySpec copySpecParam, Class<?> srcClass, Class<?> destClass) throws Exception {
-		BeanUtilsFieldCopyService bufc = (BeanUtilsFieldCopyService) outerSvc;
+		XBeanUtilsFieldCopyService bufc = (XBeanUtilsFieldCopyService) outerSvc;
 		List<FieldPair> fieldPairs = bufc.buildAutoCopyPairsNoRegister(srcClass, destClass);
 		
 		CopySpec innerSpec = new CopySpec();
-		innerSpec.converterL = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(copySpecParam.converterL)) {
+		innerSpec.converterL = new ThreadSafeList<>();
+		if (ThreadSafeList.isNotEmpty(copySpecParam.converterL)) {
 			innerSpec.converterL.addAll(copySpecParam.converterL);
 		}
 		innerSpec.destObj = null; //!!
@@ -360,7 +363,7 @@ public class FastBeanUtilFieldCopyService {
 		//important that we directly pass mappingL and converterL so that
 		//any mappings or converters created get added to copySpec
 		
-		BeanUtilsFieldCopyService altSvc = (BeanUtilsFieldCopyService) outerSvc;
+		XBeanUtilsFieldCopyService altSvc = (XBeanUtilsFieldCopyService) outerSvc;
 		altSvc.doCopyFields(spec, runawayCounter + 1);
 
 		return true;
@@ -431,9 +434,10 @@ public class FastBeanUtilFieldCopyService {
 			ctx.mappingL = new ArrayList<>();
 			ctx.mappingL.addAll(spec.mappingL);
 		}
-		if (CollectionUtils.isNotEmpty(spec.converterL)) {
+		if (ThreadSafeList.isNotEmpty(spec.converterL)) {
 			ctx.converterL = new ArrayList<>();
-			ctx.converterL.addAll(spec.converterL);
+//			ctx.converterL.addAll(spec.converterL);
+			spec.converterL.addIntoOtherList(ctx.converterL);
 		}
 	}
 

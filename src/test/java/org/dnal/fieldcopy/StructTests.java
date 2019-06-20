@@ -2,24 +2,23 @@ package org.dnal.fieldcopy;
 import static org.junit.Assert.assertEquals;
 
 import org.dnal.fieldcopy.CopyOptions;
-import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.FieldCopierTests.Dest;
 import org.dnal.fieldcopy.FieldCopierTests.Source;
-import org.dnal.fieldcopy.core.CopyFactory;
 import org.dnal.fieldcopy.core.CopySpec;
+import org.dnal.fieldcopy.core.DefaultFieldFilter;
 import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.service.beanutils.ExecuteCopyPlan;
-import org.dnal.fieldcopy.service.beanutils.FastBeanUtilFieldCopyService;
+import org.dnal.fieldcopy.core.TargetPair;
+import org.dnal.fieldcopy.service.beanutils.old.ExecuteCopyPlan;
+import org.dnal.fieldcopy.service.beanutils.old.FastBeanUtilFieldCopyService;
 import org.junit.Test;
 
 public class StructTests extends BaseTest {
 
 	@Test
 	public void test() {
-		CopyFactory factory = DefaultCopyFactory.Factory();
-		FieldCopyService copySvc = factory.createCopyService();
+		FieldCopyService copySvc = this.createCopyService();
 		
-		FastBeanUtilFieldCopyService execSvc = new FastBeanUtilFieldCopyService(factory.createLogger(),factory.createFieldFilter());
+		FastBeanUtilFieldCopyService execSvc = new FastBeanUtilFieldCopyService(FieldCopy.getLogger(), new DefaultFieldFilter());
 		
 		Source src = new Source("bob", 33);
 		Dest dest = new Dest(null, -1);
@@ -27,9 +26,9 @@ public class StructTests extends BaseTest {
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = src;
 		spec.destObj = dest;
-		spec.fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
-		spec.mappingL = null;
 		spec.options = new CopyOptions();
+		spec.fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()), spec.options);
+		spec.mappingL = null;
 		spec.converterL = null;;
 		
 		ExecuteCopyPlan execSpec = execSvc.generateExecutePlan(spec, null); //TODO: fix null later

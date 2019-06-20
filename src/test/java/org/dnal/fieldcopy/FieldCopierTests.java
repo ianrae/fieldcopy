@@ -8,6 +8,7 @@ import java.util.List;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyService;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.junit.Test;
 
 public class FieldCopierTests extends BaseTest {
@@ -118,8 +119,8 @@ public class FieldCopierTests extends BaseTest {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
-		
+		CopyOptions options = new CopyOptions();
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()), options);
 		
 		CopySpec spec = new CopySpec();
 		spec.sourceObj = src;
@@ -140,8 +141,9 @@ public class FieldCopierTests extends BaseTest {
 		Dest dest = new Dest(null, -1);
 		
 		FieldCopyService copySvc = createCopyService(); 
-		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
-		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(src.getClass(), dest.getClass());
+		CopyOptions options = new CopyOptions();
+		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()), options);
+		List<FieldPair> fieldPairs2 = copySvc.buildAutoCopyPairs(new TargetPair(src.getClass(), dest.getClass()), options);
 		
 		assertSame(fieldPairs, fieldPairs2);
 	}

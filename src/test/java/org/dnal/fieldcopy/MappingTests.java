@@ -58,6 +58,8 @@ public class MappingTests extends BaseTest {
 		assertEquals("bob", combo2.source.getName());
 		assertEquals(33, combo2.source.getAge());
 		assertEquals(15, combo2.getSize());
+		
+		dumpMetrics(copier);
 	}
 	
 	@Test

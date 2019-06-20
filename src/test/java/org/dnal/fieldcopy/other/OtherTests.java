@@ -3,10 +3,6 @@ package org.dnal.fieldcopy.other;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.lang3.ObjectUtils;

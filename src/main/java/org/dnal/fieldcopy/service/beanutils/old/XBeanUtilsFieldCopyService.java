@@ -1,4 +1,4 @@
-package org.dnal.fieldcopy.service.beanutils;
+package org.dnal.fieldcopy.service.beanutils.old;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,14 +12,20 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.DateConverter;
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldCopyException;
 import org.dnal.fieldcopy.core.FieldCopyService;
+import org.dnal.fieldcopy.core.FieldDescriptor;
 import org.dnal.fieldcopy.core.FieldFilter;
 import org.dnal.fieldcopy.core.FieldPair;
 import org.dnal.fieldcopy.core.FieldRegistry;
+import org.dnal.fieldcopy.core.TargetPair;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
+import org.dnal.fieldcopy.service.beanutils.BeanUtilsFieldDescriptor;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * An implementation of FieldCopyService that uses Apache BeanUtils to do the
@@ -32,7 +38,7 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  * @author Ian Rae
  *
  */
-public class BeanUtilsFieldCopyService implements FieldCopyService {
+public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		private SimpleLogger logger;
 		private BeanUtilsBean beanUtil;
 		private PropertyUtilsBean propertyUtils;
@@ -41,7 +47,7 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		private FastBeanUtilFieldCopyService fastSvc;
 		private Map<String,ExecuteCopyPlan> executionPlanMap = new HashMap<>();
 		
-		public BeanUtilsFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
+		public XBeanUtilsFieldCopyService(SimpleLogger logger, FieldRegistry registry, FieldFilter fieldFilter) {
 			this.logger = logger;
 			this.registry = registry;
 			this.beanUtil =  BeanUtilsBean.getInstance();
@@ -57,7 +63,9 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		}
 
 		@Override
-		public List<FieldPair> buildAutoCopyPairs(Class<? extends Object> class1, Class<? extends Object> class2) {
+		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
+			Class<?> class1 = targetPair.getSrcClass();
+			Class<?> class2 = targetPair.getDestClass();
             List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
 			if (fieldPairs != null) {
 				return fieldPairs;
@@ -146,7 +154,7 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 				}
 				if (fplan.converter != null) {
 					if (copySpec.converterL == null) {
-						copySpec.converterL = new ArrayList<>();
+						copySpec.converterL = new ThreadSafeList<>();
 					}
 					if (! copySpec.converterL.contains(fplan.converter)) {
 						copySpec.converterL.add(fplan.converter);
@@ -225,5 +233,22 @@ public class BeanUtilsFieldCopyService implements FieldCopyService {
 		@Override
 		public void addBuiltInConverter(ValueConverter converter) {
 			fastSvc.getConverterSvc().getBuiltInConverterL().add(converter);
+		}
+
+
+		@Override
+		public void setMetrics(CopyMetrics metrics) {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public CopyMetrics getMetrics() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options) {
+			return null; //not supported
 		}
 	}

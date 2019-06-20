@@ -1,13 +1,16 @@
-package org.dnal.fieldcopy.converter;
+package org.dnal.fieldcopy.service.beanutils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.beanutils.ConvertUtils;
-import org.dnal.fieldcopy.core.BeanDetectorService;
+import org.dnal.fieldcopy.converter.ConverterContext;
+import org.dnal.fieldcopy.converter.FieldInfo;
+import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.core.CopySpec;
 import org.dnal.fieldcopy.core.FieldPair;
+import org.dnal.fieldcopy.util.ThreadSafeList;
 
 /**
  * Converts the elements of a list.
@@ -18,7 +21,7 @@ import org.dnal.fieldcopy.core.FieldPair;
  * @author Ian Rae
  *
  */
-public class ListElementConverter implements ValueConverter {
+public class BUListElementConverter implements ValueConverter {
 	private String srcFieldName;
 	private Class<?> srcElClass;
 	private Class<?> destElClass;
@@ -26,14 +29,16 @@ public class ListElementConverter implements ValueConverter {
 	private int depth;
 	private Class<?> beanClass;
 	private boolean sourceIsArray;
+	private List<FieldPair> fieldPairs;
 	
-	public ListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
-			BeanDetectorService beanDetectorSvc) {
+	public BUListElementConverter(Class<?> beanClass, String fieldName, Class<?> srcElementClass, Class<?> destElementClass,
+			boolean useScalarCopy, List<FieldPair> fieldPairs) {
 		this.beanClass = beanClass;
 		this.srcFieldName = fieldName;
 		this.srcElClass = srcElementClass;
 		this.destElClass = destElementClass;
-		this.useScalarCopy = ! beanDetectorSvc.isBeanClass(srcElClass) && ! beanDetectorSvc.isBeanClass(destElClass);
+		this.useScalarCopy = useScalarCopy;
+		this.fieldPairs = fieldPairs;
 	}
 
 	@Override
@@ -96,19 +101,28 @@ public class ListElementConverter implements ValueConverter {
 		if (useScalarCopy) {
 			return copyScalarList(list, srcElClass);
 		}
-		List<FieldPair> fieldPairs = ctx.copySvc.buildAutoCopyPairs(srcElClass, destElClass);
 
 		CopySpec spec = new CopySpec();
 		spec.fieldPairs = fieldPairs;
 		spec.options = ctx.copyOptions;
 		spec.mappingL = ctx.mappingL;
-		spec.converterL = ctx.converterL;
+		spec.converterL = new ThreadSafeList<>();
+		spec.converterL.addAll(ctx.converterL);
+		spec.runawayCounter = ctx.runawayCounter;
 
+		//list elements may be different classes (eg. List<Shape> and Circle, Square, ...)
 		List<Object> list2 = new ArrayList<>();
+		Class<?> prevSrcClass = null;
 		for(Object el: list) {
 			spec.sourceObj = el;
 			spec.destObj = createObject(destElClass);
 			ctx.copySvc.copyFields(spec);
+			
+			if (prevSrcClass == null || prevSrcClass.equals(el.getClass())) {
+			} else {
+				spec.executionPlanCacheKey = null; //clear so re-calc key on each element
+			}
+			prevSrcClass = el.getClass();
 			
 			list2.add(spec.destObj);
 		}

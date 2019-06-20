@@ -28,11 +28,11 @@ public class CopyBuilder2 {
 	 * @param srcFieldName - name of a field in the source object.
 	 * @return
 	 */
-	public CopyBuilder2 field(String srcFieldName) {
+	public CopyBuilder3 field(String srcFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(srcFieldName);
 		defaultValueList.add(null);
-		return this;
+		return new CopyBuilder3(this);
 	}
 	/**
 	 * Specifies that a source field whose name equals srcFieldName will be copied to a field whose
@@ -41,25 +41,11 @@ public class CopyBuilder2 {
 	 * @param destFieldName - name of a field in the destination object
 	 * @return
 	 */
-	public CopyBuilder2 field(String srcFieldName, String destFieldName) {
+	public CopyBuilder3 field(String srcFieldName, String destFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(destFieldName);
 		defaultValueList.add(null);
-		return this;
-	}
-	/**
-	 * Specifies that a source field whose name equals srcFieldName will be copied to a field whose
-	 * name equals destFieldName in the destination object.
-	 * @param srcFieldName - name of a field in the source object.
-	 * @param destFieldName - name of a field in the destination object
-	 * @param defaultValue - value to use if source field is null
-	 * @return
-	 */
-	public CopyBuilder2 field(String srcFieldName, String destFieldName, Object defaultValue) {
-		srcList.add(srcFieldName);
-		destList.add(destFieldName);
-		defaultValueList.add(defaultValue);
-		return this;
+		return new CopyBuilder3(this);
 	}
 	
 	/**
@@ -73,5 +59,11 @@ public class CopyBuilder2 {
 	 */
 	public <T> T execute(Class<T> destClass) {
 		return fcb1.doExecute(destClass, null, null, defaultValueList);
+	}
+
+	void replaceDefaultValue(Object defaultValue) {
+		int n = defaultValueList.size();
+		defaultValueList.remove(n - 1);
+		defaultValueList.add(defaultValue);
 	}
 }

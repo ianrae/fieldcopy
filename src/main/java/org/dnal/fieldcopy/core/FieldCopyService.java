@@ -2,8 +2,10 @@ package org.dnal.fieldcopy.core;
 
 import java.util.List;
 
+import org.dnal.fieldcopy.CopyOptions;
 import org.dnal.fieldcopy.converter.ValueConverter;
 import org.dnal.fieldcopy.log.SimpleLogger;
+import org.dnal.fieldcopy.metrics.CopyMetrics;
 
 /**
  * Implementation of the copy operation.  FieldCopy is designed so that different implementations
@@ -12,13 +14,16 @@ import org.dnal.fieldcopy.log.SimpleLogger;
  *
  */
 public interface FieldCopyService {
-	List<FieldPair> buildAutoCopyPairs(Class<?> sourceClass, Class<?> destClass);
+	List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options);
+	FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options);
 	void copyFields(CopySpec copySpec);
 	<T> T copyFields(CopySpec copySpec, Class<T> destClass);
 	void dumpFields(Object sourceObj);
 	SimpleLogger getLogger();
 	FieldRegistry getRegistry();
 	void addBuiltInConverter(ValueConverter converter);
+	void setMetrics(CopyMetrics metrics);
+	CopyMetrics getMetrics();
 	
 	/**
 	 * Generate unique string that represents the spec. 

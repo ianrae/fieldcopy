@@ -2,7 +2,6 @@ package org.dnal.fieldcopy.scopetest;
 
 import static org.junit.Assert.assertEquals;
 
-import org.dnal.fieldcopy.DefaultCopyFactory;
 import org.dnal.fieldcopy.converter.FieldInfo;
 import org.dnal.fieldcopy.scope.core.MyRunner;
 import org.dnal.fieldcopy.scope.core.Scope;

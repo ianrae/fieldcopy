@@ -44,7 +44,8 @@ public class ExceptionTests extends BaseTest {
 		} catch (FieldCopyException e) {
 			log(e.getMessage());
 			log("");
-			e.getCause().printStackTrace();
+			e.printStackTrace();
+			//e.getCause().printStackTrace();
 		} catch (Exception e) {
 			log(e.getMessage());
 		}
