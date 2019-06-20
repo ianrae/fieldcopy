@@ -34,7 +34,24 @@ public class FieldCopy {
 	}
 	
 	/**
-	 * Create a copier factory.
+	 * Create a copier.
+	 * This method is thread-safe.
+	 * 
+	 * @return new instance of a copier
+	 */
+	public static synchronized FieldCopier createCopier() {
+		if (theSingleton == null) {
+			theSingleton = new FieldCopy(new BUServiceFactory());
+		}
+		return theSingleton.createCopierFactory().createCopier();
+	}
+	
+	
+	/**
+	 * Create a copier factory.  The factory can be used to 
+	 * create a series of FieldCopier objects that all share
+	 * the same service (and caching).
+	 * 
 	 * This method is thread-safe.
 	 * 
 	 * @return new instance of a copier factory
