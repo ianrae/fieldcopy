@@ -26,6 +26,11 @@ public class FieldCopy {
 	public static synchronized void setSingleton(FieldCopy factory) {
 		theSingleton = factory;
 	}
+	
+	/**
+	 * Set the logger to be used.
+	 * @param logger a logger.
+	 */
 	public static synchronized void setLogger(SimpleLogger logger) {
 		theLogger = logger;
 	}

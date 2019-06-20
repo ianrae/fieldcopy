@@ -28,15 +28,33 @@ public class MappingBuilder1 {
 		this.destClass = destClass;
 	}
 
+	
+	/***
+	 * Copy the given set of source fields.  They will be copied to destination fields of the same name.
+	 * @param fieldNames fields to copy
+	 * @return fluent API object.
+	 */
 	public MappingBuilder1 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
+	
+	/***
+	 * Do not copy the given set of source fields. Often used in conjunction with autoCopy to copy all but
+	 * a specified list of fields.
+	 * @param fieldNames fields not to copy
+	 * @return fluent API object.
+	 */
 	public MappingBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
 	
+	/***
+	 * Copy all matching fields.  That is, if the source and destination classes have a field with the same
+	 * name, then copy it.  (Use CopyOptions to control whether fields are matched case-sensitive or not).
+	 * @return fluent API object.
+	 */
 	public MappingBuilder1 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
@@ -55,9 +73,10 @@ public class MappingBuilder1 {
 	 *   
 	 * -if srList non-empty then those fields are copied
 	 * 
-	 * @param srcList
-	 * @param destList
-	 * @param defaultValueList 
+	 * @param srcList  source fields to copy
+	 * @param destList destination fields to copy to
+	 * @param defaultValueList default values to use
+	 * @return destination object
 	 */
 	
 	FieldCopyMapping doBuild(List<String> srcList, List<String> destList, List<Object> defaultValueList) {
@@ -113,12 +132,30 @@ public class MappingBuilder1 {
 		return null;
 	}
 
+	/**
+	 * Copy the given field to a destination field of the same name.
+	 * @param srcFieldName source field
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName) {
 		return new MappingBuilder2(this, srcFieldName, srcFieldName, null);
 	}
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName, String destFieldName) {
 		return new MappingBuilder2(this, srcFieldName, destFieldName, null);
 	}
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @param defaultValue default value to use if source field is null.
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName, String destFieldName, Object defaultValue) {
 		return new MappingBuilder2(this, srcFieldName, destFieldName, defaultValue);
 	}

@@ -22,18 +22,36 @@ public class MappingBuilder2 {
 		defaultValueList.add(defaultVal);
 	}
 	
+	/**
+	 * Copy the given field to a destination field of the same name.
+	 * @param srcFieldName source field
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(srcFieldName);
 		defaultValueList.add(null);
 		return this;
 	}
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName, String destFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(destFieldName);
 		defaultValueList.add(null);
 		return this;
 	}
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @param defaultVal default value to use if source field is null.
+	 * @return fluent API object.
+	 */
 	public MappingBuilder2 field(String srcFieldName, String destFieldName, Object defaultVal) {
 		srcList.add(srcFieldName);
 		destList.add(destFieldName);

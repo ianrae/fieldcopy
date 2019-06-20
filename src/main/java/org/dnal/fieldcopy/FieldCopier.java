@@ -165,6 +165,10 @@ public class FieldCopier {
 		return null;
 	}
 
+	/**
+	 * (internal use). For testing only.
+	 * @return most recent CopySpec.
+	 */
 	public CopySpec getMostRecentCopySpec() {
 		return mostRecentCopySpec;
 	}

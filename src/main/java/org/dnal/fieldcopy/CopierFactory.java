@@ -22,5 +22,10 @@ package org.dnal.fieldcopy;
  *
  */
 public interface CopierFactory {
+	
+	/**
+	 * Creates a FieldCopier object.  
+	 * @return new copier object.
+	 */
 	FieldCopier createCopier();
 }
