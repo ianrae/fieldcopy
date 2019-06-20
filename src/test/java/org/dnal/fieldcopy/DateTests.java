@@ -74,9 +74,27 @@ public class DateTests extends BaseTest {
 
 		log("again..");
 		copier.copy(src, dest).autoCopy().execute();
-		
 	}
 	
+	@Test
+	public void test2() {
+		Sample1 src = new Sample1();
+		src.dt = createDate(2020, 03, 31);
+		Sample2 dest = new Sample2();
+		
+		MyDateConverter1 conv = new MyDateConverter1();
+		
+		FieldCopier copier = createCopier();
+		enableLogging();
+		copier.copy(src, dest).withConverters(conv).field("dt", "dateStr").execute();
+		assertEquals("2020-03-31", dest.getDateStr());
+
+		log("again..");
+		copier.copy(src, dest).autoCopy().execute();
+		
+	}
+
+	//---
 	protected Date createDate(int year, int mon, int day) {
 	    Calendar cal = Calendar.getInstance();
 	    cal.set(Calendar.YEAR, year);
