@@ -17,7 +17,7 @@ public class CopyBuilder3A {
 	 * Specifies that a source field whose name equals srcFieldName will be copied to a field of the same
 	 * name in the destination object.
 	 * @param srcFieldName - name of a field in the source object.
-	 * @return
+	 * @return fluent API object
 	 */
 	public CopyBuilder3A field(String srcFieldName) {
 		fcb2.field(srcFieldName);
@@ -28,8 +28,8 @@ public class CopyBuilder3A {
 	 * name equals destFieldName in the destination object.
 	 * @param srcFieldName - name of a field in the source object.
 	 * @param destFieldName - name of a field in the destination object
-	 * @return
-	 */
+	 * @return fluent API object
+	*/ 
 	public CopyBuilder3A field(String srcFieldName, String destFieldName) {
 		fcb2.field(srcFieldName, destFieldName);
 		return this;
@@ -40,9 +40,11 @@ public class CopyBuilder3A {
 		return this;
 	}
 	
-	
-	/**
-	 * Perform the copy.
+	/***
+	 * Perform the copy
+	 * @param <T> destination type 
+	 * @param destClass type of destination object to create.
+	 * @return destination object.
 	 */
 	public <T> T execute(Class<T> destClass) {
 		return fcb2.execute(destClass);
