@@ -32,19 +32,44 @@ public class CopyBuilder1 {
 		this.root = fieldCopierBuilder;
 	}
 	
+	/**
+	 * (advanced use only). Use this when you are copying the same pair of source and destination
+	 * classes in different ways.
+	 * @param key Specify a key used to cache the copy instructions.
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 cacheKey(String key) {
 		executionPlanCacheKey = key;
 		return this;
 	}
 	
+	/***
+	 * Copy the given set of source fields.  They will be copied to destination fields of the same name.
+	 * @param fieldNames fields to copy
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 include(String...fieldNames) {
 		this.includeList = Arrays.asList(fieldNames);
 		return this;
 	}
+
+	/***
+	 * Do not copy the given set of source fields. Often used in conjunction with autoCopy to copy all but
+	 * a specified list of fields.
+	 * @param fieldNames fields not to copy
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 exclude(String...fieldNames) {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
+	
+	/***
+	 * Use the given value as if it is the value of the given field.
+	 * @param name field name
+	 * @param value value to use
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 includeSourceValue(String name, Object value) {
 		if (additionalSourceValMap == null) {
 			additionalSourceValMap = new HashMap<>();
@@ -53,15 +78,29 @@ public class CopyBuilder1 {
 		return this;
 	}
 	
+	/***
+	 * Copy all matching fields.  That is, if the source and destination classes have a field with the same
+	 * name, then copy it.  (Use CopyOptions to control whether fields are matched case-sensitive or not).
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 autoCopy() {
 		this.doAutoCopy = true;
 		return this;
 	}
 	
+	/**
+	 * Perform the copy.
+	 */
 	public void execute() {
 		doExecute(null, null, null, null);
 	}
-	
+
+	/**
+	 * Use the given set of FieldCopyMappings for sub-objects. When a field is not a scalar value, list, or array,
+	 * then an autoCopy is done of its fields, unless a mapping has been provided by calling this method.
+	 * @param mappings
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 withMappings(FieldCopyMapping... mappings) {
 		if (this.mappingList == null) {
 			this.mappingList = new ArrayList<>();
@@ -69,6 +108,13 @@ public class CopyBuilder1 {
 		this.mappingList.addAll(Arrays.asList(mappings));
 		return this;
 	}
+	
+	/**
+	 * Use the given set of ValueConverters.  When copying a field's value, all converters are asked in turn (by
+	 * calling their canConvert method), and the first converter who returns true is used to convert the value.  
+	 * @param converters
+	 * @return fluent API object.
+	 */
 	public CopyBuilder1 withConverters(ValueConverter... converters) {
 		if (this.converters == null) {
 			this.converters = new ArrayList<>();
@@ -85,10 +131,11 @@ public class CopyBuilder1 {
 	 *   
 	 * -if srList non-empty then those fields are copied
 	 * 
-	 * @param srcList
-	 * @param destList
-	 * @param defaultValueList 
-	 * @return destination object.
+	 * @param destClass  type of destination object
+	 * @param srcList  source fields to copy
+	 * @param destList destination fields to copy to
+	 * @param defaultValueList default values to use
+	 * @return destination object
 	 */
 	
 	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
@@ -113,10 +160,22 @@ public class CopyBuilder1 {
 		return null;
 	}
 	
+	/**
+	 * Copy the given field to a destination field of the same name.
+	 * @param srcFieldName source field
+	 * @return fluent API object.
+	 */
 	public CopyBuilder3 field(String srcFieldName) {
 		CopyBuilder2 fcb2 = new CopyBuilder2(this, srcFieldName, srcFieldName, null);
 		return new CopyBuilder3(fcb2);
 	}
+	
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @return fluent API object.
+	 */
 	public CopyBuilder3 field(String srcFieldName, String destFieldName) {
 		CopyBuilder2 fcb2 = new CopyBuilder2(this, srcFieldName, destFieldName, null);
 		return new CopyBuilder3(fcb2);
