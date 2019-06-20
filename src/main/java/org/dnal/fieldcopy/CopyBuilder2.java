@@ -57,7 +57,8 @@ public class CopyBuilder2 {
 	
 	/***
 	 * Perform the copy.
-	 * @param destClass
+	 * @param <T> destination type 
+	 * @param destClass type of destination object to create.
 	 * @return destination object.
 	 */
 	public <T> T execute(Class<T> destClass) {

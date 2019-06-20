@@ -21,7 +21,7 @@ public class FieldCopy {
 	 * Optional method. Use this to set a custom factory.  setSingleton must
 	 * be called before the first call to createFactory.
 	 * 
-	 * @param factory
+	 * @param factory factory to use.
 	 */
 	public static synchronized void setSingleton(FieldCopy factory) {
 		theSingleton = factory;

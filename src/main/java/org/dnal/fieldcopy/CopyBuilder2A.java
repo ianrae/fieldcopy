@@ -22,12 +22,23 @@ public class CopyBuilder2A {
 		defaultValueList.add(defaultValue);
 	}
 	
+	/**
+	 * Copy the given field to a destination field of the same name.
+	 * @param srcFieldName source field
+	 * @return fluent API object.
+	 */
 	public CopyBuilder2A field(String srcFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(srcFieldName);
 		defaultValueList.add(null);
 		return this;
 	}
+	/**
+	 * Copy the given field to a destination field of the specified name.
+	 * @param srcFieldName source field
+	 * @param destFieldName destination field
+	 * @return fluent API object.
+	 */
 	public CopyBuilder2A field(String srcFieldName, String destFieldName) {
 		srcList.add(srcFieldName);
 		destList.add(destFieldName);
@@ -41,6 +52,12 @@ public class CopyBuilder2A {
 		defaultValueList.add(defaultValue);
 	}
 	
+	/***
+	 * Perform the copy
+	 * @param <T> destination type 
+	 * @param destClass type of destination object to create.
+	 * @return destination object.
+	 */
 	public <T> T execute(Class<T> destClass) {
 		return fcb1.doExecute(destClass, srcList, destList, defaultValueList);
 	}

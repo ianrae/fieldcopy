@@ -91,6 +91,7 @@ public class CopyBuilder1A {
 
 	/**
 	 * Perform the copy.
+	 * @param <T> destination type 
 	 * @param destClass type of destination object to create.
 	 * @return destination object.
 	 */
@@ -101,7 +102,7 @@ public class CopyBuilder1A {
 	/**
 	 * Use the given set of FieldCopyMappings for sub-objects. When a field is not a scalar value, list, or array,
 	 * then an autoCopy is done of its fields, unless a mapping has been provided by calling this method.
-	 * @param mappings
+	 * @param mappings one or more mapping object.
 	 * @return fluent API object.
 	 */
 	public CopyBuilder1A withMappings(FieldCopyMapping... mappings) {
@@ -115,7 +116,7 @@ public class CopyBuilder1A {
 	/**
 	 * Use the given set of ValueConverters.  When copying a field's value, all converters are asked in turn (by
 	 * calling their canConvert method), and the first converter who returns true is used to convert the value.  
-	 * @param converters
+	 * @param converters one or more converter object.
 	 * @return fluent API object.
 	 */
 	public CopyBuilder1A withConverters(ValueConverter... converters) {

@@ -37,7 +37,7 @@ public class CopyBuilder3 {
 	
 	/**
 	 * Specifies the default value to use if the source value is null
-	 * @param defaultValue
+	 * @param defaultValue  default value to use
 	 * @return fluent API object
 	 */
 	public CopyBuilder3 defaultValue(Object defaultValue) {
@@ -54,7 +54,8 @@ public class CopyBuilder3 {
 	}
 	/***
 	 * Perform the copy.
-	 * @param destClass
+	 * @param <T> destination type 
+	 * @param destClass type of destination object to create.
 	 * @return destination object.
 	 */
 	public <T> T execute(Class<T> destClass) {

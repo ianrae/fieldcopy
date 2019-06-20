@@ -40,9 +40,9 @@ public class CopyBuilder3A {
 		return this;
 	}
 	
-
 	/***
 	 * Perform the copy
+	 * @param <T> destination type 
 	 * @param destClass type of destination object to create.
 	 * @return destination object.
 	 */

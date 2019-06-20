@@ -98,7 +98,7 @@ public class CopyBuilder1 {
 	/**
 	 * Use the given set of FieldCopyMappings for sub-objects. When a field is not a scalar value, list, or array,
 	 * then an autoCopy is done of its fields, unless a mapping has been provided by calling this method.
-	 * @param mappings
+	 * @param mappings one of more mapping object.
 	 * @return fluent API object.
 	 */
 	public CopyBuilder1 withMappings(FieldCopyMapping... mappings) {
@@ -112,7 +112,7 @@ public class CopyBuilder1 {
 	/**
 	 * Use the given set of ValueConverters.  When copying a field's value, all converters are asked in turn (by
 	 * calling their canConvert method), and the first converter who returns true is used to convert the value.  
-	 * @param converters
+	 * @param converters one or more converter object.
 	 * @return fluent API object.
 	 */
 	public CopyBuilder1 withConverters(ValueConverter... converters) {

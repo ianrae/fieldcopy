@@ -30,7 +30,10 @@ public class ConverterContext {
 	/**
 	 * Create a copy spec for copying the given clazz1 to clazz2
 	 * Used when the converter needs to use the copy service.
-	 * @return spec
+	 * 
+	 * @param clazz1 source class
+	 * @param clazz2 destination class
+	 * @return copy instructions
 	 */
 	public CopySpec createCopySpec(Class<?> clazz1, Class<?> clazz2)  {
 		List<FieldPair> fieldPairs = copySvc.buildAutoCopyPairs(new TargetPair(clazz1, clazz2), copyOptions);

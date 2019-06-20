@@ -15,8 +15,9 @@ public class BUFieldSetterService {
 	}
 
 	/**
-	 * @param destObj
-	 * @param destFieldName
+	 * Sets a field in the given object.
+	 * @param destObj destination object.
+	 * @param destFieldName  field to set
 	 * @param value is not null. 
 	 */
 	public void setField(Object destObj, String destFieldName, Object value) {
@@ -32,9 +33,10 @@ public class BUFieldSetterService {
 	}
 	
 	/**
-	 * @param destObj
-	 * @param destFieldName
-	 * @param value  is not null. 
+	 * Sets a field in the given object.
+	 * @param destObj destination object.
+	 * @param destFieldName  field to set
+	 * @param value is not null. 
 	 */
 	public void setFieldFromString(Object destObj, String destFieldName, String value) {
 		try {

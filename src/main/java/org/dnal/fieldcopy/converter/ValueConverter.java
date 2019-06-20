@@ -12,17 +12,26 @@ package org.dnal.fieldcopy.converter;
  * @author Ian Rae
  *
  */
+
 public interface ValueConverter {
 	/**
 	 * FieldCopy is about to copy a field from a source object to a destination object.
 	 * It asks each registered converter if it wants to do the conversion. The first converter
 	 * to return true from its canConvert method is used.
 	 * 
-	 * @param fieldName Name of the field (aka. bean property) to be copied from the source object.
-	 * @param fieldClass Class of the field to be copied.
-	 * @param targetClass Type of object that the field will be converted to.
-	 * @return true if this converter wants to do this conversion.
+	 * @param source source field information
+	 * @param dest destination field informat.
+	 * @return true if this value converter wants to convert the given source and destnation.
 	 */
 	boolean canConvert(FieldInfo source, FieldInfo dest);
+	
+	/**
+	 * Convert a value.
+	 * 
+	 * @param srcBean source object
+	 * @param value  value to be converted
+	 * @param ctx   context object
+	 * @return   the converted value
+	 */
 	Object convertValue(Object srcBean, Object value, ConverterContext ctx);
 }
