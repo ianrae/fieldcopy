@@ -501,6 +501,15 @@ public class BUCopyService extends BUCopyServiceBase {
 
 	@Override
 	public FieldDescriptor resolveSourceField(String srcField, TargetPair targetPair, CopyOptions options) {
-		return null; //not supported
+        final PropertyDescriptor[] arSrc = propertyUtils.getPropertyDescriptors(targetPair.getSrcClass());
+		
+        for (int i = 0; i < arSrc.length; i++) {
+        	PropertyDescriptor pd = arSrc[i];
+        	if (pd.getName().equals(srcField)) {
+	        	BeanUtilsFieldDescriptor fd = new BeanUtilsFieldDescriptor(pd);
+	        	return fd;
+        	}
+        }
+		return null; 
 	}
 }
