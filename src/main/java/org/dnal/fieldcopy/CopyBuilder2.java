@@ -26,7 +26,6 @@ public class CopyBuilder2 {
 	 * Specifies that a source field whose name equals srcFieldName will be copied to a field of the same
 	 * name in the destination object.
 	 * @param srcFieldName - name of a field in the source object.
-	 * @return
 	 */
 	public CopyBuilder3 field(String srcFieldName) {
 		srcList.add(srcFieldName);
@@ -39,7 +38,6 @@ public class CopyBuilder2 {
 	 * name equals destFieldName in the destination object.
 	 * @param srcFieldName - name of a field in the source object.
 	 * @param destFieldName - name of a field in the destination object
-	 * @return
 	 */
 	public CopyBuilder3 field(String srcFieldName, String destFieldName) {
 		srcList.add(srcFieldName);
@@ -48,14 +46,17 @@ public class CopyBuilder2 {
 		return new CopyBuilder3(this);
 	}
 	
-	/**
-	 * Perform the copy.
+	/***
+	 * Perform the copy;
 	 */
 	public void execute() {
 		fcb1.doExecute(null, srcList, destList, defaultValueList);
 	}
-	/**
+	
+	/***
 	 * Perform the copy.
+	 * @param destClass
+	 * @return destination object.
 	 */
 	public <T> T execute(Class<T> destClass) {
 		return fcb1.doExecute(destClass, null, null, defaultValueList);

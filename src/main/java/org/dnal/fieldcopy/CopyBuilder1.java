@@ -88,6 +88,7 @@ public class CopyBuilder1 {
 	 * @param srcList
 	 * @param destList
 	 * @param defaultValueList 
+	 * @return destination object.
 	 */
 	
 	<T> T doExecute(Class<T> destClass, List<String> srcList, List<String> destList, List<Object> defaultValueList) {
