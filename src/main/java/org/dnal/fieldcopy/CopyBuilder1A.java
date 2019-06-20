@@ -46,7 +46,7 @@ public class CopyBuilder1A {
 		this.excludeList = Arrays.asList(fieldNames);
 		return this;
 	}
-	public CopyBuilder1A includeSourceValues(String name, Object value) {
+	public CopyBuilder1A includeSourceValue(String name, Object value) {
 		if (additionalSourceValMap == null) {
 			additionalSourceValMap = new HashMap<>();
 		}

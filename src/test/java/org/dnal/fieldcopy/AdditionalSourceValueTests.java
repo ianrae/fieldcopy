@@ -50,7 +50,7 @@ public class AdditionalSourceValueTests extends BaseTest {
 		
 		FieldCopier copier = createCopier();
 		enableLogging();
-		copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
+		copier.copy(src, dto).includeSourceValue("id", src.id()).autoCopy().execute();
 		assertEquals("sue", dto.getName());
 		assertEquals(44, dto.getId());
 	}
@@ -64,7 +64,7 @@ public class AdditionalSourceValueTests extends BaseTest {
 		
 		FieldCopier copier = createCopier();
 		enableLogging();
-		copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
+		copier.copy(src, dto).includeSourceValue("id", src.id()).autoCopy().execute();
 		assertEquals("sue", dto.getName());
 		assertEquals(44, dto.getId());
 		
@@ -73,7 +73,7 @@ public class AdditionalSourceValueTests extends BaseTest {
 		src.setId(45);
 		src.setName("suex");
 		dto = new SomeDTO();
-		copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
+		copier.copy(src, dto).includeSourceValue("id", src.id()).autoCopy().execute();
 		assertEquals("suex", dto.getName());
 		assertEquals(45, dto.getId());
 	}
