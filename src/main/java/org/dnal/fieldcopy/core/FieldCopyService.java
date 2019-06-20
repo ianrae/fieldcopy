@@ -29,8 +29,8 @@ public interface FieldCopyService {
 	 * Generate unique string that represents the spec. 
 	 * This string is used as a cache key so the same copy spec only needs 
 	 * to have an execution plan generated once (and then cached).
-	 * @param spec
-	 * @return
+	 * @param spec copy instructions.
+	 * @return cache key
 	 */
 	String generateExecutionPlanCacheKey(CopySpec spec);
 }

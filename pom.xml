@@ -5,11 +5,11 @@
 	<groupId>org.dnal-lang</groupId>
 	<artifactId>fieldcopy</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.3</version>
+	<version>0.2.0</version>
 
 	<name>fieldcopy</name>
 	<url>http://dnal-lang.org</url>
-	<description>A simple field copy library</description>
+	<description>A simple bean copying library</description>
 	<licenses>
 		<license>
 			<name>MIT License</name>
@@ -17,6 +17,32 @@
 		</license>
 	</licenses>
 
+ <developers>
+  <developer>
+   <name>Ian Rae</name>
+   <email>ian@dnal-lang.org</email>
+   <organization>dnal</organization>
+   <organizationUrl>http://dnal-lang.org</organizationUrl>
+  </developer>
+ </developers>
+ 
+ <scm>
+  <connection>scm:git:git:github.com/ianrae/fieldcopy.git</connection>
+  <developerConnection>scm:git:ssh://github.com:ianrae/fieldcopy.git</developerConnection>
+  <url>https://github.com/ianrae/fieldcopy</url>
+ </scm>
+
+ <distributionManagement>
+  <snapshotRepository>
+   <id>ossrh</id>
+   <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+  </snapshotRepository>
+  <repository>
+   <id>ossrh</id>
+   <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+  </repository>
+ </distributionManagement>
+ 
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

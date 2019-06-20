@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 
  * @author Ian Rae
  *
- * @param <T>
+ * @param <T> list element type
  */
 public class ThreadSafeList<T> {
 	private CopyOnWriteArrayList<T> list = new CopyOnWriteArrayList<>();

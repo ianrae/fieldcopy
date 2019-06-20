@@ -1,5 +1,11 @@
 package org.dnal.fieldcopy.log;
 
+/**
+ * Logs using System.out.println.
+ * 
+ * @author Ian Rae
+ *
+ */
 public class SimpleConsoleLogger implements SimpleLogger {
 	private boolean enabled = false;
 
