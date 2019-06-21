@@ -2,19 +2,18 @@
 
 FieldCopy is a simple bean-copying library for Java.
 
-
 ```
 <dependency>
    <groupId>org.dnal-lang</groupId>
    <artifactId>fieldcopy</artifactId>
-   <version>${fieldcopy.version}</version>
+   <version>0.2.0</version>
 </dependency>
 ```
 
 FieldCopy has a fluent API.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = FieldCopy.createCopier();
 copier.copy(sourceObj, destinationObj).autoCopy().execute();
 ```
 
@@ -33,6 +32,8 @@ copier.copy(sourceObj, destinationObj).autoCopy().execute();
   * very fast startup time.  This is important for test-driven development where you are executing tests all day long.
   * simplicity.  Some environments are not friendly to dynamic bytecode generation.
 
+See also "Caching" below.
+
 ### Extensibility
  FieldCopy has a layered architecture.  The underlying FieldCopyService can be replaced so that 
  FieldCopy can be used for copying to and from other data sources.  For example, the project comes
@@ -40,11 +41,17 @@ copier.copy(sourceObj, destinationObj).autoCopy().execute();
 
 ## Examples
 
+For best performance, use a long-lived CopierFactory to create FieldCopier instances (see Caching).  
+```java
+CopierFactory copierFactory = FieldCopy.createFactory();
+```
+We will use _copierFactory_ in the following examples.
+
 #### Example 1. Copy only specific fields
 Use the _field_ method to specify individual fields to copy.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(sourceObj, destinationObj).field("firstName", "firstName").field("lastName", "lastName").execute();
 ```
 
@@ -54,14 +61,22 @@ Here, sourceObj.getFirstName() and getLastName() will be copied to destObj.setFi
 The following is equivalent to example 1.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(sourceObj, destinationObj).include("firstName", "lastName").execute();
 ```
+
+Note that you can also pass in destination class.
+
+```java
+FieldCopier copier = copierFactory.createCopier();
+UserDTO destinationObj = copier.copy(sourceObj).include("firstName", "lastName").execute(UserDTO.class);
+```
+
 
 #### Example 3. Copy all fields except some fields using _exclude_.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(sourceObj, destinationObj).exclude("password", "loginCount").autoCopy().execute();
 ```
 
@@ -72,7 +87,7 @@ _include_ and _exclude_ are used to override _autoCopy_. _exclude_ has priority 
 Specify a default value to use when a field's value is null.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(sourceObj, destinationObj)
   .field("isAdmin", "adminFlag").defaultValue(false)
   .field("maxSessionTime", "maxSessionTime").defaultValue(3600)
@@ -105,7 +120,7 @@ public class MyDateConverter implements ValueConverter {
 Use the converter in the _withConverters_ method.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(src, dest).withConverters(new MyDateConverter()).field("purchaseDate", "orderDateStr").execute();
 ```
 You can specify multiple converters in withConverters.
@@ -122,7 +137,7 @@ FieldCopyMapping mapping = copier.createMapping(Address.class, AddressDTO.class)
 Pass the mapping to the main copier using _withMappings_ method
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(src, dest).withMapings(mapping).autoCopy().execute();
 ```
 
@@ -132,7 +147,30 @@ If the source object is missing a value, or doesn't have a proper getter method,
 In the following example, the src object has _id()_ instead of _getId()_, so we use _includeSourceValues_. The destination field _dto.id_ will be set.
 
 ```java
-FieldCopier copier = FieldCopy.createFactory();
+FieldCopier copier = copierFactory.createCopier();
 copier.copy(src, dto).includeSourceValues("id", src.id()).autoCopy().execute();
 ```
+
+## Additional Information
+### Caching
+FieldCopy uses Java reflection to build field information about the source and destination classes it copies.  It keeps a cache of this information so that on all subsequent copying it can use the cached information.  Thus the performance impact of using reflection is minimized.
+
+The best way to take advantage of this is to use CopierFactory. Make the factory a member variable of your service or controller class, and use it to create single-use FieldCopier objects. 
+
+```java
+public class OrderService {
+  private CopierFactory factory = FieldCopy.createFactory();
+...
+  public OrderDTO doSomething(Order order) {
+     ....
+     FieldCopier copier = factory.createCopier();
+     return copier.copy(order).autoCopy().execute(OrderDTO.class);
+
+```
+
+
+
+
+
+
 
