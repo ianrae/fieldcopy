@@ -1,6 +1,7 @@
-# FieldCopy
+FIELDCOPY
 
 FieldCopy is a simple bean-copying library for Java.
+
 
 ```
 <dependency>
@@ -19,9 +20,9 @@ copier.copy(sourceObj, destinationObj).autoCopy().execute();
 
 ### Features
  * automatically copy fields with matching field names.
- * specify fields to include or exclude
- * define default values to use if source value is null
- * converts most basic scalar values automatically 
+ * specify fields to copy explicity using include or exclude.
+ * define default values to use if source value is null.
+ * converts most basic scalar values automatically
  * define custom converters
 
 ### Performance
@@ -29,13 +30,13 @@ copier.copy(sourceObj, destinationObj).autoCopy().execute();
  FieldCopy is reflection-based.  This is somewhat slower than other
  bean-copying libraries that use dynamic bytecode generation. 
  However, FieldCopy has two advantages:
-  * very fast startup time.  This is important for test-driven development where you are executing tests all day long.
+  * very fast startup time.  This is important for test-driven development where tests are run every few minutes.
   * simplicity.  Some environments are not friendly to dynamic bytecode generation.
 
 See also "Caching" below.
 
 ### Extensibility
- FieldCopy has a layered architecture.  The underlying FieldCopyService can be replaced so that 
+ FieldCopy has a layered architecture.  Its underlying FieldCopyService can be replaced so that 
  FieldCopy can be used for copying to and from other data sources.  For example, the project comes
  with a sample Java property to bean copier called PropertyCopy.
 
@@ -55,7 +56,7 @@ FieldCopier copier = copierFactory.createCopier();
 copier.copy(sourceObj, destinationObj).field("firstName", "firstName").field("lastName", "lastName").execute();
 ```
 
-Here, sourceObj.getFirstName() and getLastName() will be copied to destObj.setFirstName() and dest.setLastName(), respectively.
+Here, _sourceObj.getFirstName()_ and _getLastName()_ will be copied to _destObj.setFirstName()_ and _dest.setLastName()_, respectively.
 
 #### Example 2. When source and destination fields are the same, you can use _include_.  
 The following is equivalent to example 1.
@@ -167,7 +168,6 @@ public class OrderService {
      return copier.copy(order).autoCopy().execute(OrderDTO.class);
 
 ```
-
 
 
 
