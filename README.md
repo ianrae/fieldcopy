@@ -2,6 +2,7 @@ FIELDCOPY
 
 FieldCopy is a simple bean-copying library for Java.
 
+[![Javadocs](https://www.javadoc.io/badge/org.dnal-lang/fieldcopy.svg)](https://www.javadoc.io/doc/org.dnal-lang/fieldcopy)
 
 ```
 <dependency>
