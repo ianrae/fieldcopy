@@ -117,7 +117,8 @@ public class BUHelperService {
 		//if source or destObj are null we will catch it during copy
 		String class1Name = spec.sourceObj == null ? "" : spec.sourceObj.getClass().getName();
 		String class2Name = spec.destObj == null ? "" : spec.destObj.getClass().getName();
-		return String.format("%s--%s", class1Name, class2Name);
+		return class1Name + class2Name;
+//		return String.format("%s--%s", class1Name, class2Name);
 	}
 	
 	public Object getLoggableString(Object value) {

@@ -97,6 +97,9 @@ public class BUCopyService extends BUCopyServiceBase {
 	}
 	
 	private void logStartOfCopy(CopySpec copySpec, BUClassPlan classPlan) {
+		if (! logger.isEnabled()) {
+			return;
+		}
 		//TODO copyOptions should have flag for log full name or simple name
 		String srcName = copySpec.sourceObj == null ? "" : copySpec.sourceObj.getClass().getSimpleName();
 		String destName = copySpec.destObj == null ? "" : copySpec.destObj.getClass().getSimpleName();

@@ -66,13 +66,13 @@ public class XBeanUtilsFieldCopyService implements FieldCopyService {
 		public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
 			Class<?> class1 = targetPair.getSrcClass();
 			Class<?> class2 = targetPair.getDestClass();
-            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
+            List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair);
 			if (fieldPairs != null) {
 				return fieldPairs;
 			}
 			
             fieldPairs = buildAutoCopyPairsNoRegister(class1, class2);
-			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+			registry.registerAutoCopyInfo(targetPair, fieldPairs);
             return fieldPairs;
 		}
 		

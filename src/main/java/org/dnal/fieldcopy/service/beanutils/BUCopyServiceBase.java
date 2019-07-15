@@ -47,13 +47,13 @@ public abstract class BUCopyServiceBase implements FieldCopyService {
 
 	@Override
 	public List<FieldPair> buildAutoCopyPairs(TargetPair targetPair, CopyOptions options) {
-        List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass());
+        List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair);
 		if (fieldPairs != null) {
 			return fieldPairs;
 		}
 		
         fieldPairs = buildAutoCopyPairsNoRegister(targetPair.getSrcClass(), targetPair.getDestClass(), options);
-		registry.registerAutoCopyInfo(targetPair.getSrcClass(), targetPair.getDestClass(), fieldPairs);
+		registry.registerAutoCopyInfo(targetPair, fieldPairs);
         return fieldPairs;
 	}
 	

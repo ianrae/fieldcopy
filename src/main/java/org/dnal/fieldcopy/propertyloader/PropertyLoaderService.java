@@ -64,13 +64,13 @@ public class PropertyLoaderService implements FieldCopyService {
 			
 			Class<?> class1 = sourceObj.getClass();
 			Class<?> class2 = targetPair.getDestClass();
-			List<FieldPair> fieldPairs = registry.findAutoCopyInfo(class1, class2);
+			List<FieldPair> fieldPairs = registry.findAutoCopyInfo(targetPair);
 			if (fieldPairs != null) {
 				return fieldPairs;
 			}
 
 			fieldPairs = buildAutoCopyPairsNoRegister(class2);
-			registry.registerAutoCopyInfo(class1, class2, fieldPairs);
+			registry.registerAutoCopyInfo(targetPair, fieldPairs);
 			return fieldPairs;
 		}
 

@@ -16,15 +16,16 @@ public class FieldRegistry {
 	
 	public FieldRegistry() {
 	}
-	public List<FieldPair> findAutoCopyInfo(Class<?> clazz1, Class<?> clazz2) {
-		String key = buildClassPairKey(clazz1, clazz2);
+	public List<FieldPair> findAutoCopyInfo(TargetPair pair) {
+		String key = buildClassPairKey(pair);
 		return autocopyCache.get(key);
 	}
-	public void registerAutoCopyInfo(Class<?> clazz1, Class<?> clazz2, List<FieldPair> fieldPairs) {
-		String key = buildClassPairKey(clazz1, clazz2);
+	public void registerAutoCopyInfo(TargetPair pair, List<FieldPair> fieldPairs) {
+		String key = buildClassPairKey(pair);
 		autocopyCache.put(key, fieldPairs);
 	}
-	private String buildClassPairKey(Class<?> class1, Class<?> class2) {
-		return String.format("%s--%s", class1.getName(), class2.getName());
+	private String buildClassPairKey(TargetPair pair) {
+//		return String.format("%s--%s", class1.getName(), class2.getName());
+		return pair.getSrcClass().getName() + pair.getDestClass().getName();
 	}
 }
