@@ -49,4 +49,33 @@ public class TargetPair {
 	public Class<?> getDestClass() {
 		return destClass;
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((destClass == null) ? 0 : destClass.hashCode());
+		result = prime * result + ((srcClass == null) ? 0 : srcClass.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TargetPair other = (TargetPair) obj;
+		if (destClass == null) {
+			if (other.destClass != null)
+				return false;
+		} else if (!destClass.equals(other.destClass))
+			return false;
+		if (srcClass == null) {
+			if (other.srcClass != null)
+				return false;
+		} else if (!srcClass.equals(other.srcClass))
+			return false;
+		return true;
+	}
 }

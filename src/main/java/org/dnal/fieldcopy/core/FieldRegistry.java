@@ -12,20 +12,20 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  */
 public class FieldRegistry {
-	private ConcurrentHashMap<String,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<TargetPair,List<FieldPair>> autocopyCache = new ConcurrentHashMap<>();
 	
 	public FieldRegistry() {
 	}
 	public List<FieldPair> findAutoCopyInfo(TargetPair pair) {
-		String key = buildClassPairKey(pair);
-		return autocopyCache.get(key);
+//		String key = buildClassPairKey(pair);
+		return autocopyCache.get(pair);
 	}
 	public void registerAutoCopyInfo(TargetPair pair, List<FieldPair> fieldPairs) {
-		String key = buildClassPairKey(pair);
-		autocopyCache.put(key, fieldPairs);
+//		String key = buildClassPairKey(pair);
+		autocopyCache.put(pair, fieldPairs);
 	}
-	private String buildClassPairKey(TargetPair pair) {
-//		return String.format("%s--%s", class1.getName(), class2.getName());
-		return pair.getSrcClass().getName() + pair.getDestClass().getName();
-	}
+//	private String buildClassPairKey(TargetPair pair) {
+////		return String.format("%s--%s", class1.getName(), class2.getName());
+//		return pair.getSrcClass().getName() + pair.getDestClass().getName();
+//	}
 }

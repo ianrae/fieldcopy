@@ -384,7 +384,9 @@ public class BUCopyService extends BUCopyServiceBase {
     			value = propertyUtils.getSimpleProperty(execPlan.srcObject, name);
     		}
     		
-    		logger.log("  field %s: %s", name, getLoggableString(value));
+    		if (logger.isEnabled()) {
+    			logger.log("  field %s: %s", name, getLoggableString(value));
+    		}
     		Class<?> srcClass = fieldPlan.getSrcClass();
     		
 			if (fieldPlan.converter != null) {

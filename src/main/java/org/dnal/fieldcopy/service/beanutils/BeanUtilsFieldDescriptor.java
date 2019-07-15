@@ -12,14 +12,16 @@ import org.dnal.fieldcopy.core.FieldDescriptor;
  */
 public class BeanUtilsFieldDescriptor implements FieldDescriptor {
 	public PropertyDescriptor pd;
+	private String name;
 	
 	public BeanUtilsFieldDescriptor(PropertyDescriptor pd) {
 		this.pd = pd;
+		this.name = pd.getName();
 	}
 	
 	@Override
 	public String getName() {
-		return pd.getName();
+		return name;
 	}
 	
 }
