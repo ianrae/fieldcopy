@@ -15,12 +15,109 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FieldValidateTests extends BaseTest {
+
+    public interface ValidationRule {
+        boolean canExecute(ValSpec spec);
+        void validate(ValSpec spec,  Object fieldValue, ValidationResults res);
+    }
+    public static abstract class ValidationRuleBase implements ValidationRule {
+
+        @Override
+        public abstract boolean canExecute(ValSpec spec);
+
+        @Override
+        public abstract void validate(ValSpec spec, Object fieldValue, ValidationResults res);
+
+        private int compareStrValues(Object fieldValue, String el) {
+            return fieldValue.toString().compareTo(el);
+        }
+
+        protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message) {
+            FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
+            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
+            res.errL.add(err);
+        }
+        protected int compareValues(Object fieldValue, Object minObj) {
+            if (fieldValue instanceof Integer) {
+                Integer min = NumberUtils.asInt(minObj);
+                return ((Integer) fieldValue).compareTo(min);
+            }
+            if (fieldValue instanceof Long) {
+                Long min = NumberUtils.asLong(minObj);
+                return ((Long) fieldValue).compareTo(min);
+            }
+            if (fieldValue instanceof Float) {
+                Float min = NumberUtils.asFloat(minObj);
+                return ((Float) fieldValue).compareTo(min);
+            }
+            if (fieldValue instanceof Double) {
+                Double min = NumberUtils.asDouble(minObj);
+                return ((Double) fieldValue).compareTo(min);
+            }
+
+            throw new FieldValidateException("compareValues failed. unsupported type");
+//            return -1;
+        }
+
+    }
+    public static class MinRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return spec.minObj != null;
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            if (compareValues(fieldValue, spec.minObj) < 0) {
+                String msg = String.format("min(%s) failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
+    public static class MaxRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return spec.maxObj != null;
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            if (compareValues(fieldValue, spec.maxObj) > 0) {
+                String msg = String.format("max(%s) failed. actual value: %s", spec.maxObj.toString(), fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
+    public static class RangeRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.minRangeObj != null && spec.maxRangeObj != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            if (compareValues(fieldValue, spec.minRangeObj) < 0) {
+                String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
+                        fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            } else if (compareValues(fieldValue, spec.maxRangeObj) > 0) {
+                String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
+                        fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
+
+
     public static class Validator {
         private final List<ValSpec> specList;
         private Object target;
+        private List<ValidationRule> ruleList = new ArrayList<>();
 
         public Validator(List<ValSpec> specList) {
             this.specList = specList;
+            this.ruleList.add(new MinRule());
+            this.ruleList.add(new MaxRule());
         }
         public ValidationResults validate(Object target) {
             ValidationResults res =  new ValidationResults();
@@ -40,28 +137,14 @@ public class FieldValidateTests extends BaseTest {
                 String msg = String.format("unexpected null value");
                 addNotNullError(res, spec, msg);
             }
-            if (spec.minObj != null) {
-                if (compareValues(fieldValue, spec.minObj) < 0) {
-                    String msg = String.format("min(%s) failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
+
+            for(ValidationRule rule: ruleList) {
+                if (rule.canExecute(spec)) {
+                    rule.validate(spec, fieldValue, res);
                 }
             }
-            if (spec.maxObj != null) {
-                if (compareValues(fieldValue, spec.maxObj) > 0) {
-                    String msg = String.format("max(%s) failed. actual value: %s", spec.maxObj.toString(), fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
-                }
-            }
+
             if (spec.minRangeObj != null && spec.maxRangeObj != null) {
-                if (compareValues(fieldValue, spec.minRangeObj) < 0) {
-                    String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
-                                    fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
-                } else if (compareValues(fieldValue, spec.maxRangeObj) > 0) {
-                    String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
-                            fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
-                }
             }
             if (spec.inList != null) {
                 boolean found = false;
@@ -322,6 +405,7 @@ public class FieldValidateTests extends BaseTest {
 
         public Val1 field(String fieldName) {
             buildSpecForLastVal();
+            haveBuiltLast = false; //reset
             Val1 val1 = new Val1(fieldName, list, specList);
             list.add(val1);
             return val1;
