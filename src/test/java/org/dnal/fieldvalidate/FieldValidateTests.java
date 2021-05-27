@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldvalidate.code.ErrorType;
+import org.dnal.fieldvalidate.code.FieldError;
+import org.dnal.fieldvalidate.code.FieldValidateException;
 import org.dnal.fieldvalidate.code.NumberUtils;
 import org.junit.Test;
 
@@ -12,35 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class FieldValidateTests extends BaseTest {
-    public static class FieldValidateException extends RuntimeException {
-
-        public FieldValidateException(String message) {
-            super(message);
-        }
-    }
-    public enum ErrorType {
-        NOT_NULL,
-        VALUE
-    }
-    public static class FieldError {
-        public String fieldName;
-        public Object fieldValue;
-        public String errMsg;
-        public ErrorType errType;
-
-        public FieldError(String fieldName, Object fieldValue, ErrorType errType) {
-            this.fieldName = fieldName;
-            this.fieldValue = fieldValue;
-            this.errType = errType;
-        }
-    }
-    public static class ValidationResults {
-        public List<FieldError> errL = new ArrayList<>();
-
-        public boolean hasNoErrors() {
-            return errL.isEmpty();
-        }
-    }
     public static class Validator {
         private final List<ValSpec> specList;
         private Object target;
@@ -176,6 +150,7 @@ public class FieldValidateTests extends BaseTest {
         public ValidateBuilder mapBuilder;
         public List<Number> inList;
         public ArrayList<String> inStrList;
+        public int strMaxLen;
 
 
         @Override
@@ -202,6 +177,7 @@ public class FieldValidateTests extends BaseTest {
         private ValidateBuilder mapBuilder;
         private List<Number> inList;
         private ArrayList<String> inStrList;
+        private int strMaxLen;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -229,6 +205,7 @@ public class FieldValidateTests extends BaseTest {
             spec.maxRangeObj = maxRangeObj;
             spec.inList = inList;
             spec.inStrList = inStrList;
+            spec.strMaxLen = strMaxLen;
             specList.add(spec);
         }
 
@@ -317,6 +294,10 @@ public class FieldValidateTests extends BaseTest {
             for(String s: vals) {
                 inStrList.add(s);
             }
+            return this;
+        }
+        public Val1 maxlen(int maxlen) {
+            this.strMaxLen = maxlen;
             return this;
         }
 
@@ -619,6 +600,19 @@ public class FieldValidateTests extends BaseTest {
         res = runOK(vb, home);
     }
 
+    @Test
+    public void testMaxLen() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().maxlen(4);
+
+        Home home = new Home();
+        home.setLastName("Wilson");
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "maxlen(4)");
+
+        home.setLastName("Sue");
+        res = runOK(vb, home);
+    }
 
 
     //--
