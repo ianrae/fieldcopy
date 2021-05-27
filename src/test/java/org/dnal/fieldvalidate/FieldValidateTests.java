@@ -64,9 +64,27 @@ public class FieldValidateTests extends BaseTest {
             if (fieldValue == null && spec.isNotNull) {
                 String msg = String.format("unexpected null value");
                 addNotNullError(res, spec, msg);
-            } else if (spec.minObj != null) {
+            }
+            if (spec.minObj != null) {
                 if (compareValues(fieldValue, spec.minObj) < 0) {
-                    String msg = String.format("min(%s) value failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
+                    String msg = String.format("min(%s) failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
+                }
+            }
+            if (spec.maxObj != null) {
+                if (compareValues(fieldValue, spec.maxObj) > 0) {
+                    String msg = String.format("max(%s) failed. actual value: %s", spec.maxObj.toString(), fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
+                }
+            }
+            if (spec.minRangeObj != null && spec.maxRangeObj != null) {
+                if (compareValues(fieldValue, spec.minRangeObj) < 0) {
+                    String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
+                                    fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
+                } else if (compareValues(fieldValue, spec.maxRangeObj) > 0) {
+                    String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
+                            fieldValue.toString());
                     addValueError(res, spec, fieldValue, msg);
                 }
             }
@@ -104,6 +122,8 @@ public class FieldValidateTests extends BaseTest {
         public boolean isNotNull;
         public Object minObj;
         public Object maxObj;
+        public Object minRangeObj;
+        public Object maxRangeObj;
         public FieldValidateTests.Val1 elementsVal;
         public ValidateBuilder subBuilder;
         public ValidateBuilder mapBuilder;
@@ -126,6 +146,8 @@ public class FieldValidateTests extends BaseTest {
         private boolean isNotNull;
         private Object minObj;
         private Object maxObj;
+        private Object minRangeObj;
+        private Object maxRangeObj;
         private Val1 elementsVal;
         private ValidateBuilder subBuilder;
         private ValidateBuilder mapBuilder;
@@ -152,6 +174,8 @@ public class FieldValidateTests extends BaseTest {
             spec.subBuilder = subBuilder;
             spec.minObj = minObj;
             spec.maxObj = maxObj;
+            spec.minRangeObj = minRangeObj;
+            spec.maxRangeObj = maxRangeObj;
             specList.add(spec);
         }
 
@@ -193,7 +217,23 @@ public class FieldValidateTests extends BaseTest {
             maxObj = Double.valueOf(n);
             return this;
         }
+
         //range
+        public Val1 range(int min, int max) {
+            minRangeObj = Integer.valueOf(min);
+            maxRangeObj = Integer.valueOf(max);
+            return this;
+        }
+        public Val1 range(long min, long max) {
+            minRangeObj = Long.valueOf(min);
+            maxRangeObj = Long.valueOf(max);
+            return this;
+        }
+        public Val1 range(double min, long max) {
+            minRangeObj = Double.valueOf(min);
+            maxRangeObj = Double.valueOf(max);
+            return this;
+        }
         //in has above types and char,string
 
         public Val1 elements() {
@@ -213,6 +253,7 @@ public class FieldValidateTests extends BaseTest {
     public static class ValidateBuilder {
         private List<Val1> list = new ArrayList<>();
         private List<ValSpec> specList = new ArrayList<>();
+        private boolean haveBuiltLast;
 
         public Val1 field(String fieldName) {
             buildSpecForLastVal();
@@ -226,9 +267,11 @@ public class FieldValidateTests extends BaseTest {
             return new Validator(specList);
         }
         private void buildSpecForLastVal() {
+            if (haveBuiltLast) return;
             if (!list.isEmpty()) {
                 Val1 val = list.get(list.size() - 1);
                 val.buildAndAddSpec();
+                haveBuiltLast = true;
             }
         }
     }
@@ -373,7 +416,43 @@ public class FieldValidateTests extends BaseTest {
         home.setPoints(50);
         res = runOK(vb, home);
     }
+    @Test
+    public void testMax() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().max(50);
 
+        Home home = new Home();
+        home.setPoints(51);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "max(50)");
+
+        home.setPoints(50);
+        res = runOK(vb, home);
+    }
+    @Test
+    public void testRange() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().range(1,10);
+
+        Home home = new Home();
+        home.setPoints(51);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "range(1,10)");
+
+        home.setPoints(0);
+        res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "range(1,10)");
+
+        home.setPoints(1);
+        res = runOK(vb, home);
+        home.setPoints(10);
+        res = runOK(vb, home);
+    }
+
+
+
+
+    //--
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
         Validator runner = vb.build();
         ValidationResults res = runner.validate(home);
@@ -389,19 +468,16 @@ public class FieldValidateTests extends BaseTest {
     }
 
     private void chkFail(ValidationResults res, int expected) {
-        assertEquals(false, res.hasNoErrors());
-        assertEquals(expected, res.errL.size());
         for(FieldError err: res.errL) {
             log(err.errMsg);
         }
+        assertEquals(false, res.hasNoErrors());
+        assertEquals(expected, res.errL.size());
     }
     private void chkValueErr(ValidationResults res, int index, String expected) {
         assertEquals(false, res.hasNoErrors());
         FieldError err = res.errL.get(index);
         assertEquals(true, err.errMsg.contains(expected));
     }
-
-
-    //--
 
 }
