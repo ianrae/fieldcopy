@@ -153,6 +153,32 @@ public class FieldValidateTests extends BaseTest {
             }
         }
     }
+    public static class MaxLenRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.strMaxLen != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            int len = fieldValue.toString().length();
+            if (len > spec.strMaxLen.intValue()) {
+                String msg = String.format("maxlen(%d) failed. actual value: %s", spec.strMaxLen, fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
+    public static class EvalRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.evalRule != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            spec.evalRule.validate(spec, fieldValue, res);
+        }
+    }
 
 
     public static class Validator {
@@ -167,6 +193,8 @@ public class FieldValidateTests extends BaseTest {
             this.ruleList.add(new RangeRule());
             this.ruleList.add(new InNumericRule());
             this.ruleList.add(new InStringRule());
+            this.ruleList.add(new MaxLenRule());
+            this.ruleList.add(new EvalRule());
         }
         public ValidationResults validate(Object target) {
             ValidationResults res =  new ValidationResults();
@@ -219,7 +247,8 @@ public class FieldValidateTests extends BaseTest {
         public ValidateBuilder mapBuilder;
         public List<Number> inList;
         public ArrayList<String> inStrList;
-        public int strMaxLen;
+        public Integer strMaxLen;
+        public ValidationRule evalRule;
 
 
         @Override
@@ -246,20 +275,14 @@ public class FieldValidateTests extends BaseTest {
         private ValidateBuilder mapBuilder;
         private List<Number> inList;
         private ArrayList<String> inStrList;
-        private int strMaxLen;
+        private Integer strMaxLen;
+        private ValidationRule evalRule;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
             this.list = list;
             this.specList = specList;
         }
-
-//        public Val1 field(String fieldName) {
-//            buildAndAddSpec();
-//            Val1 val1 = new Val1(fieldName, list, specList);
-//            list.add(val1);
-//            return val1;
-//        }
 
         void buildAndAddSpec() {
             ValSpec spec = new ValSpec();
@@ -275,6 +298,8 @@ public class FieldValidateTests extends BaseTest {
             spec.inList = inList;
             spec.inStrList = inStrList;
             spec.strMaxLen = strMaxLen;
+            spec.evalRule = evalRule;
+            
             specList.add(spec);
         }
 
@@ -383,6 +408,12 @@ public class FieldValidateTests extends BaseTest {
             this.mapBuilder = vb3;
             return this;
         }
+
+        public Val1 eval(ValidationRule rule) {
+            this.evalRule = rule;
+            return this;
+        }
+        
     }
     public static class ValidateBuilder {
         private List<Val1> list = new ArrayList<>();
@@ -458,6 +489,20 @@ public class FieldValidateTests extends BaseTest {
 
         public void setPoints(int points) {
             this.points = points;
+        }
+    }
+    public static class MyRule extends ValidationRuleBase {
+
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return true;
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            if (fieldValue.toString().equals("fail")) {
+                this.addValueError(res, spec, fieldValue, "abc");
+            }
         }
     }
 
@@ -684,6 +729,19 @@ public class FieldValidateTests extends BaseTest {
         res = runOK(vb, home);
     }
 
+    @Test
+    public void testEval() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().eval(new MyRule());
+
+        Home home = new Home();
+        home.setLastName("fail");
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "abc");
+
+        home.setLastName("Sue");
+        res = runOK(vb, home);
+    }
 
     //--
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
