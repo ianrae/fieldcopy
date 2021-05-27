@@ -16,9 +16,13 @@ import java.util.stream.Collectors;
 
 public class FieldValidateTests extends BaseTest {
 
+    public static class RuleContext {
+        public Object target;
+    }
+
     public interface ValidationRule {
         boolean canExecute(ValSpec spec);
-        void validate(ValSpec spec,  Object fieldValue, ValidationResults res);
+        void validate(ValSpec spec,  Object fieldValue, ValidationResults res, RuleContext ctx);
     }
     public static abstract class ValidationRuleBase implements ValidationRule {
 
@@ -26,7 +30,7 @@ public class FieldValidateTests extends BaseTest {
         public abstract boolean canExecute(ValSpec spec);
 
         @Override
-        public abstract void validate(ValSpec spec, Object fieldValue, ValidationResults res);
+        public abstract void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx);
 
         protected int compareStrValues(Object fieldValue, String el) {
             return fieldValue.toString().compareTo(el);
@@ -67,7 +71,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (compareValues(fieldValue, spec.minObj) < 0) {
                 String msg = String.format("min(%s) failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
                 addValueError(res, spec, fieldValue, msg);
@@ -81,7 +85,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (compareValues(fieldValue, spec.maxObj) > 0) {
                 String msg = String.format("max(%s) failed. actual value: %s", spec.maxObj.toString(), fieldValue.toString());
                 addValueError(res, spec, fieldValue, msg);
@@ -95,7 +99,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (compareValues(fieldValue, spec.minRangeObj) < 0) {
                 String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
                         fieldValue.toString());
@@ -114,7 +118,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             boolean found = false;
             for(Number el: spec.inList) {
                 if (compareValues(fieldValue, el) == 0) {
@@ -137,7 +141,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             boolean found = false;
             for(String el: spec.inStrList) {
                 if (compareStrValues(fieldValue, el) == 0) {
@@ -160,13 +164,17 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             int len = fieldValue.toString().length();
             if (len > spec.strMaxLen.intValue()) {
                 String msg = String.format("maxlen(%d) failed. actual value: %s", spec.strMaxLen, fieldValue.toString());
                 addValueError(res, spec, fieldValue, msg);
             }
         }
+    }
+
+    public interface RuleCondition {
+        String eval(Object fieldValue, RuleContext ctx);
     }
     public static class EvalRule extends ValidationRuleBase {
         @Override
@@ -175,8 +183,11 @@ public class FieldValidateTests extends BaseTest {
         }
 
         @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
-            spec.evalRule.validate(spec, fieldValue, res);
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            String errStr = spec.evalRule.eval(fieldValue, ctx);
+            if (errStr != null) {
+                this.addValueError(res, spec, fieldValue, errStr);
+            }
         }
     }
 
@@ -215,9 +226,11 @@ public class FieldValidateTests extends BaseTest {
                 addNotNullError(res, spec, msg);
             }
 
+            RuleContext ctx = new RuleContext();
+            ctx.target = target;
             for(ValidationRule rule: ruleList) {
                 if (rule.canExecute(spec)) {
-                    rule.validate(spec, fieldValue, res);
+                    rule.validate(spec, fieldValue, res, ctx);
                 }
             }
 
@@ -248,7 +261,7 @@ public class FieldValidateTests extends BaseTest {
         public List<Number> inList;
         public ArrayList<String> inStrList;
         public Integer strMaxLen;
-        public ValidationRule evalRule;
+        public RuleCondition evalRule;
 
 
         @Override
@@ -276,7 +289,7 @@ public class FieldValidateTests extends BaseTest {
         private List<Number> inList;
         private ArrayList<String> inStrList;
         private Integer strMaxLen;
-        private ValidationRule evalRule;
+        private RuleCondition evalRule;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -409,7 +422,7 @@ public class FieldValidateTests extends BaseTest {
             return this;
         }
 
-        public Val1 eval(ValidationRule rule) {
+        public Val1 eval(RuleCondition rule) {
             this.evalRule = rule;
             return this;
         }
@@ -491,18 +504,14 @@ public class FieldValidateTests extends BaseTest {
             this.points = points;
         }
     }
-    public static class MyRule extends ValidationRuleBase {
+    public static class MyRule implements RuleCondition {
 
         @Override
-        public boolean canExecute(ValSpec spec) {
-            return true;
-        }
-
-        @Override
-        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+        public String eval(Object fieldValue, RuleContext ctx) {
             if (fieldValue.toString().equals("fail")) {
-                this.addValueError(res, spec, fieldValue, "abc");
+                return "abc";
             }
+            return null;
         }
     }
 
