@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FieldValidateTests extends BaseTest {
     public static class FieldValidateException extends RuntimeException {
@@ -88,6 +89,22 @@ public class FieldValidateTests extends BaseTest {
                     addValueError(res, spec, fieldValue, msg);
                 }
             }
+            if (spec.inList != null) {
+                boolean found = false;
+                for(Number el: spec.inList) {
+                    if (compareValues(fieldValue, el) == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (! found) {
+                    String elStr = spec.inList.stream().map(Object::toString)
+                            .collect(Collectors.joining(","));
+                    String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
+                }
+            }
             return res;
         }
 
@@ -139,6 +156,7 @@ public class FieldValidateTests extends BaseTest {
         public FieldValidateTests.Val1 elementsVal;
         public ValidateBuilder subBuilder;
         public ValidateBuilder mapBuilder;
+        public List<Number> inList;
 
 
         @Override
@@ -163,6 +181,7 @@ public class FieldValidateTests extends BaseTest {
         private Val1 elementsVal;
         private ValidateBuilder subBuilder;
         private ValidateBuilder mapBuilder;
+        private List<Number> inList;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -188,6 +207,7 @@ public class FieldValidateTests extends BaseTest {
             spec.maxObj = maxObj;
             spec.minRangeObj = minRangeObj;
             spec.maxRangeObj = maxRangeObj;
+            spec.inList = inList;
             specList.add(spec);
         }
 
@@ -247,6 +267,30 @@ public class FieldValidateTests extends BaseTest {
             return this;
         }
         //in has above types and char,string
+        public Val1 in(int... vals) {
+            this.inList = new ArrayList<Number>();
+            for(int n: vals) {
+                Integer nval = Integer.valueOf(n);
+                inList.add(nval);
+            }
+            return this;
+        }
+        public Val1 in(long... vals) {
+            this.inList = new ArrayList<Number>();
+            for(long n: vals) {
+                Long nval = Long.valueOf(n);
+                inList.add(nval);
+            }
+            return this;
+        }
+        public Val1 in(double... vals) {
+            this.inList = new ArrayList<Number>();
+            for(double n: vals) {
+                Double nval = Double.valueOf(n);
+                inList.add(nval);
+            }
+            return this;
+        }
 
         public Val1 elements() {
             this.elementsVal = new Val1(fieldName, list, specList);
@@ -507,6 +551,32 @@ public class FieldValidateTests extends BaseTest {
         res = runOK(vb, home);
     }
 
+    @Test
+    public void testIn() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().in(3,4,5);
+
+        Home home = new Home();
+        home.setPoints(51);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "in(3,4,5)");
+
+        home.setPoints(5);
+        res = runOK(vb, home);
+    }
+    @Test
+    public void testInDouble() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("weight").notNull().in(3.1,4.2,5.3);
+
+        Home home = new Home();
+        home.setWeight(51.0);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "in(3.1,4.2,5.3)");
+
+        home.setWeight(3.1);
+        res = runOK(vb, home);
+    }
 
 
 
