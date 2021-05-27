@@ -97,7 +97,6 @@ public class FieldValidateTests extends BaseTest {
                         break;
                     }
                 }
-
                 if (! found) {
                     String elStr = spec.inList.stream().map(Object::toString)
                             .collect(Collectors.joining(","));
@@ -105,7 +104,26 @@ public class FieldValidateTests extends BaseTest {
                     addValueError(res, spec, fieldValue, msg);
                 }
             }
+            if (spec.inStrList != null) {
+                boolean found = false;
+                for(String el: spec.inStrList) {
+                    if (compareStrValues(fieldValue, el) == 0) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (! found) {
+                    String elStr = spec.inStrList.stream().map(Object::toString)
+                            .collect(Collectors.joining(","));
+                    String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
+                }
+            }
             return res;
+        }
+
+        private int compareStrValues(Object fieldValue, String el) {
+            return fieldValue.toString().compareTo(el);
         }
 
         private void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message) {
@@ -157,6 +175,7 @@ public class FieldValidateTests extends BaseTest {
         public ValidateBuilder subBuilder;
         public ValidateBuilder mapBuilder;
         public List<Number> inList;
+        public ArrayList<String> inStrList;
 
 
         @Override
@@ -182,6 +201,7 @@ public class FieldValidateTests extends BaseTest {
         private ValidateBuilder subBuilder;
         private ValidateBuilder mapBuilder;
         private List<Number> inList;
+        private ArrayList<String> inStrList;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -208,6 +228,7 @@ public class FieldValidateTests extends BaseTest {
             spec.minRangeObj = minRangeObj;
             spec.maxRangeObj = maxRangeObj;
             spec.inList = inList;
+            spec.inStrList = inStrList;
             specList.add(spec);
         }
 
@@ -288,6 +309,13 @@ public class FieldValidateTests extends BaseTest {
             for(double n: vals) {
                 Double nval = Double.valueOf(n);
                 inList.add(nval);
+            }
+            return this;
+        }
+        public Val1 in(String... vals) {
+            this.inStrList = new ArrayList<String>();
+            for(String s: vals) {
+                inStrList.add(s);
             }
             return this;
         }
@@ -575,6 +603,19 @@ public class FieldValidateTests extends BaseTest {
         chkValueErr(res, 0, "in(3.1,4.2,5.3)");
 
         home.setWeight(3.1);
+        res = runOK(vb, home);
+    }
+    @Test
+    public void testInString() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().in("Jones", "Smith");
+
+        Home home = new Home();
+        home.setLastName("Wilson");
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "in(Jones,Smith)");
+
+        home.setLastName("Smith");
         res = runOK(vb, home);
     }
 
