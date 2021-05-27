@@ -2,6 +2,7 @@ package org.dnal.fieldvalidate;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.dnal.fieldcopy.BaseTest;
 import org.junit.Test;
 
@@ -20,7 +21,23 @@ public class FieldValidateTests extends BaseTest {
             this.specList = specList;
         }
         public ValidationResults validate(Object target) {
+            ValidationResults res =  new ValidationResults();
+            for(ValSpec spec: specList) {
+                try {
+                    doValidate(target, spec, res);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             return new ValidationResults();
+        }
+
+        private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res) throws Exception {
+            Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
+            if (fieldValue == null && spec.isNotNull) {
+
+            }
+            return res;
         }
 
         public List<ValSpec> getSpecList() {
@@ -164,6 +181,7 @@ public class FieldValidateTests extends BaseTest {
 
 
     public static class Home {
+        private int points;
         private String[] names;
 
         public String[] getNames() {
@@ -174,6 +192,13 @@ public class FieldValidateTests extends BaseTest {
             this.names = names;
         }
 
+        public int getPoints() {
+            return points;
+        }
+
+        public void setPoints(int points) {
+            this.points = points;
+        }
     }
 
     @Test
@@ -208,7 +233,7 @@ public class FieldValidateTests extends BaseTest {
         vb.field("priceMap").notNull().mapField(vb3);
 
         Validator runner = vb.build(); //can cache this for perf
-        ValidationResults res = runner.validate(obj);
+//        ValidationResults res = runner.validate(obj);
     }
 
     @Test
@@ -233,6 +258,16 @@ public class FieldValidateTests extends BaseTest {
         s = list.get(1).toString();
         assertEquals("field2:notNull", s);
     }
+
+    @Test
+    public void testBeanUtils() throws Exception {
+        Home home = new Home();
+        home.setPoints(42);
+
+        Integer n = (Integer) PropertyUtils.getProperty(home, "points");
+        assertEquals(42, n.intValue());
+    }
+
 
     //--
 }
