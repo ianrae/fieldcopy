@@ -10,8 +10,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FieldValidateTests extends BaseTest {
-    public static class ValidationResults {
+    public enum ErrorType {
+        NOT_NULL,
+        VALUE
+    }
+    public static class FieldError {
+        public String fieldName;
+        public Object fieldValue;
+        public String errMsg;
+        public ErrorType errType;
 
+        public FieldError(String fieldName, Object fieldValue, ErrorType errType) {
+            this.fieldName = fieldName;
+            this.fieldValue = fieldValue;
+            this.errType = errType;
+        }
+    }
+    public static class ValidationResults {
+        public List<FieldError> errL = new ArrayList<>();
+
+        public boolean hasNoErrors() {
+            return errL.isEmpty();
+        }
     }
     public static class Validator {
         private final List<ValSpec> specList;
@@ -29,15 +49,27 @@ public class FieldValidateTests extends BaseTest {
                     e.printStackTrace();
                 }
             }
-            return new ValidationResults();
+            return res;
         }
 
         private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res) throws Exception {
             Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
             if (fieldValue == null && spec.isNotNull) {
-
+                FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
+                err.errMsg = String.format("field '%s': unexpected null value", spec.fieldName);
+                res.errL.add(err);
+            } else if (spec.minObj != null) {
+                if (compareValues(fieldValue, spec.minObj) < 0) {
+                    FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
+                    err.errMsg = String.format("field '%s': min(%s) value failed. actual value: %s", spec.fieldName, spec.minObj.toString(), fieldValue.toString());
+                    res.errL.add(err);
+                }
             }
             return res;
+        }
+
+        private int compareValues(Object fieldValue, Object minObj) {
+            return -1;
         }
 
         public List<ValSpec> getSpecList() {
@@ -183,6 +215,15 @@ public class FieldValidateTests extends BaseTest {
     public static class Home {
         private int points;
         private String[] names;
+        private String lastName;
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
 
         public String[] getNames() {
             return names;
@@ -266,6 +307,53 @@ public class FieldValidateTests extends BaseTest {
 
         Integer n = (Integer) PropertyUtils.getProperty(home, "points");
         assertEquals(42, n.intValue());
+    }
+
+    @Test
+    public void testRunnerOK() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull();
+        Validator runner = vb.build(); //can cache this for perf
+        List<ValSpec> list = runner.getSpecList();
+        assertEquals(1, list.size());
+
+        Home home = new Home();
+        home.setLastName("bob");
+        ValidationResults res = runner.validate(home);
+        assertEquals(true, res.hasNoErrors());
+    }
+    @Test
+    public void testRunnerValError() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull();
+        Validator runner = vb.build(); //can cache this for perf
+        List<ValSpec> list = runner.getSpecList();
+        assertEquals(1, list.size());
+
+        Home home = new Home();
+        ValidationResults res = runner.validate(home);
+        assertEquals(false, res.hasNoErrors());
+        assertEquals(1, res.errL.size());
+        FieldError err = res.errL.get(0);
+        assertEquals(ErrorType.NOT_NULL, err.errType);
+    }
+
+    @Test
+    public void testMin() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().min(50);
+        Validator runner = vb.build(); //can cache this for perf
+        List<ValSpec> list = runner.getSpecList();
+        assertEquals(1, list.size());
+
+        Home home = new Home();
+        home.setPoints(30);
+        ValidationResults res = runner.validate(home);
+        assertEquals(false, res.hasNoErrors());
+        assertEquals(1, res.errL.size());
+        FieldError err = res.errL.get(0);
+        assertEquals(ErrorType.VALUE, err.errType);
+        log(err.errMsg);
     }
 
 
