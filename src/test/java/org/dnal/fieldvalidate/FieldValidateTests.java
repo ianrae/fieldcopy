@@ -28,7 +28,7 @@ public class FieldValidateTests extends BaseTest {
         @Override
         public abstract void validate(ValSpec spec, Object fieldValue, ValidationResults res);
 
-        private int compareStrValues(Object fieldValue, String el) {
+        protected int compareStrValues(Object fieldValue, String el) {
             return fieldValue.toString().compareTo(el);
         }
 
@@ -107,6 +107,52 @@ public class FieldValidateTests extends BaseTest {
             }
         }
     }
+    public static class InNumericRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.inList != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            boolean found = false;
+            for(Number el: spec.inList) {
+                if (compareValues(fieldValue, el) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (! found) {
+                String elStr = spec.inList.stream().map(Object::toString)
+                        .collect(Collectors.joining(","));
+                String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
+    public static class InStringRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.inStrList != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res) {
+            boolean found = false;
+            for(String el: spec.inStrList) {
+                if (compareStrValues(fieldValue, el) == 0) {
+                    found = true;
+                    break;
+                }
+            }
+            if (! found) {
+                String elStr = spec.inStrList.stream().map(Object::toString)
+                        .collect(Collectors.joining(","));
+                String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
+                addValueError(res, spec, fieldValue, msg);
+            }
+        }
+    }
 
 
     public static class Validator {
@@ -118,6 +164,9 @@ public class FieldValidateTests extends BaseTest {
             this.specList = specList;
             this.ruleList.add(new MinRule());
             this.ruleList.add(new MaxRule());
+            this.ruleList.add(new RangeRule());
+            this.ruleList.add(new InNumericRule());
+            this.ruleList.add(new InStringRule());
         }
         public ValidationResults validate(Object target) {
             ValidationResults res =  new ValidationResults();
@@ -144,76 +193,13 @@ public class FieldValidateTests extends BaseTest {
                 }
             }
 
-            if (spec.minRangeObj != null && spec.maxRangeObj != null) {
-            }
-            if (spec.inList != null) {
-                boolean found = false;
-                for(Number el: spec.inList) {
-                    if (compareValues(fieldValue, el) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (! found) {
-                    String elStr = spec.inList.stream().map(Object::toString)
-                            .collect(Collectors.joining(","));
-                    String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
-                }
-            }
-            if (spec.inStrList != null) {
-                boolean found = false;
-                for(String el: spec.inStrList) {
-                    if (compareStrValues(fieldValue, el) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (! found) {
-                    String elStr = spec.inStrList.stream().map(Object::toString)
-                            .collect(Collectors.joining(","));
-                    String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
-                    addValueError(res, spec, fieldValue, msg);
-                }
-            }
             return res;
         }
 
-        private int compareStrValues(Object fieldValue, String el) {
-            return fieldValue.toString().compareTo(el);
-        }
-
-        private void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message) {
-            FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
-            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
-            res.errL.add(err);
-        }
         private void addNotNullError(ValidationResults res, ValSpec spec, String message) {
             FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
             err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
             res.errL.add(err);
-        }
-
-        private int compareValues(Object fieldValue, Object minObj) {
-            if (fieldValue instanceof Integer) {
-                Integer min = NumberUtils.asInt(minObj);
-                return ((Integer) fieldValue).compareTo(min);
-            }
-            if (fieldValue instanceof Long) {
-                Long min = NumberUtils.asLong(minObj);
-                return ((Long) fieldValue).compareTo(min);
-            }
-            if (fieldValue instanceof Float) {
-                Float min = NumberUtils.asFloat(minObj);
-                return ((Float) fieldValue).compareTo(min);
-            }
-            if (fieldValue instanceof Double) {
-                Double min = NumberUtils.asDouble(minObj);
-                return ((Double) fieldValue).compareTo(min);
-            }
-
-            throw new FieldValidateException("compareValues failed. unsupported type");
-//            return -1;
         }
 
         public List<ValSpec> getSpecList() {
