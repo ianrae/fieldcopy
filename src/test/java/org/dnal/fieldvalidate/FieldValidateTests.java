@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.dnal.fieldcopy.BaseTest;
+import org.dnal.fieldvalidate.code.NumberUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -85,17 +86,12 @@ public class FieldValidateTests extends BaseTest {
 
         private int compareValues(Object fieldValue, Object minObj) {
             if (fieldValue instanceof Integer) {
-                Integer min = getAsInt(minObj);
+                Integer min = NumberUtils.asInt(minObj);
                 return ((Integer) fieldValue).compareTo(min);
             }
 
             throw new FieldValidateException("compareValues failed. unsupported type");
 //            return -1;
-        }
-
-        private Integer getAsInt(Object minObj) {
-            Number num = (Number)minObj;
-            return num.intValue();
         }
 
         public List<ValSpec> getSpecList() {
@@ -368,20 +364,44 @@ public class FieldValidateTests extends BaseTest {
     public void testMin() {
         ValidateBuilder vb = new ValidateBuilder();
         vb.field("points").notNull().min(50);
-        Validator runner = vb.build(); //can cache this for perf
-        List<ValSpec> list = runner.getSpecList();
-        assertEquals(1, list.size());
 
         Home home = new Home();
         home.setPoints(30);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "min(50)");
+
+        home.setPoints(50);
+        res = runOK(vb, home);
+    }
+
+    private ValidationResults runOK(ValidateBuilder vb, Home home) {
+        Validator runner = vb.build();
         ValidationResults res = runner.validate(home);
+        assertEquals(true, res.hasNoErrors());
+        return res;
+    }
+
+    private ValidationResults runFail(ValidateBuilder vb, Home home, int size) {
+        Validator runner = vb.build();
+        ValidationResults res = runner.validate(home);
+        chkFail(res, size);
+        return res;
+    }
+
+    private void chkFail(ValidationResults res, int expected) {
         assertEquals(false, res.hasNoErrors());
-        assertEquals(1, res.errL.size());
-        FieldError err = res.errL.get(0);
-        assertEquals(ErrorType.VALUE, err.errType);
-        log(err.errMsg);
+        assertEquals(expected, res.errL.size());
+        for(FieldError err: res.errL) {
+            log(err.errMsg);
+        }
+    }
+    private void chkValueErr(ValidationResults res, int index, String expected) {
+        assertEquals(false, res.hasNoErrors());
+        FieldError err = res.errL.get(index);
+        assertEquals(true, err.errMsg.contains(expected));
     }
 
 
     //--
+
 }
