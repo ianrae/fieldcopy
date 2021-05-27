@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FieldValidateTests extends BaseTest {
+    public static class FieldValidateException extends RuntimeException {
+
+        public FieldValidateException(String message) {
+            super(message);
+        }
+    }
     public enum ErrorType {
         NOT_NULL,
         VALUE
@@ -55,21 +61,41 @@ public class FieldValidateTests extends BaseTest {
         private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res) throws Exception {
             Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
             if (fieldValue == null && spec.isNotNull) {
-                FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
-                err.errMsg = String.format("field '%s': unexpected null value", spec.fieldName);
-                res.errL.add(err);
+                String msg = String.format("unexpected null value");
+                addNotNullError(res, spec, msg);
             } else if (spec.minObj != null) {
                 if (compareValues(fieldValue, spec.minObj) < 0) {
-                    FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
-                    err.errMsg = String.format("field '%s': min(%s) value failed. actual value: %s", spec.fieldName, spec.minObj.toString(), fieldValue.toString());
-                    res.errL.add(err);
+                    String msg = String.format("min(%s) value failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
+                    addValueError(res, spec, fieldValue, msg);
                 }
             }
             return res;
         }
 
+        private void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message) {
+            FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
+            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
+            res.errL.add(err);
+        }
+        private void addNotNullError(ValidationResults res, ValSpec spec, String message) {
+            FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
+            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
+            res.errL.add(err);
+        }
+
         private int compareValues(Object fieldValue, Object minObj) {
-            return -1;
+            if (fieldValue instanceof Integer) {
+                Integer min = getAsInt(minObj);
+                return ((Integer) fieldValue).compareTo(min);
+            }
+
+            throw new FieldValidateException("compareValues failed. unsupported type");
+//            return -1;
+        }
+
+        private Integer getAsInt(Object minObj) {
+            Number num = (Number)minObj;
+            return num.intValue();
         }
 
         public List<ValSpec> getSpecList() {
