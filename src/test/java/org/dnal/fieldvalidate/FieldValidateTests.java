@@ -13,19 +13,45 @@ public class FieldValidateTests extends BaseTest {
 
     }
     public static class Validator {
+        private final List<ValSpec> specList;
         private Object target;
 
-        public Validator() {
-//            this.target = target;
+        public Validator(List<ValSpec> specList) {
+            this.specList = specList;
         }
         public ValidationResults validate(Object target) {
             return new ValidationResults();
         }
 
+        public List<ValSpec> getSpecList() {
+            return specList;
+        }
     }
+
+    public static class ValSpec {
+        public String fieldName;
+        public boolean isNotNull;
+        public Object minObj;
+        public Object maxObj;
+        public FieldValidateTests.Val1 elementsVal;
+        public ValidateBuilder subBuilder;
+        public ValidateBuilder mapBuilder;
+
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(fieldName);
+            sb.append(":");
+            sb.append(isNotNull ? "notNull" : "");
+            return sb.toString();
+        }
+    }
+
     public static class Val1 {
         private final String fieldName;
         private final List<Val1> list;
+        private final List<ValSpec> specList;
         private boolean isNotNull;
         private Object minObj;
         private Object maxObj;
@@ -33,15 +59,29 @@ public class FieldValidateTests extends BaseTest {
         private ValidateBuilder subBuilder;
         private ValidateBuilder mapBuilder;
 
-        public Val1(String fieldName, List<Val1> list) {
+        public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
             this.list = list;
+            this.specList = specList;
         }
 
-        public Val1 field(String fieldName) {
-            Val1 val1 = new Val1(fieldName, list);
-            list.add(val1);
-            return val1;
+//        public Val1 field(String fieldName) {
+//            buildAndAddSpec();
+//            Val1 val1 = new Val1(fieldName, list, specList);
+//            list.add(val1);
+//            return val1;
+//        }
+
+        void buildAndAddSpec() {
+            ValSpec spec = new ValSpec();
+            spec.elementsVal = elementsVal;
+            spec.fieldName = fieldName;
+            spec.mapBuilder = mapBuilder;
+            spec.isNotNull = isNotNull;
+            spec.subBuilder = subBuilder;
+            spec.minObj = minObj;
+            spec.maxObj = maxObj;
+            specList.add(spec);
         }
 
         public Val1 notNull() {
@@ -86,7 +126,7 @@ public class FieldValidateTests extends BaseTest {
         //in has above types and char,string
 
         public Val1 elements() {
-            this.elementsVal = new Val1(list);
+            this.elementsVal = new Val1(fieldName, list, specList);
             return elementsVal;
         }
         public Val1 subObj(ValidateBuilder subBuilder) {
@@ -101,15 +141,24 @@ public class FieldValidateTests extends BaseTest {
     }
     public static class ValidateBuilder {
         private List<Val1> list = new ArrayList<>();
+        private List<ValSpec> specList = new ArrayList<>();
 
         public Val1 field(String fieldName) {
-            Val1 val1 = new Val1(fieldName, list);
+            buildSpecForLastVal();
+            Val1 val1 = new Val1(fieldName, list, specList);
             list.add(val1);
             return val1;
         }
 
         public Validator build() {
-            return new Validator();
+            buildSpecForLastVal();
+            return new Validator(specList);
+        }
+        private void buildSpecForLastVal() {
+            if (!list.isEmpty()) {
+                Val1 val = list.get(list.size() - 1);
+                val.buildAndAddSpec();
+            }
         }
     }
 
@@ -137,7 +186,6 @@ public class FieldValidateTests extends BaseTest {
 //                .field("firstName").notNull()
 //                .run();
 
-
         //range(int,int), ...
         //min(int)..., max(...)
         //in(int,int,int...)
@@ -161,9 +209,30 @@ public class FieldValidateTests extends BaseTest {
 
         Validator runner = vb.build(); //can cache this for perf
         ValidationResults res = runner.validate(obj);
-
     }
 
+    @Test
+    public void testEmpty() {
+        ValidateBuilder vb = new ValidateBuilder();
+        Validator runner = vb.build(); //can cache this for perf
+        List<ValSpec> list = runner.getSpecList();
+        assertEquals(0, list.size());
+    }
+
+    @Test
+    public void test1() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("field1");
+        vb.field("field2").notNull();
+        Validator runner = vb.build(); //can cache this for perf
+        List<ValSpec> list = runner.getSpecList();
+        assertEquals(2, list.size());
+
+        String s = list.get(0).toString();
+        assertEquals("field1:", s);
+        s = list.get(1).toString();
+        assertEquals("field2:notNull", s);
+    }
 
     //--
 }
