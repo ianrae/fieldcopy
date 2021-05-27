@@ -107,6 +107,18 @@ public class FieldValidateTests extends BaseTest {
                 Integer min = NumberUtils.asInt(minObj);
                 return ((Integer) fieldValue).compareTo(min);
             }
+            if (fieldValue instanceof Long) {
+                Long min = NumberUtils.asLong(minObj);
+                return ((Long) fieldValue).compareTo(min);
+            }
+            if (fieldValue instanceof Float) {
+                Float min = NumberUtils.asFloat(minObj);
+                return ((Float) fieldValue).compareTo(min);
+            }
+            if (fieldValue instanceof Double) {
+                Double min = NumberUtils.asDouble(minObj);
+                return ((Double) fieldValue).compareTo(min);
+            }
 
             throw new FieldValidateException("compareValues failed. unsupported type");
 //            return -1;
@@ -281,6 +293,25 @@ public class FieldValidateTests extends BaseTest {
         private int points;
         private String[] names;
         private String lastName;
+        private long id;
+        private double weight;
+
+
+        public double getWeight() {
+            return weight;
+        }
+
+        public void setWeight(double weight) {
+            this.weight = weight;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
 
         public String getLastName() {
             return lastName;
@@ -416,6 +447,33 @@ public class FieldValidateTests extends BaseTest {
         home.setPoints(50);
         res = runOK(vb, home);
     }
+    @Test
+    public void testMinLong() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("id").notNull().min(50);
+
+        Home home = new Home();
+        home.setId(30);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "min(50)");
+
+        home.setId(50);
+        res = runOK(vb, home);
+    }
+    @Test
+    public void testMinDouble() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("weight").notNull().min(50.0);
+
+        Home home = new Home();
+        home.setWeight(30.0);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "min(50.0)");
+
+        home.setWeight(50.0);
+        res = runOK(vb, home);
+    }
+
     @Test
     public void testMax() {
         ValidateBuilder vb = new ValidateBuilder();
