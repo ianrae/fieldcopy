@@ -206,6 +206,18 @@ public class FieldValidateTests extends BaseTest {
             this.ruleList.add(new InStringRule());
             this.ruleList.add(new MaxLenRule());
             this.ruleList.add(new EvalRule());
+
+            //set spec.runner
+            for(ValSpec spec: specList) {
+                if (spec.runner != null) {
+                    continue;
+                }
+                for(ValidationRule rule: ruleList) {
+                    if (rule.canExecute(spec)) {
+                        spec.runner = rule;
+                    }
+                }
+            }
         }
         public ValidationResults validate(Object target) {
             ValidationResults res =  new ValidationResults();
@@ -225,14 +237,18 @@ public class FieldValidateTests extends BaseTest {
                 String msg = String.format("unexpected null value");
                 addNotNullError(res, spec, msg);
             }
+            if (spec.isNotNull) {
+                return res;
+            }
 
             RuleContext ctx = new RuleContext();
             ctx.target = target;
-            for(ValidationRule rule: ruleList) {
-                if (rule.canExecute(spec)) {
-                    rule.validate(spec, fieldValue, res, ctx);
-                }
-            }
+//            for(ValidationRule rule: ruleList) {
+//                if (rule.canExecute(spec)) {
+//                    rule.validate(spec, fieldValue, res, ctx);
+//                }
+//            }
+            spec.runner.validate(spec, fieldValue, res, ctx);
 
             return res;
         }
@@ -262,7 +278,7 @@ public class FieldValidateTests extends BaseTest {
         public ArrayList<String> inStrList;
         public Integer strMaxLen;
         public RuleCondition evalRule;
-
+        public ValidationRule runner; //set by Validator
 
         @Override
         public String toString() {
