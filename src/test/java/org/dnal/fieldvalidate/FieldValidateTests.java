@@ -217,6 +217,7 @@ public class FieldValidateTests extends BaseTest {
                         spec.runner = rule;
                     }
                 }
+                //Note. if spec only has isNotNull then runner will be null. which is ok.
             }
         }
         public ValidationResults validate(Object target) {
@@ -237,9 +238,6 @@ public class FieldValidateTests extends BaseTest {
                 String msg = String.format("unexpected null value");
                 addNotNullError(res, spec, msg);
             }
-            if (spec.isNotNull) {
-                return res;
-            }
 
             RuleContext ctx = new RuleContext();
             ctx.target = target;
@@ -248,7 +246,10 @@ public class FieldValidateTests extends BaseTest {
 //                    rule.validate(spec, fieldValue, res, ctx);
 //                }
 //            }
-            spec.runner.validate(spec, fieldValue, res, ctx);
+            //if only isNotNull then will be no runner
+            if (spec.runner != null) {
+                spec.runner.validate(spec, fieldValue, res, ctx);
+            }
 
             return res;
         }
