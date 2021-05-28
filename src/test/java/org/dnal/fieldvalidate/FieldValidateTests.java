@@ -751,6 +751,23 @@ public class FieldValidateTests extends BaseTest {
         home.setLastName("Sue");
         res = runOK(vb, home);
     }
+    @Test
+    public void testEvalLambda() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().eval((Object fieldValue, RuleContext ctx) -> {
+            if (fieldValue.toString().equals("fail")) {
+                return "abc";
+            } else return null;
+        });
+
+        Home home = new Home();
+        home.setLastName("fail");
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "abc");
+
+        home.setLastName("Sue");
+        res = runOK(vb, home);
+    }
 
     //--
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
