@@ -247,7 +247,7 @@ public class FieldValidateTests extends BaseTest {
 //                }
 //            }
             //if only isNotNull then will be no runner
-            if (spec.runner != null) {
+            if (fieldValue != null && spec.runner != null) {
                 spec.runner.validate(spec, fieldValue, res, ctx);
             }
 
@@ -478,14 +478,14 @@ public class FieldValidateTests extends BaseTest {
         private String[] names;
         private String lastName;
         private long id;
-        private double weight;
+        private Double weight;
 
 
-        public double getWeight() {
+        public Double getWeight() {
             return weight;
         }
 
-        public void setWeight(double weight) {
+        public void setWeight(Double weight) {
             this.weight = weight;
         }
 
@@ -785,6 +785,25 @@ public class FieldValidateTests extends BaseTest {
         home.setLastName("Sue");
         res = runOK(vb, home);
     }
+
+    @Test
+    public void testMulti() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().maxlen(4);
+        vb.field("points").notNull().max(100);
+        vb.field("weight").max(50.0);
+
+        Home home = new Home();
+        home.setLastName("Wilson");
+        home.setPoints(101);
+        ValidationResults res = runFail(vb, home, 2);
+        chkValueErr(res, 0, "maxlen(4)");
+        chkValueErr(res, 1, "max(100)");
+
+//        home.setLastName("Sue");
+//        res = runOK(vb, home);
+    }
+
 
     //--
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
