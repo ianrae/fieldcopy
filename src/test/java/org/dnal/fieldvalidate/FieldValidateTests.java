@@ -183,6 +183,26 @@ public class FieldValidateTests extends BaseTest {
             }
         }
     }
+    public static class SubObjRule extends ValidationRuleBase {
+        private Validator subValidator;
+
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            if (spec.subBuilder != null && subValidator == null) {
+                subValidator = spec.subBuilder.build();
+            }
+            return (spec.subBuilder != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            ValidationResults innerRes = subValidator.validate(fieldValue);
+
+            if (! innerRes.hasNoErrors()) {
+                res.errL.addAll(innerRes.errL);
+            }
+        }
+    }
 
     public interface RuleCondition {
         String eval(Object fieldValue, RuleContext ctx);
@@ -217,6 +237,7 @@ public class FieldValidateTests extends BaseTest {
             this.ruleList.add(new InStringRule());
             this.ruleList.add(new MaxLenRule());
             this.ruleList.add(new EvalRule());
+            this.ruleList.add(new SubObjRule());
 
             //set spec.runner
             for(ValSpec spec: specList) {
@@ -484,14 +505,41 @@ public class FieldValidateTests extends BaseTest {
         }
     }
 
+    public static class Address {
+        private String street;
+        private String city;
 
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public String getStreet() {
+            return street;
+        }
+
+        public void setStreet(String street) {
+            this.street = street;
+        }
+    }
     public static class Home {
         private int points;
         private String[] names;
         private String lastName;
         private long id;
         private Double weight;
+        private Address addr;
 
+        public Address getAddr() {
+            return addr;
+        }
+
+        public void setAddr(Address addr) {
+            this.addr = addr;
+        }
 
         public Double getWeight() {
             return weight;
@@ -826,6 +874,29 @@ public class FieldValidateTests extends BaseTest {
         assertEquals("maxlen", rule.getName());
     }
 
+    @Test
+    public void testSubObj() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().maxlen(4);
+        vb.field("points").notNull().max(100);
+
+        ValidateBuilder vb2 = new ValidateBuilder();
+        vb2.field("city").notNull().maxlen(4);
+        vb.field("addr").subObj(vb2);
+
+        Home home = new Home();
+        home.setLastName("Wilson");
+        home.setPoints(100);
+
+        Address addr = new Address();
+        addr.setCity("ottawa");
+        addr.setStreet("main");
+        home.setAddr(addr);
+
+        ValidationResults res = runFail(vb, home, 2);
+        chkValueErr(res, 0, "maxlen(4)");
+        chkValueErr(res, 1, "field 'city': maxlen(4)");
+    }
 
     //--
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
