@@ -211,6 +211,33 @@ public class FieldValidateTests extends BaseTest {
             }
         }
     }
+    public static class ElementsRule extends ValidationRuleBase {
+        private Validator subValidator;
+
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.elementsVal != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            if (spec.elementsVal != null && subValidator == null) {
+                spec.elementsVal.buildAndAddSpec();
+                this.subValidator = new Validator(spec.elementsVal.specList);
+            }
+
+            List<?> lll = (List<?>) fieldValue;
+            for(Object el: lll) {
+//                ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target);
+                ValidationResults innerRes = subValidator.validate(ctx.target, ctx.target);
+
+                if (! innerRes.hasNoErrors()) {
+                    res.errL.addAll(innerRes.errL);
+                }
+
+            }
+        }
+    }
 
     public interface RuleCondition {
         String eval(Object fieldValue, RuleContext ctx);
@@ -250,6 +277,7 @@ public class FieldValidateTests extends BaseTest {
             this.ruleList.add(new MaxLenRule());
             this.ruleList.add(new EvalRule());
             this.ruleList.add(new SubObjRule());
+            this.ruleList.add(new ElementsRule());
 
             //set spec.runner
             for(ValSpec spec: specList) {
@@ -307,7 +335,14 @@ public class FieldValidateTests extends BaseTest {
         }
 
         private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res, Object rootTarget) throws Exception {
-            Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
+            Object fieldValue;
+            if (spec.fieldName.startsWith("$")) {
+                String s = String.format("zones[0]", spec.fieldName);
+                fieldValue = PropertyUtils.getProperty(target, s);
+            } else {
+                 fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
+            }
+
             if (fieldValue == null && spec.isNotNull) {
                 String msg = String.format("unexpected null value");
                 addNotNullError(res, spec, msg, target, rootTarget);
@@ -377,7 +412,7 @@ public class FieldValidateTests extends BaseTest {
     public static class Val1 {
         private final String fieldName;
         private final List<Val1> list;
-        private final List<ValSpec> specList;
+        final List<ValSpec> specList;
         private boolean isNotNull;
         private Object minObj;
         private Object maxObj;
@@ -510,7 +545,7 @@ public class FieldValidateTests extends BaseTest {
 
         //TODO: implement a runner for this
         public Val1 elements() {
-            this.elementsVal = new Val1(fieldName, list, specList);
+            this.elementsVal = new Val1("$LIST", list, new ArrayList<>());
             return elementsVal;
         }
         public Val1 subObj(ValidateBuilder subBuilder) {
@@ -584,6 +619,7 @@ public class FieldValidateTests extends BaseTest {
         private long id;
         private Double weight;
         private Address addr;
+        private List<Integer> zones = new ArrayList<>();
 
         public Address getAddr() {
             return addr;
@@ -632,6 +668,15 @@ public class FieldValidateTests extends BaseTest {
         public void setPoints(int points) {
             this.points = points;
         }
+        public List<Integer> getZones() {
+            return zones;
+        }
+
+        public void setZones(List<Integer> zones) {
+            this.zones = zones;
+        }
+
+
     }
     public static class MyRule implements RuleCondition {
 
@@ -993,6 +1038,21 @@ public class FieldValidateTests extends BaseTest {
         ValidationResults res = runFail(vb, home, 2);
         chkValueErr(res, 0, "maxlen(4)");
         chkValueErr(res, 1, "not exceed 4");
+    }
+
+
+    @Test
+    public void testList() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("zones").notNull().elements().max(100);
+
+        Home home = new Home();
+        home.getZones().add(10);
+        home.getZones().add(102);
+
+        ValidationResults res = runFail(vb, home, 2);
+        chkValueErr(res, 0, "maxlen(4)");
+        chkValueErr(res, 1, "field 'city': maxlen(4)");
     }
 
     //--
