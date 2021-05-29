@@ -57,7 +57,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
-            String targetClass = FieldError.buildTargetPath(ctx.root, ctx.target);
+            String targetClass = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName);
             FieldError err = new FieldError(targetClass, spec.fieldName, fieldValue, ErrorType.VALUE);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
@@ -317,7 +317,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget) {
-            String targetClass = FieldError.buildTargetPath(rootTarget, target);
+            String targetClass = FieldError.buildTargetPath(rootTarget, target, spec.fieldName);
             FieldError err = new FieldError(targetClass, spec.fieldName, null, ErrorType.NOT_NULL);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);

@@ -14,11 +14,11 @@ public class FieldError {
         this.errType = errType;
     }
 
-    public static String buildTargetPath(Object root, Object target) {
+    public static String buildTargetPath(Object root, Object target, String fieldName) {
         String targetClass = target.getClass().getSimpleName();
         if (root != null && target != root) {
             String rootClass = root.getClass().getSimpleName();
-            targetClass = String.format("%s.%s", rootClass, targetClass);
+            targetClass = String.format("%s.%s(%s)", rootClass, fieldName, targetClass);
         }
         return targetClass;
     }
