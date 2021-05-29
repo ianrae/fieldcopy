@@ -58,7 +58,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
-            FieldError err = new FieldError(ctx.target.getClass().getSimpleName(), spec.fieldName, fieldValue, ErrorType.VALUE);
+            FieldError err = new FieldError(ctx.target.getClass().getSimpleName(), spec.fieldName, ctx.index, fieldValue, ErrorType.VALUE);
             err.fullTargetPath = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName, ctx.index);
             err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
             res.errL.add(err);
@@ -240,10 +240,23 @@ public class FieldValidateTests extends BaseTest {
         }
     }
 
-    public interface RuleCondition {
+    public interface RuleLambda {
         String eval(Object fieldValue, RuleContext ctx);
     }
+    public interface RuleCondition extends RuleLambda {
+        String getName();
+    }
     public static class EvalRule extends ValidationRuleBase {
+        private RuleLambda evalRule;
+
+        @Override
+        public String getName() {
+            if (evalRule instanceof RuleCondition) {
+                return ((RuleCondition) evalRule).getName();
+            }
+            return super.getName();
+        }
+
         @Override
         public boolean canExecute(ValSpec spec) {
             return (spec.evalRule != null);
@@ -251,6 +264,8 @@ public class FieldValidateTests extends BaseTest {
 
         @Override
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            this.evalRule = spec.evalRule; //for getName
+
             String errStr = spec.evalRule.eval(fieldValue, ctx);
             if (errStr != null) {
                 this.addValueError(res, spec, fieldValue, errStr, ctx);
@@ -366,7 +381,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget, Integer index) {
-            FieldError err = new FieldError(target.getClass().getSimpleName(), spec.fieldName, null, ErrorType.NOT_NULL);
+            FieldError err = new FieldError(target.getClass().getSimpleName(), spec.fieldName, index,null, ErrorType.NOT_NULL);
             err.fullTargetPath = FieldError.buildTargetPath(rootTarget, target, spec.fieldName, index);
             err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
             res.errL.add(err);
@@ -397,7 +412,7 @@ public class FieldValidateTests extends BaseTest {
         public List<Number> inList;
         public ArrayList<String> inStrList;
         public Integer strMaxLen;
-        public RuleCondition evalRule;
+        public RuleLambda evalRule;
         public ValidationRule runner; //set by Validator
 
         @Override
@@ -425,7 +440,7 @@ public class FieldValidateTests extends BaseTest {
         private List<Number> inList;
         private ArrayList<String> inStrList;
         private Integer strMaxLen;
-        private RuleCondition evalRule;
+        private RuleLambda evalRule;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -560,11 +575,15 @@ public class FieldValidateTests extends BaseTest {
             return this;
         }
 
-        public Val1 eval(RuleCondition rule) {
+        public Val1 eval(RuleLambda rule) {
             this.evalRule = rule;
             return this;
         }
-        
+//        public Val1 eval(RuleLambda rule) {
+//            this.evalRule = rule;
+//            return this;
+//        }
+
     }
     public static class ValidateBuilder {
         private List<Val1> list = new ArrayList<>();
@@ -680,6 +699,11 @@ public class FieldValidateTests extends BaseTest {
 
     }
     public static class MyRule implements RuleCondition {
+
+        @Override
+        public String getName() {
+            return "myrule";
+        }
 
         @Override
         public String eval(Object fieldValue, RuleContext ctx) {
@@ -1013,7 +1037,7 @@ public class FieldValidateTests extends BaseTest {
 
         ValidationResults res = runFail(vb, home, 2);
         chkValueErr(res, 0, "maxlen(4)");
-        chkValueErr(res, 1, "field 'city': maxlen(4)");
+        chkValueErr(res, 1, "maxlen(4)");
     }
 
     @Test

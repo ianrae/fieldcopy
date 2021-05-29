@@ -4,13 +4,15 @@ public class FieldError {
     public String fullTargetPath;
     public String targetClassName;
     public String fieldName;
+    public Integer index;
     public Object fieldValue;
     public String errMsg;
     public ErrorType errType;
 
-    public FieldError(String targetClassName, String fieldName, Object fieldValue, ErrorType errType) {
+    public FieldError(String targetClassName, String fieldName, Integer index, Object fieldValue, ErrorType errType) {
         this.targetClassName = targetClassName;
         this.fieldName = fieldName;
+        this.index = index;
         this.fieldValue = fieldValue;
         this.errType = errType;
     }
