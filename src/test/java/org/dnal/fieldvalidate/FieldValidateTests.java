@@ -16,6 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * TODO
+ * -custom error message. can set on per use basis
+ * -custom rule such as emailRule
+ * -enum (from string)
+ */
+
 public class FieldValidateTests extends BaseTest {
 
     public static class RuleContext {
@@ -70,9 +77,7 @@ public class FieldValidateTests extends BaseTest {
                 Double min = NumberUtils.asDouble(minObj);
                 return ((Double) fieldValue).compareTo(min);
             }
-
             throw new FieldValidateException("compareValues failed. unsupported type");
-//            return -1;
         }
 
     }
@@ -247,7 +252,7 @@ public class FieldValidateTests extends BaseTest {
                 }
                 for(ValidationRule rule: ruleList) {
                     if (rule.canExecute(spec)) {
-                        spec.runner = createNewInstance(rule);
+                        spec.runner = createNewInstance(rule); //each spec needs its own rule instance
                         break;
                     }
                 }
@@ -476,6 +481,7 @@ public class FieldValidateTests extends BaseTest {
             return this;
         }
 
+        //TODO: implement a runner for this
         public Val1 elements() {
             this.elementsVal = new Val1(fieldName, list, specList);
             return elementsVal;
@@ -485,6 +491,7 @@ public class FieldValidateTests extends BaseTest {
             return this;
         }
 
+        //TODO: implement a runner for this
         public Val1 mapField(ValidateBuilder vb3) {
             this.mapBuilder = vb3;
             return this;
