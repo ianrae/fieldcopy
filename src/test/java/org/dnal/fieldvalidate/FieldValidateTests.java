@@ -11,6 +11,7 @@ import org.dnal.fieldvalidate.code.FieldValidateException;
 import org.dnal.fieldvalidate.code.NumberUtils;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -188,14 +189,14 @@ public class FieldValidateTests extends BaseTest {
 
         @Override
         public boolean canExecute(ValSpec spec) {
-            if (spec.subBuilder != null && subValidator == null) {
-                subValidator = spec.subBuilder.build();
-            }
             return (spec.subBuilder != null);
         }
 
         @Override
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            if (spec.subBuilder != null && subValidator == null) {
+                subValidator = spec.subBuilder.build();
+            }
             ValidationResults innerRes = subValidator.validate(fieldValue);
 
             if (! innerRes.hasNoErrors()) {
@@ -246,13 +247,30 @@ public class FieldValidateTests extends BaseTest {
                 }
                 for(ValidationRule rule: ruleList) {
                     if (rule.canExecute(spec)) {
-                        spec.runner = rule;
+                        spec.runner = createNewInstance(rule);
                         break;
                     }
                 }
                 //Note. if spec only has isNotNull then runner will be null. which is ok.
             }
         }
+
+        private ValidationRule createNewInstance(ValidationRule rule) {
+            ValidationRule copy = null;
+            try {
+                copy = rule.getClass().getDeclaredConstructor().newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return copy;
+        }
+
         public ValidationResults validate(Object target) {
             ValidationResults res =  new ValidationResults();
             for(ValSpec spec: specList) {
