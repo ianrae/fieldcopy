@@ -3,6 +3,7 @@ package org.dnal.fieldvalidate;
 import static org.junit.Assert.assertEquals;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldvalidate.code.ErrorType;
 import org.dnal.fieldvalidate.code.FieldError;
@@ -23,8 +24,18 @@ public class FieldValidateTests extends BaseTest {
     public interface ValidationRule {
         boolean canExecute(ValSpec spec);
         void validate(ValSpec spec,  Object fieldValue, ValidationResults res, RuleContext ctx);
+        String getName();
     }
     public static abstract class ValidationRuleBase implements ValidationRule {
+
+        @Override
+        public String getName() {
+            String name = this.getClass().getSimpleName();
+            if (name.endsWith("Rule")) {
+                name = StringUtils.substringBeforeLast(name, "Rule");
+            }
+            return name.toLowerCase();
+        }
 
         @Override
         public abstract boolean canExecute(ValSpec spec);
@@ -215,6 +226,7 @@ public class FieldValidateTests extends BaseTest {
                 for(ValidationRule rule: ruleList) {
                     if (rule.canExecute(spec)) {
                         spec.runner = rule;
+                        break;
                     }
                 }
                 //Note. if spec only has isNotNull then runner will be null. which is ok.
@@ -802,6 +814,16 @@ public class FieldValidateTests extends BaseTest {
 
 //        home.setLastName("Sue");
 //        res = runOK(vb, home);
+    }
+
+    @Test
+    public void testName() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().maxlen(4);
+
+        Validator runner = vb.build();
+        ValidationRule rule = runner.specList.get(0).runner;
+        assertEquals("maxlen", rule.getName());
     }
 
 
