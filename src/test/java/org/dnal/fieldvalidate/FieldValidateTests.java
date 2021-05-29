@@ -55,9 +55,10 @@ public class FieldValidateTests extends BaseTest {
             return fieldValue.toString().compareTo(el);
         }
 
-        protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message) {
+        protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
             FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
-            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
+            String targetClass = ctx.target.getClass().getSimpleName();
+            err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
         }
         protected int compareValues(Object fieldValue, Object minObj) {
@@ -91,7 +92,7 @@ public class FieldValidateTests extends BaseTest {
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (compareValues(fieldValue, spec.minObj) < 0) {
                 String msg = String.format("min(%s) failed. actual value: %s", spec.minObj.toString(), fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -105,7 +106,7 @@ public class FieldValidateTests extends BaseTest {
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (compareValues(fieldValue, spec.maxObj) > 0) {
                 String msg = String.format("max(%s) failed. actual value: %s", spec.maxObj.toString(), fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -120,11 +121,11 @@ public class FieldValidateTests extends BaseTest {
             if (compareValues(fieldValue, spec.minRangeObj) < 0) {
                 String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
                         fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             } else if (compareValues(fieldValue, spec.maxRangeObj) > 0) {
                 String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
                         fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -147,7 +148,7 @@ public class FieldValidateTests extends BaseTest {
                 String elStr = spec.inList.stream().map(Object::toString)
                         .collect(Collectors.joining(","));
                 String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -170,7 +171,7 @@ public class FieldValidateTests extends BaseTest {
                 String elStr = spec.inStrList.stream().map(Object::toString)
                         .collect(Collectors.joining(","));
                 String msg = String.format("in(%s) failed. actual value: %s", elStr, fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -185,7 +186,7 @@ public class FieldValidateTests extends BaseTest {
             int len = fieldValue.toString().length();
             if (len > spec.strMaxLen.intValue()) {
                 String msg = String.format("maxlen(%d) failed. actual value: %s", spec.strMaxLen, fieldValue.toString());
-                addValueError(res, spec, fieldValue, msg);
+                addValueError(res, spec, fieldValue, msg, ctx);
             }
         }
     }
@@ -223,7 +224,7 @@ public class FieldValidateTests extends BaseTest {
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             String errStr = spec.evalRule.eval(fieldValue, ctx);
             if (errStr != null) {
-                this.addValueError(res, spec, fieldValue, errStr);
+                this.addValueError(res, spec, fieldValue, errStr, ctx);
             }
         }
     }
@@ -292,7 +293,7 @@ public class FieldValidateTests extends BaseTest {
             Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
             if (fieldValue == null && spec.isNotNull) {
                 String msg = String.format("unexpected null value");
-                addNotNullError(res, spec, msg);
+                addNotNullError(res, spec, msg, target);
             }
 
             RuleContext ctx = new RuleContext();
@@ -310,9 +311,10 @@ public class FieldValidateTests extends BaseTest {
             return res;
         }
 
-        private void addNotNullError(ValidationResults res, ValSpec spec, String message) {
+        private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target) {
             FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
-            err.errMsg = String.format("field '%s': %s", spec.fieldName, message);
+            String targetClass = target.getClass().getSimpleName();
+            err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
         }
 
@@ -713,6 +715,15 @@ public class FieldValidateTests extends BaseTest {
         assertEquals(ErrorType.NOT_NULL, err.errType);
     }
 
+    @Test
+    public void testNotNull() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull();
+
+        Home home = new Home();
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "unexpected null value");
+    }
     @Test
     public void testMin() {
         ValidateBuilder vb = new ValidateBuilder();
