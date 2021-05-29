@@ -1,6 +1,7 @@
 package org.dnal.fieldvalidate.code;
 
 public class FieldError {
+    public String fullTargetPath;
     public String targetClassName;
     public String fieldName;
     public Object fieldValue;

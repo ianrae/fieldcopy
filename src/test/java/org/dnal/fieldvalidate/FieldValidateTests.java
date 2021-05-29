@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  * TODO
- * -custom error message. can set on per use basis
+ * DONE -custom error message. can set on per use basis
  * -custom rule such as emailRule
  * -enum (from string)
  */
@@ -57,9 +57,9 @@ public class FieldValidateTests extends BaseTest {
         }
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
-            String targetClass = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName);
-            FieldError err = new FieldError(targetClass, spec.fieldName, fieldValue, ErrorType.VALUE);
-            err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
+            FieldError err = new FieldError(ctx.target.getClass().getSimpleName(), spec.fieldName, fieldValue, ErrorType.VALUE);
+            err.fullTargetPath = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName);
+            err.errMsg = String.format("%s: field '%s': %s", err.fullTargetPath, spec.fieldName, message);
             res.errL.add(err);
         }
         protected int compareValues(Object fieldValue, Object minObj) {
@@ -230,11 +230,15 @@ public class FieldValidateTests extends BaseTest {
         }
     }
 
+    public interface CustomErrorMessageBuilder {
+        String buildMessage(FieldError err);
+    }
 
     public static class Validator {
         private final List<ValSpec> specList;
         private Object target;
         private List<ValidationRule> ruleList = new ArrayList<>();
+        private CustomErrorMessageBuilder customErrorMessageBuilder;
 
         public Validator(List<ValSpec> specList) {
             this.specList = specList;
@@ -290,6 +294,15 @@ public class FieldValidateTests extends BaseTest {
                     e.printStackTrace();
                 }
             }
+
+            if (customErrorMessageBuilder != null) {
+                for(FieldError err: res.errL) {
+                    String msg = customErrorMessageBuilder.buildMessage(err);
+                    err.errMsg = msg;
+                }
+            }
+
+
             return res;
         }
 
@@ -317,14 +330,21 @@ public class FieldValidateTests extends BaseTest {
         }
 
         private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget) {
-            String targetClass = FieldError.buildTargetPath(rootTarget, target, spec.fieldName);
-            FieldError err = new FieldError(targetClass, spec.fieldName, null, ErrorType.NOT_NULL);
-            err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
+            FieldError err = new FieldError(target.getClass().getSimpleName(), spec.fieldName, null, ErrorType.NOT_NULL);
+            err.fullTargetPath = FieldError.buildTargetPath(rootTarget, target, spec.fieldName);
+            err.errMsg = String.format("%s: field '%s': %s", err.fullTargetPath, spec.fieldName, message);
             res.errL.add(err);
         }
 
         public List<ValSpec> getSpecList() {
             return specList;
+        }
+
+        public CustomErrorMessageBuilder getCustomErrorMessageBuilder() {
+            return customErrorMessageBuilder;
+        }
+        public void setCustomErrorMessageBuilder(CustomErrorMessageBuilder customErrorMessageBuilder) {
+            this.customErrorMessageBuilder = customErrorMessageBuilder;
         }
     }
 
@@ -915,6 +935,17 @@ public class FieldValidateTests extends BaseTest {
         assertEquals("maxlen", rule.getName());
     }
 
+    public static class MyCustomMsgBuilder implements  CustomErrorMessageBuilder {
+
+        @Override
+        public String buildMessage(FieldError err) {
+            if (err.targetClassName.equals("Address") && err.fieldName.equals("city")) {
+                return "Address.city must not exceed 4 chars";
+            }
+            return err.errMsg;
+        }
+    }
+
     @Test
     public void testSubObj() {
         ValidateBuilder vb = new ValidateBuilder();
@@ -939,9 +970,38 @@ public class FieldValidateTests extends BaseTest {
         chkValueErr(res, 1, "field 'city': maxlen(4)");
     }
 
+    @Test
+    public void testCustomErrorMessage() {
+        this.customMessageBuilder = new MyCustomMsgBuilder();
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().maxlen(4);
+        vb.field("points").notNull().max(100);
+
+        ValidateBuilder vb2 = new ValidateBuilder();
+        vb2.field("city").notNull().maxlen(4);
+        vb.field("addr").subObj(vb2);
+
+        Home home = new Home();
+        home.setLastName("Wilson");
+        home.setPoints(100);
+
+        Address addr = new Address();
+        addr.setCity("ottawa");
+        addr.setStreet("main");
+        home.setAddr(addr);
+
+        ValidationResults res = runFail(vb, home, 2);
+        chkValueErr(res, 0, "maxlen(4)");
+        chkValueErr(res, 1, "not exceed 4");
+    }
+
     //--
+    private CustomErrorMessageBuilder customMessageBuilder;
+
+
     private ValidationResults runOK(ValidateBuilder vb, Home home) {
         Validator runner = vb.build();
+        runner.setCustomErrorMessageBuilder(customMessageBuilder);
         ValidationResults res = runner.validate(home);
         assertEquals(true, res.hasNoErrors());
         return res;
@@ -949,6 +1009,7 @@ public class FieldValidateTests extends BaseTest {
 
     private ValidationResults runFail(ValidateBuilder vb, Home home, int size) {
         Validator runner = vb.build();
+        runner.setCustomErrorMessageBuilder(customMessageBuilder);
         ValidationResults res = runner.validate(home);
         chkFail(res, size);
         return res;
