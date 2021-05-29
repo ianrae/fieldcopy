@@ -15,12 +15,18 @@ public class FieldError {
         this.errType = errType;
     }
 
-    public static String buildTargetPath(Object root, Object target, String fieldName) {
-        String targetClass = target.getClass().getSimpleName();
+    public static String buildTargetPath(Object root, Object target, String fieldName, Integer index) {
+        String fullPath = target.getClass().getSimpleName();
+
         if (root != null && target != root) {
             String rootClass = root.getClass().getSimpleName();
-            targetClass = String.format("%s.%s(%s)", rootClass, fieldName, targetClass);
+            fullPath = String.format("%s.%s(%s)", rootClass, fieldName, fullPath);
         }
-        return targetClass;
+        if (index != null) {
+            fullPath = String.format("%s.%s[%d]", fullPath, fieldName, index);
+        } else {
+            fullPath = String.format("%s.%s", fullPath, fieldName);
+        }
+        return fullPath;
     }
 }

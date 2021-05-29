@@ -28,6 +28,7 @@ public class FieldValidateTests extends BaseTest {
     public static class RuleContext {
         public Object root; //if null then means same as target
         public Object target;
+        public Integer index;
     }
 
     public interface ValidationRule {
@@ -58,8 +59,8 @@ public class FieldValidateTests extends BaseTest {
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
             FieldError err = new FieldError(ctx.target.getClass().getSimpleName(), spec.fieldName, fieldValue, ErrorType.VALUE);
-            err.fullTargetPath = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName);
-            err.errMsg = String.format("%s: field '%s': %s", err.fullTargetPath, spec.fieldName, message);
+            err.fullTargetPath = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName, ctx.index);
+            err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
             res.errL.add(err);
         }
         protected int compareValues(Object fieldValue, Object minObj) {
@@ -204,7 +205,7 @@ public class FieldValidateTests extends BaseTest {
             if (spec.subBuilder != null && subValidator == null) {
                 subValidator = spec.subBuilder.build();
             }
-            ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target);
+            ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target, null);
 
             if (! innerRes.hasNoErrors()) {
                 res.errL.addAll(innerRes.errL);
@@ -226,10 +227,10 @@ public class FieldValidateTests extends BaseTest {
                 this.subValidator = new Validator(spec.elementsVal.specList);
             }
 
-            List<?> lll = (List<?>) fieldValue;
-            for(Object el: lll) {
+            List<?> lll = (List<?>) fieldValue; //TODO need to support all collections and arrays
+            for(int i = 0; i < lll.size(); i++) {
 //                ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target);
-                ValidationResults innerRes = subValidator.validate(ctx.target, ctx.target);
+                ValidationResults innerRes = subValidator.validate(ctx.target, ctx.target, i);
 
                 if (! innerRes.hasNoErrors()) {
                     res.errL.addAll(innerRes.errL);
@@ -311,13 +312,13 @@ public class FieldValidateTests extends BaseTest {
         }
 
         public ValidationResults validate(Object target) {
-            return validate(target, null);
+            return validate(target, null, null);
         }
-        public ValidationResults validate(Object target, Object rootTarget) {
+        public ValidationResults validate(Object target, Object rootTarget, Integer index) {
             ValidationResults res =  new ValidationResults();
             for(ValSpec spec: specList) {
                 try {
-                    doValidate(target, spec, res, rootTarget);
+                    doValidate(target, spec, res, rootTarget, index);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -330,14 +331,13 @@ public class FieldValidateTests extends BaseTest {
                 }
             }
 
-
             return res;
         }
 
-        private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res, Object rootTarget) throws Exception {
+        private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res, Object rootTarget, Integer index) throws Exception {
             Object fieldValue;
-            if (spec.fieldName.startsWith("$")) {
-                String s = String.format("zones[0]", spec.fieldName);
+            if (index != null) {
+                String s = String.format("%s[%d]", spec.fieldName, index.intValue());
                 fieldValue = PropertyUtils.getProperty(target, s);
             } else {
                  fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
@@ -345,12 +345,13 @@ public class FieldValidateTests extends BaseTest {
 
             if (fieldValue == null && spec.isNotNull) {
                 String msg = String.format("unexpected null value");
-                addNotNullError(res, spec, msg, target, rootTarget);
+                addNotNullError(res, spec, msg, target, rootTarget, index);
             }
 
             RuleContext ctx = new RuleContext();
             ctx.target = target;
             ctx.root = rootTarget;
+            ctx.index = index;
 //            for(ValidationRule rule: ruleList) {
 //                if (rule.canExecute(spec)) {
 //                    rule.validate(spec, fieldValue, res, ctx);
@@ -364,10 +365,10 @@ public class FieldValidateTests extends BaseTest {
             return res;
         }
 
-        private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget) {
+        private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget, Integer index) {
             FieldError err = new FieldError(target.getClass().getSimpleName(), spec.fieldName, null, ErrorType.NOT_NULL);
-            err.fullTargetPath = FieldError.buildTargetPath(rootTarget, target, spec.fieldName);
-            err.errMsg = String.format("%s: field '%s': %s", err.fullTargetPath, spec.fieldName, message);
+            err.fullTargetPath = FieldError.buildTargetPath(rootTarget, target, spec.fieldName, index);
+            err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
             res.errL.add(err);
         }
 
@@ -545,7 +546,7 @@ public class FieldValidateTests extends BaseTest {
 
         //TODO: implement a runner for this
         public Val1 elements() {
-            this.elementsVal = new Val1("$LIST", list, new ArrayList<>());
+            this.elementsVal = new Val1(fieldName, list, new ArrayList<>());
             return elementsVal;
         }
         public Val1 subObj(ValidateBuilder subBuilder) {
@@ -1050,9 +1051,8 @@ public class FieldValidateTests extends BaseTest {
         home.getZones().add(10);
         home.getZones().add(102);
 
-        ValidationResults res = runFail(vb, home, 2);
-        chkValueErr(res, 0, "maxlen(4)");
-        chkValueErr(res, 1, "field 'city': maxlen(4)");
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "max(100)");
     }
 
     //--
