@@ -13,13 +13,14 @@ import org.junit.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * TODO
  * DONE -custom error message. can set on per use basis
- * -custom rule such as emailRule
+ * DONE -custom rule such as emailRule
  * -enum (from string)
  */
 
@@ -227,15 +228,21 @@ public class FieldValidateTests extends BaseTest {
                 this.subValidator = new Validator(spec.elementsVal.specList);
             }
 
-            List<?> lll = (List<?>) fieldValue; //TODO need to support all collections and arrays
-            for(int i = 0; i < lll.size(); i++) {
-//                ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target);
+            //TODO need to support all collections and arrays
+            int size = -1;
+            if (fieldValue instanceof Collection) {
+                size = ((Collection<?>) fieldValue).size();
+            }
+            if (size < 0) {
+                throw new FieldValidateException(String.format("field: %s is not a Collection", spec.fieldName));
+            }
+
+            for(int i = 0; i < size; i++) {
                 ValidationResults innerRes = subValidator.validate(ctx.target, ctx.target, i);
 
                 if (! innerRes.hasNoErrors()) {
                     res.errL.addAll(innerRes.errL);
                 }
-
             }
         }
     }
