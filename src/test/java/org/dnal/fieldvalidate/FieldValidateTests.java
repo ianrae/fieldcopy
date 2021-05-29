@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class FieldValidateTests extends BaseTest {
 
     public static class RuleContext {
+        public Object root; //if null then means same as target
         public Object target;
     }
 
@@ -56,8 +57,8 @@ public class FieldValidateTests extends BaseTest {
         }
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
-            FieldError err = new FieldError(spec.fieldName, fieldValue, ErrorType.VALUE);
             String targetClass = ctx.target.getClass().getSimpleName();
+            FieldError err = new FieldError(targetClass, spec.fieldName, fieldValue, ErrorType.VALUE);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
         }
@@ -203,7 +204,7 @@ public class FieldValidateTests extends BaseTest {
             if (spec.subBuilder != null && subValidator == null) {
                 subValidator = spec.subBuilder.build();
             }
-            ValidationResults innerRes = subValidator.validate(fieldValue);
+            ValidationResults innerRes = subValidator.validate(fieldValue, ctx.root);
 
             if (! innerRes.hasNoErrors()) {
                 res.errL.addAll(innerRes.errL);
@@ -278,10 +279,13 @@ public class FieldValidateTests extends BaseTest {
         }
 
         public ValidationResults validate(Object target) {
+            return validate(target, null);
+        }
+        public ValidationResults validate(Object target, Object rootTarget) {
             ValidationResults res =  new ValidationResults();
             for(ValSpec spec: specList) {
                 try {
-                    doValidate(target, spec, res);
+                    doValidate(target, spec, res, rootTarget);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -289,15 +293,16 @@ public class FieldValidateTests extends BaseTest {
             return res;
         }
 
-        private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res) throws Exception {
+        private ValidationResults doValidate(Object target, ValSpec spec, ValidationResults res, Object rootTarget) throws Exception {
             Object fieldValue = PropertyUtils.getProperty(target, spec.fieldName);
             if (fieldValue == null && spec.isNotNull) {
                 String msg = String.format("unexpected null value");
-                addNotNullError(res, spec, msg, target);
+                addNotNullError(res, spec, msg, target, rootTarget);
             }
 
             RuleContext ctx = new RuleContext();
             ctx.target = target;
+            ctx.root = rootTarget;
 //            for(ValidationRule rule: ruleList) {
 //                if (rule.canExecute(spec)) {
 //                    rule.validate(spec, fieldValue, res, ctx);
@@ -311,9 +316,13 @@ public class FieldValidateTests extends BaseTest {
             return res;
         }
 
-        private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target) {
-            FieldError err = new FieldError(spec.fieldName, null, ErrorType.NOT_NULL);
+        private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget) {
             String targetClass = target.getClass().getSimpleName();
+            if (rootTarget != null && target != rootTarget) {
+                String rooClass = rootTarget.getClass().getSimpleName();
+                targetClass = String.format("%s.%s", targetClass, rooClass);
+            }
+            FieldError err = new FieldError(targetClass, spec.fieldName, null, ErrorType.NOT_NULL);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
         }
