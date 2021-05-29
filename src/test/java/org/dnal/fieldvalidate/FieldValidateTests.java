@@ -57,7 +57,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         protected void addValueError(ValidationResults res, ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
-            String targetClass = ctx.target.getClass().getSimpleName();
+            String targetClass = FieldError.buildTargetPath(ctx.root, ctx.target);
             FieldError err = new FieldError(targetClass, spec.fieldName, fieldValue, ErrorType.VALUE);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);
@@ -204,7 +204,7 @@ public class FieldValidateTests extends BaseTest {
             if (spec.subBuilder != null && subValidator == null) {
                 subValidator = spec.subBuilder.build();
             }
-            ValidationResults innerRes = subValidator.validate(fieldValue, ctx.root);
+            ValidationResults innerRes = subValidator.validate(fieldValue, ctx.target);
 
             if (! innerRes.hasNoErrors()) {
                 res.errL.addAll(innerRes.errL);
@@ -317,11 +317,7 @@ public class FieldValidateTests extends BaseTest {
         }
 
         private void addNotNullError(ValidationResults res, ValSpec spec, String message, Object target, Object rootTarget) {
-            String targetClass = target.getClass().getSimpleName();
-            if (rootTarget != null && target != rootTarget) {
-                String rooClass = rootTarget.getClass().getSimpleName();
-                targetClass = String.format("%s.%s", targetClass, rooClass);
-            }
+            String targetClass = FieldError.buildTargetPath(rootTarget, target);
             FieldError err = new FieldError(targetClass, spec.fieldName, null, ErrorType.NOT_NULL);
             err.errMsg = String.format("%s: field '%s': %s", targetClass, spec.fieldName, message);
             res.errL.add(err);

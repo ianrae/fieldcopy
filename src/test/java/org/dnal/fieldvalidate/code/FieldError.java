@@ -13,4 +13,13 @@ public class FieldError {
         this.fieldValue = fieldValue;
         this.errType = errType;
     }
+
+    public static String buildTargetPath(Object root, Object target) {
+        String targetClass = target.getClass().getSimpleName();
+        if (root != null && target != root) {
+            String rootClass = root.getClass().getSimpleName();
+            targetClass = String.format("%s.%s", rootClass, targetClass);
+        }
+        return targetClass;
+    }
 }
