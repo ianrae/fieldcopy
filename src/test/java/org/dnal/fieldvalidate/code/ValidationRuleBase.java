@@ -64,12 +64,18 @@ public abstract class ValidationRuleBase implements ValidationRule {
     protected int compareValuesWithDelta(Object fieldValue, Object minObj, Double delta, ValSpec spec, RuleContext ctx, ValidationRule self) {
         if (fieldValue instanceof Float) {
             Float min = NumberUtils.asFloat(minObj);
-            Float diff = min - (Float) fieldValue;
+            Float diff = (Float) fieldValue - min;
+            if (Math.abs(diff) < delta) {
+                return 0;
+            }
             return diff.compareTo(0.0F);
         }
         if (fieldValue instanceof Double) {
             Double min = NumberUtils.asDouble(minObj);
-            Double diff = min - (Double) fieldValue;
+            Double diff = (Double) fieldValue - min;
+            if (Math.abs(diff) < delta) {
+                return 0;
+            }
             return diff.compareTo(0.0);
         }
 
@@ -81,7 +87,8 @@ public abstract class ValidationRuleBase implements ValidationRule {
         String typeStr = fieldValue == null ? "null" : fieldValue.getClass().getSimpleName();
         String valueStr = fieldValue == null ? "null" : fieldValue.toString(); //TODO: limit to 200 chars...
         String ruleStr = self.getName();
-        String msg = String.format("'%s' rule failed. unsupported type '%s' for value %s", ruleStr, typeStr, valueStr);
+        String deltaStr = spec.deltaObj == null ? "" : " with delta";
+        String msg = String.format("'%s' rule%s failed. unsupported type '%s' for value %s", ruleStr, deltaStr, typeStr, valueStr);
         FieldError err = buildUnexpectedError(spec, fieldValue, msg, ctx);
         throw new FieldValidateException(err);
     }

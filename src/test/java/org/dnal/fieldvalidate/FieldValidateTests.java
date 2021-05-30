@@ -247,6 +247,14 @@ public class FieldValidateTests extends BaseTest {
         chkValueErr(res, 0, "unexpected null value");
     }
     @Test
+    public void testNull() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").maxlen(100); //if lastName is null then rules are not run
+
+        Home home = new Home();
+        ValidationResults res = runOK(vb, home);
+    }
+    @Test
     public void testMin() {
         ValidateBuilder vb = new ValidateBuilder();
         vb.field("points").notNull().min(50);
@@ -284,8 +292,19 @@ public class FieldValidateTests extends BaseTest {
 
         home.setWeight(50.0);
         res = runOK(vb, home);
+    }
+    @Test
+    public void testMinDoubleDelta() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("weight").notNull().min(50.0, 0.1);
 
-        //TODO: add double delta for comparison
+        Home home = new Home();
+        home.setWeight(49.1);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "min(50.0)");
+
+        home.setWeight(50.0);
+        res = runOK(vb, home);
     }
 
     @Test
@@ -310,6 +329,29 @@ public class FieldValidateTests extends BaseTest {
         home.setLastName("bob");
         runFailWithException(vb, home, 1);
     }
+    @Test
+    public void testMaxDoubleDelta() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("weight").notNull().max(50.0, 0.1);
+
+        Home home = new Home();
+        home.setWeight(50.11);
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "max(50.0)");
+
+        home.setWeight(50.05);
+        res = runOK(vb, home);
+    }
+    @Test
+    public void testMaxIntDelta() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().max(50, 1);
+
+        Home home = new Home();
+        home.setPoints(48);
+        runFailWithException(vb, home, 1);
+    }
+
     @Test
     public void testRange() {
         ValidateBuilder vb = new ValidateBuilder();
