@@ -300,6 +300,15 @@ public class FieldValidateTests extends BaseTest {
         res = runOK(vb, home);
     }
     @Test
+    public void testMaxBad() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("lastName").notNull().max(50);
+
+        Home home = new Home();
+        home.setLastName("bob");
+        runFailWithException(vb, home, 1);
+    }
+    @Test
     public void testRange() {
         ValidateBuilder vb = new ValidateBuilder();
         vb.field("points").notNull().range(1,10);
@@ -560,6 +569,18 @@ public class FieldValidateTests extends BaseTest {
         ValidationResults res = runner.validate(home);
         chkFail(res, size);
         return res;
+    }
+    private void runFailWithException(ValidateBuilder vb, Home home, int size) {
+        Validator runner = vb.build();
+        runner.setCustomErrorMessageBuilder(customMessageBuilder);
+        boolean thrown = false;
+        try {
+            runner.validate(home);
+        } catch (FieldValidateException e) {
+            e.printStackTrace();
+            thrown = true;
+        }
+        assertEquals(true, thrown);
     }
 
     private void chkFail(ValidationResults res, int expected) {

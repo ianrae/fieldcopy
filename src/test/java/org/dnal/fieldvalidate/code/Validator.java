@@ -65,6 +65,8 @@ public class Validator {
         for (ValSpec spec : specList) {
             try {
                 doValidate(target, spec, res, rootTarget, index);
+            } catch (FieldValidateException e) {
+                throw e;
             } catch (Exception e) {
                 e.printStackTrace();
             }

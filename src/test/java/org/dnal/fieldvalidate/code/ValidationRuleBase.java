@@ -29,8 +29,14 @@ public abstract class ValidationRuleBase implements ValidationRule {
         err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
         res.errL.add(err);
     }
+    protected FieldError buildUnexpectedError(ValSpec spec, Object fieldValue, String message, RuleContext ctx) {
+        FieldError err = new FieldError(ctx.target.getClass().getSimpleName(), spec.fieldName, ctx.index, fieldValue, ErrorType.VALUE);
+        err.fullTargetPath = FieldError.buildTargetPath(ctx.root, ctx.target, spec.fieldName, ctx.index);
+        err.errMsg = String.format("%s: %s", err.fullTargetPath, message);
+        return err;
+    }
 
-    protected int compareValues(Object fieldValue, Object minObj) {
+    protected int compareValues(Object fieldValue, Object minObj, ValSpec spec, RuleContext ctx) {
         if (fieldValue instanceof Integer) {
             Integer min = NumberUtils.asInt(minObj);
             return ((Integer) fieldValue).compareTo(min);
@@ -47,7 +53,10 @@ public abstract class ValidationRuleBase implements ValidationRule {
             Double min = NumberUtils.asDouble(minObj);
             return ((Double) fieldValue).compareTo(min);
         }
-        throw new FieldValidateException("compareValues failed. unsupported type");
+
+        String msg = "compareValues failed. unsupported type";
+        FieldError err = buildUnexpectedError(spec, fieldValue, msg, ctx);
+        throw new FieldValidateException(msg, err);
     }
 
 }

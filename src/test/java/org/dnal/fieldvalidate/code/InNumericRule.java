@@ -12,7 +12,7 @@ public class InNumericRule extends ValidationRuleBase {
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
         boolean found = false;
         for (Number el : spec.inList) {
-            if (compareValues(fieldValue, el) == 0) {
+            if (compareValues(fieldValue, el, spec, ctx) == 0) {
                 found = true;
                 break;
             }
