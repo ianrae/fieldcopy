@@ -537,6 +537,17 @@ public class FieldValidateTests extends BaseTest {
         ValidationResults res = runFail(vb, home, 1);
         chkValueErr(res, 0, "in(RED,BLUE)");
     }
+    @Test
+    public void testEnumBad() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("arSizes").notNull().in("RED","BLUE");
+
+        Home home = new Home();
+        Integer ar[] = new Integer[] {45, 50, 111};
+        home.setArSizes(ar);
+
+        runFailWithException(vb, home, 1);
+    }
 
     @Test
     public void testEnumFromString() {

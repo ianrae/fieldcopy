@@ -4,12 +4,20 @@ import java.util.stream.Collectors;
 
 public class InNumericRule extends ValidationRuleBase {
     @Override
+    public String getName() {
+        return "in";
+    }
+    @Override
     public boolean canExecute(ValSpec spec) {
         return (spec.inList != null);
     }
 
     @Override
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+        if (!(fieldValue instanceof Number)) {
+            throwFieldException(spec, fieldValue, ctx, this);
+        }
+
         boolean found = false;
         for (Number el : spec.inList) {
             if (compareValues(fieldValue, el, spec, ctx, this) == 0) {

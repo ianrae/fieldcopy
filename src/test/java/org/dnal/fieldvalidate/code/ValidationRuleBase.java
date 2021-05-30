@@ -54,10 +54,15 @@ public abstract class ValidationRuleBase implements ValidationRule {
             return ((Double) fieldValue).compareTo(min);
         }
 
+        throwFieldException(spec, fieldValue, ctx, self);
+        return 0; //never executes
+    }
+
+    protected void throwFieldException(ValSpec spec, Object fieldValue, RuleContext ctx, ValidationRule self) {
         String typeStr = fieldValue == null ? "null" : fieldValue.getClass().getSimpleName();
         String valueStr = fieldValue == null ? "null" : fieldValue.toString(); //TODO: limit to 200 chars...
         String ruleStr = self.getName();
-        String msg = String.format("compareValues failed in %s. unsupported type '%s' for value %s", ruleStr, typeStr, valueStr);
+        String msg = String.format("'%s' rule failed. unsupported type '%s' for value %s", ruleStr, typeStr, valueStr);
         FieldError err = buildUnexpectedError(spec, fieldValue, msg, ctx);
         throw new FieldValidateException(err);
     }
