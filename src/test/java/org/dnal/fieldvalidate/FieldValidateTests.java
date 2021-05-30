@@ -11,6 +11,7 @@ import org.dnal.fieldvalidate.code.FieldValidateException;
 import org.dnal.fieldvalidate.code.NumberUtils;
 import org.junit.Test;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -232,17 +233,30 @@ public class FieldValidateTests extends BaseTest {
             int size = -1;
             if (fieldValue instanceof Collection) {
                 size = ((Collection<?>) fieldValue).size();
+            } else if (fieldValue != null) {
+                size = getSizeIfArray(fieldValue);
             }
+
             if (size < 0) {
                 throw new FieldValidateException(String.format("field: %s is not a Collection", spec.fieldName));
             }
 
-            for(int i = 0; i < size; i++) {
+            for (int i = 0; i < size; i++) {
                 ValidationResults innerRes = subValidator.validate(ctx.target, ctx.target, i);
 
-                if (! innerRes.hasNoErrors()) {
+                if (!innerRes.hasNoErrors()) {
                     res.errL.addAll(innerRes.errL);
                 }
+            }
+        }
+        private int getSizeIfArray(Object fieldValue) {
+            Class clazz = fieldValue.getClass();
+            if (clazz.isArray()) {
+//                Class arrayType = c.getComponentType();
+//                System.out.println("The array is of type: " + arrayType);
+                return Array.getLength(fieldValue);
+            } else {
+                return -1;
             }
         }
     }
@@ -639,6 +653,7 @@ public class FieldValidateTests extends BaseTest {
             this.street = street;
         }
     }
+    public static enum Color { RED,GREEN,BLUE };
     public static class Home {
         private int points;
         private String[] names;
@@ -647,15 +662,16 @@ public class FieldValidateTests extends BaseTest {
         private Double weight;
         private Address addr;
         private List<Integer> zones = new ArrayList<>();
+        private Integer[] arSizes;
+        private Color color;
+        private String colorStr;
 
         public Address getAddr() {
             return addr;
         }
-
         public void setAddr(Address addr) {
             this.addr = addr;
         }
-
         public Double getWeight() {
             return weight;
         }
@@ -702,8 +718,26 @@ public class FieldValidateTests extends BaseTest {
         public void setZones(List<Integer> zones) {
             this.zones = zones;
         }
+        public Integer[] getArSizes() {
+            return arSizes;
+        }
+        public void setArSizes(Integer[] arSizes) {
+            this.arSizes = arSizes;
+        }
+        public Color getColor() {
+            return color;
+        }
+        public void setColor(Color color) {
+            this.color = color;
+        }
 
+        public String getColorStr() {
+            return colorStr;
+        }
 
+        public void setColorStr(String colorStr) {
+            this.colorStr = colorStr;
+        }
     }
     public static class MyRule implements RuleCondition {
 
@@ -1072,7 +1106,6 @@ public class FieldValidateTests extends BaseTest {
         chkValueErr(res, 1, "not exceed 4");
     }
 
-
     @Test
     public void testList() {
         ValidateBuilder vb = new ValidateBuilder();
@@ -1084,6 +1117,42 @@ public class FieldValidateTests extends BaseTest {
 
         ValidationResults res = runFail(vb, home, 1);
         chkValueErr(res, 0, "max(100)");
+    }
+    @Test
+    public void testArray() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("arSizes").notNull().elements().max(100);
+
+        Home home = new Home();
+        Integer ar[] = new Integer[] {45, 50, 111};
+        home.setArSizes(ar);
+
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "max(100)");
+    }
+    @Test
+    public void testEnum() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("color").notNull().in("RED","BLUE");
+
+        Home home = new Home();
+        Integer ar[] = new Integer[] {45, 50, 111};
+        home.setColor(Color.GREEN);
+
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "in(RED,BLUE)");
+    }
+    @Test
+    public void testEnumFromString() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("colorStr").notNull().in("RED","BLUE");
+
+        Home home = new Home();
+        Integer ar[] = new Integer[] {45, 50, 111};
+        home.setColorStr("GREEN");
+
+        ValidationResults res = runFail(vb, home, 1);
+        chkValueErr(res, 0, "in(RED,BLUE)");
     }
 
     //--
