@@ -1,4 +1,4 @@
-package org.dnal.fieldvalidate;
+package org.dnal.fieldvalidate.code;
 
 import org.dnal.fieldvalidate.code.FieldError;
 
