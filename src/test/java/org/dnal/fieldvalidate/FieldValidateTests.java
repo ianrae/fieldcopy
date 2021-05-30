@@ -197,6 +197,9 @@ public class FieldValidateTests extends BaseTest {
         }
     }
     public static class InEnumRule extends ValidationRuleBase {
+        private List<Object> enumValues;
+        private String allValues;
+
         @Override
         public boolean canExecute(ValSpec spec) {
             return (spec.enumClass != null);
@@ -206,21 +209,30 @@ public class FieldValidateTests extends BaseTest {
         public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
             if (fieldValue == null) return;
 
+            if (enumValues == null) {
+                extractValues(spec);
+            }
+
             String targetStr = fieldValue.toString();
-            String allValues = null;
+            for (Object eval : enumValues) {
+                String s = eval.toString();
+                if (targetStr.equals(s)) {
+                    return;
+                }
+            }
+
+            //if we reach here then fieldValue not in enum
+            String msg = String.format("inEnum(%s) failed. actual value: %s", allValues, fieldValue.toString());
+            addValueError(res, spec, fieldValue, msg, ctx);
+        }
+
+        private void extractValues(ValSpec spec) {
             //alternatively
             try {
                 Method method = spec.enumClass.getDeclaredMethod("values");
                 Object obj = method.invoke(null);
-                List<Object> enumValues = Arrays.asList((Object[]) obj);
-                for(Object eval: enumValues) {
-                    String s = eval.toString();
-                    if (targetStr.equals(s)) {
-                        return;
-                    }
-                }
-
-               allValues = Arrays.toString((Object[]) obj);
+                enumValues = Arrays.asList((Object[]) obj);
+                allValues = Arrays.toString((Object[]) obj);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -228,10 +240,6 @@ public class FieldValidateTests extends BaseTest {
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
-
-            //if we reach here then fieldValue not in enum
-            String msg = String.format("inEnum(%s) failed. actual value: %s", allValues, fieldValue.toString());
-            addValueError(res, spec, fieldValue, msg, ctx);
         }
     }
     public static class SubObjRule extends ValidationRuleBase {
