@@ -37,6 +37,10 @@ public abstract class ValidationRuleBase implements ValidationRule {
     }
 
     protected int compareValues(Object fieldValue, Object minObj, ValSpec spec, RuleContext ctx, ValidationRule self) {
+        if (spec.deltaObj != null) {
+            return compareValuesWithDelta(fieldValue, minObj, spec.deltaObj, spec, ctx, self);
+        }
+
         if (fieldValue instanceof Integer) {
             Integer min = NumberUtils.asInt(minObj);
             return ((Integer) fieldValue).compareTo(min);
@@ -52,6 +56,21 @@ public abstract class ValidationRuleBase implements ValidationRule {
         if (fieldValue instanceof Double) {
             Double min = NumberUtils.asDouble(minObj);
             return ((Double) fieldValue).compareTo(min);
+        }
+
+        throwFieldException(spec, fieldValue, ctx, self);
+        return 0; //never executes
+    }
+    protected int compareValuesWithDelta(Object fieldValue, Object minObj, Double delta, ValSpec spec, RuleContext ctx, ValidationRule self) {
+        if (fieldValue instanceof Float) {
+            Float min = NumberUtils.asFloat(minObj);
+            Float diff = min - (Float) fieldValue;
+            return diff.compareTo(0.0F);
+        }
+        if (fieldValue instanceof Double) {
+            Double min = NumberUtils.asDouble(minObj);
+            Double diff = min - (Double) fieldValue;
+            return diff.compareTo(0.0);
         }
 
         throwFieldException(spec, fieldValue, ctx, self);

@@ -14,7 +14,7 @@ import java.util.List;
  * TODO
  * DONE -custom error message. can set on per use basis
  * DONE -custom rule such as emailRule
- * -enum (from string)
+ * DONE -enum (from string)
  */
 
 public class FieldValidateTests extends BaseTest {
@@ -284,6 +284,8 @@ public class FieldValidateTests extends BaseTest {
 
         home.setWeight(50.0);
         res = runOK(vb, home);
+
+        //TODO: add double delta for comparison
     }
 
     @Test

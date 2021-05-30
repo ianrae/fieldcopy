@@ -10,7 +10,7 @@ public class ValSpec {
     public Object maxObj;
     public Object minRangeObj;
     public Object maxRangeObj;
-    public Val1 elementsVal;
+    public BuilderFluent1 elementsVal;
     public ValidateBuilder subBuilder;
     public ValidateBuilder mapBuilder;
     public List<Number> inList;
@@ -19,6 +19,7 @@ public class ValSpec {
     public RuleLambda evalRule;
     public ValidationRule runner; //set by Validator
     public Class<? extends Enum> enumClass;
+    public Double deltaObj;
 
     @Override
     public String toString() {

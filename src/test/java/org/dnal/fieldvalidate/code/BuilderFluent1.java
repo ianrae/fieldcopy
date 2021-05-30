@@ -3,16 +3,16 @@ package org.dnal.fieldvalidate.code;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Val1 {
+public class BuilderFluent1 {
     private final String fieldName;
-    private final List<Val1> list;
+    private final List<BuilderFluent1> list;
     final List<ValSpec> specList;
     private boolean isNotNull;
     private Object minObj;
     private Object maxObj;
     private Object minRangeObj;
     private Object maxRangeObj;
-    private Val1 elementsVal;
+    private BuilderFluent1 elementsVal;
     private ValidateBuilder subBuilder;
     private ValidateBuilder mapBuilder;
     private List<Number> inList;
@@ -20,8 +20,9 @@ public class Val1 {
     private Integer strMaxLen;
     private RuleLambda evalRule;
     private Class<? extends Enum> enumClass;
+    private Double deltaObj;
 
-    public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
+    public BuilderFluent1(String fieldName, List<BuilderFluent1> list, List<ValSpec> specList) {
         this.fieldName = fieldName;
         this.list = list;
         this.specList = specList;
@@ -36,6 +37,7 @@ public class Val1 {
         spec.subBuilder = subBuilder;
         spec.minObj = minObj;
         spec.maxObj = maxObj;
+        spec.deltaObj = deltaObj;
         spec.minRangeObj = minRangeObj;
         spec.maxRangeObj = maxRangeObj;
         spec.inList = inList;
@@ -47,7 +49,7 @@ public class Val1 {
         specList.add(spec);
     }
 
-    public Val1 notNull() {
+    public BuilderFluent1 notNull() {
         isNotNull = true;
         return this;
     }
@@ -60,58 +62,74 @@ public class Val1 {
 //        double	8 bytes	Stores fractional numbers. Sufficient for storing 15 decimal digits
 //        boolean	1 bit	Stores true or false values
 //        char	2 bytes	Stores a single character/letter or ASCII values
-    public Val1 min(int n) {
+    public BuilderFluent1 min(int n) {
         minObj = Integer.valueOf(n);
         return this;
     }
 
-    public Val1 min(long n) {
+    public BuilderFluent1 min(long n) {
         minObj = Long.valueOf(n);
         return this;
     }
 
-    public Val1 min(double n) {
+    public BuilderFluent1 min(double n) {
         minObj = Double.valueOf(n);
+        return this;
+    }
+    public BuilderFluent1 min(double n, double delta) {
+        minObj = Double.valueOf(n);
+        deltaObj = Double.valueOf(delta);
         return this;
     }
 
     //max
-    public Val1 max(int n) {
+    public BuilderFluent1 max(int n) {
         maxObj = Integer.valueOf(n);
         return this;
     }
 
-    public Val1 max(long n) {
+    public BuilderFluent1 max(long n) {
         maxObj = Long.valueOf(n);
         return this;
     }
 
-    public Val1 max(double n) {
+    public BuilderFluent1 max(double n) {
         maxObj = Double.valueOf(n);
+        return this;
+    }
+    public BuilderFluent1 max(double n, double delta) {
+        maxObj = Double.valueOf(n);
+        deltaObj = Double.valueOf(delta);
         return this;
     }
 
     //range
-    public Val1 range(int min, int max) {
+    public BuilderFluent1 range(int min, int max) {
         minRangeObj = Integer.valueOf(min);
         maxRangeObj = Integer.valueOf(max);
         return this;
     }
 
-    public Val1 range(long min, long max) {
+    public BuilderFluent1 range(long min, long max) {
         minRangeObj = Long.valueOf(min);
         maxRangeObj = Long.valueOf(max);
         return this;
     }
 
-    public Val1 range(double min, long max) {
+    public BuilderFluent1 range(double min, long max) {
         minRangeObj = Double.valueOf(min);
         maxRangeObj = Double.valueOf(max);
         return this;
     }
+    public BuilderFluent1 range(double min, long max, double delta) {
+        minRangeObj = Double.valueOf(min);
+        maxRangeObj = Double.valueOf(max);
+        deltaObj = Double.valueOf(delta);
+        return this;
+    }
 
     //in has above types and char,string
-    public Val1 in(int... vals) {
+    public BuilderFluent1 in(int... vals) {
         this.inList = new ArrayList<Number>();
         for (int n : vals) {
             Integer nval = Integer.valueOf(n);
@@ -120,7 +138,7 @@ public class Val1 {
         return this;
     }
 
-    public Val1 in(long... vals) {
+    public BuilderFluent1 in(long... vals) {
         this.inList = new ArrayList<Number>();
         for (long n : vals) {
             Long nval = Long.valueOf(n);
@@ -129,7 +147,7 @@ public class Val1 {
         return this;
     }
 
-    public Val1 in(double... vals) {
+    public BuilderFluent1 in(double... vals) {
         this.inList = new ArrayList<Number>();
         for (double n : vals) {
             Double nval = Double.valueOf(n);
@@ -138,7 +156,7 @@ public class Val1 {
         return this;
     }
 
-    public Val1 in(String... vals) {
+    public BuilderFluent1 in(String... vals) {
         this.inStrList = new ArrayList<String>();
         for (String s : vals) {
             inStrList.add(s);
@@ -146,29 +164,29 @@ public class Val1 {
         return this;
     }
 
-    public Val1 maxlen(int maxlen) {
+    public BuilderFluent1 maxlen(int maxlen) {
         this.strMaxLen = maxlen;
         return this;
     }
 
     //TODO: implement a runner for this
-    public Val1 elements() {
-        this.elementsVal = new Val1(fieldName, list, new ArrayList<>());
+    public BuilderFluent1 elements() {
+        this.elementsVal = new BuilderFluent1(fieldName, list, new ArrayList<>());
         return elementsVal;
     }
 
-    public Val1 subObj(ValidateBuilder subBuilder) {
+    public BuilderFluent1 subObj(ValidateBuilder subBuilder) {
         this.subBuilder = subBuilder;
         return this;
     }
 
     //TODO: implement a runner for this
-    public Val1 mapField(ValidateBuilder vb3) {
+    public BuilderFluent1 mapField(ValidateBuilder vb3) {
         this.mapBuilder = vb3;
         return this;
     }
 
-    public Val1 eval(RuleLambda rule) {
+    public BuilderFluent1 eval(RuleLambda rule) {
         this.evalRule = rule;
         return this;
     }

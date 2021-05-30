@@ -22,7 +22,7 @@ public class InEnumRule extends ValidationRuleBase {
     @Override
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
         if (fieldValue == null) return;
-        if (! isEnumValue(fieldValue)) {
+        if (! isEnumValue(fieldValue) && !(fieldValue instanceof String)) {
             throwFieldException(spec, fieldValue, ctx, this);
         }
 
