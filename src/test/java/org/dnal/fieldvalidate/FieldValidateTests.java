@@ -13,7 +13,9 @@ import org.junit.Test;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -194,6 +196,44 @@ public class FieldValidateTests extends BaseTest {
             }
         }
     }
+    public static class InEnumRule extends ValidationRuleBase {
+        @Override
+        public boolean canExecute(ValSpec spec) {
+            return (spec.enumClass != null);
+        }
+
+        @Override
+        public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
+            if (fieldValue == null) return;
+
+            String targetStr = fieldValue.toString();
+            String allValues = null;
+            //alternatively
+            try {
+                Method method = spec.enumClass.getDeclaredMethod("values");
+                Object obj = method.invoke(null);
+                List<Object> enumValues = Arrays.asList((Object[]) obj);
+                for(Object eval: enumValues) {
+                    String s = eval.toString();
+                    if (targetStr.equals(s)) {
+                        return;
+                    }
+                }
+
+               allValues = Arrays.toString((Object[]) obj);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+
+            //if we reach here then fieldValue not in enum
+            String msg = String.format("inEnum(%s) failed. actual value: %s", allValues, fieldValue.toString());
+            addValueError(res, spec, fieldValue, msg, ctx);
+        }
+    }
     public static class SubObjRule extends ValidationRuleBase {
         private Validator subValidator;
 
@@ -315,6 +355,7 @@ public class FieldValidateTests extends BaseTest {
             this.ruleList.add(new EvalRule());
             this.ruleList.add(new SubObjRule());
             this.ruleList.add(new ElementsRule());
+            this.ruleList.add(new InEnumRule());
 
             //set spec.runner
             for(ValSpec spec: specList) {
@@ -435,6 +476,7 @@ public class FieldValidateTests extends BaseTest {
         public Integer strMaxLen;
         public RuleLambda evalRule;
         public ValidationRule runner; //set by Validator
+        public Class<? extends Enum> enumClass;
 
         @Override
         public String toString() {
@@ -462,6 +504,7 @@ public class FieldValidateTests extends BaseTest {
         private ArrayList<String> inStrList;
         private Integer strMaxLen;
         private RuleLambda evalRule;
+        private Class<? extends Enum> enumClass;
 
         public Val1(String fieldName, List<Val1> list, List<ValSpec> specList) {
             this.fieldName = fieldName;
@@ -484,6 +527,7 @@ public class FieldValidateTests extends BaseTest {
             spec.inStrList = inStrList;
             spec.strMaxLen = strMaxLen;
             spec.evalRule = evalRule;
+            spec.enumClass = enumClass;
             
             specList.add(spec);
         }
@@ -599,6 +643,10 @@ public class FieldValidateTests extends BaseTest {
         public Val1 eval(RuleLambda rule) {
             this.evalRule = rule;
             return this;
+        }
+
+        public void inEnum(Class<? extends Enum> enumClass) {
+            this.enumClass = enumClass;
         }
 //        public Val1 eval(RuleLambda rule) {
 //            this.evalRule = rule;
@@ -1142,17 +1190,18 @@ public class FieldValidateTests extends BaseTest {
         ValidationResults res = runFail(vb, home, 1);
         chkValueErr(res, 0, "in(RED,BLUE)");
     }
+
     @Test
     public void testEnumFromString() {
         ValidateBuilder vb = new ValidateBuilder();
-        vb.field("colorStr").notNull().in("RED","BLUE");
+        vb.field("colorStr").notNull().inEnum(Color.class);
 
         Home home = new Home();
         Integer ar[] = new Integer[] {45, 50, 111};
-        home.setColorStr("GREEN");
+        home.setColorStr("zz");
 
         ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "in(RED,BLUE)");
+        chkValueErr(res, 0, "inEnum([RED, GREEN, BLUE])");
     }
 
     //--
