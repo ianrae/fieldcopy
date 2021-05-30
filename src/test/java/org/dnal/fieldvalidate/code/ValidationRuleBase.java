@@ -36,7 +36,7 @@ public abstract class ValidationRuleBase implements ValidationRule {
         return err;
     }
 
-    protected int compareValues(Object fieldValue, Object minObj, ValSpec spec, RuleContext ctx) {
+    protected int compareValues(Object fieldValue, Object minObj, ValSpec spec, RuleContext ctx, ValidationRule self) {
         if (fieldValue instanceof Integer) {
             Integer min = NumberUtils.asInt(minObj);
             return ((Integer) fieldValue).compareTo(min);
@@ -54,9 +54,12 @@ public abstract class ValidationRuleBase implements ValidationRule {
             return ((Double) fieldValue).compareTo(min);
         }
 
-        String msg = "compareValues failed. unsupported type";
+        String typeStr = fieldValue == null ? "null" : fieldValue.getClass().getSimpleName();
+        String valueStr = fieldValue == null ? "null" : fieldValue.toString(); //TODO: limit to 200 chars...
+        String ruleStr = self.getName();
+        String msg = String.format("compareValues failed in %s. unsupported type '%s' for value %s", ruleStr, typeStr, valueStr);
         FieldError err = buildUnexpectedError(spec, fieldValue, msg, ctx);
-        throw new FieldValidateException(msg, err);
+        throw new FieldValidateException(err);
     }
 
 }

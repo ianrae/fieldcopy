@@ -6,8 +6,8 @@ public class FieldValidateException extends RuntimeException {
     public FieldValidateException(String message) {
         super(message);
     }
-    public FieldValidateException(String message, FieldError err) {
-        super(message);
+    public FieldValidateException(FieldError err) {
+        super(err.errMsg);
         this.err = err;
     }
 

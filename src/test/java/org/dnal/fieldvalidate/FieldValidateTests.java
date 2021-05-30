@@ -577,7 +577,8 @@ public class FieldValidateTests extends BaseTest {
         try {
             runner.validate(home);
         } catch (FieldValidateException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("EXCEPTION: " + e.getMessage());
             thrown = true;
         }
         assertEquals(true, thrown);

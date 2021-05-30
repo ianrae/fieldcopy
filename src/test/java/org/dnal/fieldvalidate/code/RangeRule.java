@@ -8,11 +8,11 @@ public class RangeRule extends ValidationRuleBase {
 
     @Override
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
-        if (compareValues(fieldValue, spec.minRangeObj, spec, ctx) < 0) {
+        if (compareValues(fieldValue, spec.minRangeObj, spec, ctx, this) < 0) {
             String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
                     fieldValue.toString());
             addValueError(res, spec, fieldValue, msg, ctx);
-        } else if (compareValues(fieldValue, spec.maxRangeObj, spec, ctx) > 0) {
+        } else if (compareValues(fieldValue, spec.maxRangeObj, spec, ctx, this) > 0) {
             String msg = String.format("range(%s,%s) failed. actual value: %s", spec.minRangeObj.toString(), spec.maxRangeObj.toString(),
                     fieldValue.toString());
             addValueError(res, spec, fieldValue, msg, ctx);
