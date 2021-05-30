@@ -15,7 +15,9 @@ public class InStringRule extends ValidationRuleBase {
 
     @Override
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
-        if (!(fieldValue instanceof String)) {
+        if (fieldValue == null) return;
+
+        if (!(fieldValue instanceof String) && (! isEnumValue(fieldValue))) {
             throwFieldException(spec, fieldValue, ctx, this);
         }
 

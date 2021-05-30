@@ -67,4 +67,9 @@ public abstract class ValidationRuleBase implements ValidationRule {
         throw new FieldValidateException(err);
     }
 
+    protected boolean isEnumValue(Object fieldValue) {
+        if (fieldValue == null) return false;
+        return fieldValue.getClass().isEnum();
+    }
+
 }

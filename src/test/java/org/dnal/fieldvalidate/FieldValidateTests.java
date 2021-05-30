@@ -561,6 +561,17 @@ public class FieldValidateTests extends BaseTest {
         ValidationResults res = runFail(vb, home, 1);
         chkValueErr(res, 0, "inEnum([RED, GREEN, BLUE])");
     }
+    @Test
+    public void testEnumFromStringBad() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("arSizes").notNull().inEnum(Color.class);
+
+        Home home = new Home();
+        Integer ar[] = new Integer[] {45, 50, 111};
+        home.setArSizes(ar);
+
+        runFailWithException(vb, home, 1);
+    }
 
     //--
     private ErrorMessageBuilder customMessageBuilder;

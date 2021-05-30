@@ -10,6 +10,11 @@ public class InEnumRule extends ValidationRuleBase {
     private String allValues;
 
     @Override
+    public String getName() {
+        return "inEnum";
+    }
+
+    @Override
     public boolean canExecute(ValSpec spec) {
         return (spec.enumClass != null);
     }
@@ -17,6 +22,9 @@ public class InEnumRule extends ValidationRuleBase {
     @Override
     public void validate(ValSpec spec, Object fieldValue, ValidationResults res, RuleContext ctx) {
         if (fieldValue == null) return;
+        if (! isEnumValue(fieldValue)) {
+            throwFieldException(spec, fieldValue, ctx, this);
+        }
 
         if (enumValues == null) {
             extractValues(spec);
