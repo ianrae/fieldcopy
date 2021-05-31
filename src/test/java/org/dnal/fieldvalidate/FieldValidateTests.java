@@ -152,25 +152,6 @@ public class FieldValidateTests extends RuleTestBase {
         ValidationResults res = runOK(vb, home);
     }
 
-    @Test
-    public void testRange() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().range(1,10);
-
-        Home home = new Home();
-        home.setPoints(51);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "range(1,10)");
-
-        home.setPoints(0);
-        res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "range(1,10)");
-
-        home.setPoints(1);
-        res = runOK(vb, home);
-        home.setPoints(10);
-        res = runOK(vb, home);
-    }
 
     @Test
     public void testIn() {

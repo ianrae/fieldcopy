@@ -106,7 +106,7 @@ public class BuilderFluent1 {
         return this;
     }
 
-    public BuilderFluent1 range(double min, long max) {
+    public BuilderFluent1 range(double min, double max) {
         minRangeObj = Double.valueOf(min);
         maxRangeObj = Double.valueOf(max);
         return this;
