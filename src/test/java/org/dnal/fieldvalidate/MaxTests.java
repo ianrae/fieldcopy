@@ -2,76 +2,80 @@ package org.dnal.fieldvalidate;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.beanutils.PropertyUtils;
-import org.dnal.fieldcopy.BaseTest;
 import org.dnal.fieldvalidate.code.*;
-import org.dnal.fieldvalidate.dto.Address;
-import org.dnal.fieldvalidate.dto.Color;
 import org.dnal.fieldvalidate.dto.Home;
 import org.junit.Test;
-
-import java.util.List;
 
 /**
  * TODO
  */
 
-public class MinTests extends RuleTestBase {
+public class MaxTests extends RuleTestBase {
 
     @Test
-    public void testMin() {
+    public void testMax() {
         ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().min(50);
+        vb.field("points").notNull().max(50);
 
         Home home = new Home();
-        home.setPoints(30);
+        home.setPoints(51);
         ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "min(50)");
+        chkValueErr(res, 0, "max(50)");
 
         home.setPoints(50);
         res = runOK(vb, home);
     }
     @Test
-    public void testMinLong() {
+    public void testMaxBad() {
         ValidateBuilder vb = new ValidateBuilder();
-        vb.field("id").notNull().min(50);
+        vb.field("lastName").notNull().max(50);
 
         Home home = new Home();
-        home.setId(30);
+        home.setLastName("bob");
+        runFailWithException(vb, home, 1);
+    }
+    @Test
+    public void testMaxLong() {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("id").notNull().max(50);
+
+        Home home = new Home();
+        home.setId(60);
         ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "min(50)");
+        chkValueErr(res, 0, "max(50)");
 
         home.setId(50);
         res = runOK(vb, home);
     }
     @Test
-    public void testMinDouble() {
+    public void testMaxDouble() {
         ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().min(50.0);
+        vb.field("weight").notNull().max(50.0);
 
         Home home = new Home();
-        home.setWeight(30.0);
+        home.setWeight(60.0);
         ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "min(50.0)");
+        chkValueErr(res, 0, "max(50.0)");
 
         home.setWeight(50.0);
         res = runOK(vb, home);
     }
 
     @Test
-    public void testMinBoundaries() {
-        chkMin(48, false);
-        chkMin(49, false);
-        chkMin(50, true);
-        chkMin(51, true);
+    public void testMaxBoundaries() {
+        chkMax(48, true);
+        chkMax(49, true);
+        chkMax(50, true);
+        chkMax(51, false);
     }
 
 
 
+
     //--
-    private void chkMin(int k, boolean shouldPass) {
+    private void chkMax(int k, boolean shouldPass) {
         ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().min(50);
+        vb.field("points").notNull().max(50);
 
         log(String.format("chk %d", k));
         Home home = new Home();
@@ -80,7 +84,7 @@ public class MinTests extends RuleTestBase {
             this.runOK(vb, home);
         } else {
             ValidationResults res = runFail(vb, home, 1);
-            chkValueErr(res, 0, "min(50)");
+            chkValueErr(res, 0, "max(50)");
         }
     }
 
