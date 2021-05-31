@@ -178,6 +178,11 @@ public class BuilderFluent1 {
     public void inEnum(Class<? extends Enum> enumClass) {
         this.enumClass = enumClass;
     }
+
+    public BuilderFluent1 delta(double delta) {
+        this.deltaObj = delta;
+        return this;
+    }
 //        public Val1 eval(RuleLambda rule) {
 //            this.evalRule = rule;
 //            return this;

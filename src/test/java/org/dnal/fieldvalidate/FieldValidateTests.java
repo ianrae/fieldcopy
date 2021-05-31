@@ -153,45 +153,6 @@ public class FieldValidateTests extends RuleTestBase {
     }
 
 
-    @Test
-    public void testIn() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().in(3,4,5);
-
-        Home home = new Home();
-        home.setPoints(51);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "in(3,4,5)");
-
-        home.setPoints(5);
-        res = runOK(vb, home);
-    }
-    @Test
-    public void testInDouble() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().in(3.1,4.2,5.3);
-
-        Home home = new Home();
-        home.setWeight(51.0);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "in(3.1,4.2,5.3)");
-
-        home.setWeight(3.1);
-        res = runOK(vb, home);
-    }
-    @Test
-    public void testInString() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("lastName").notNull().in("Jones", "Smith");
-
-        Home home = new Home();
-        home.setLastName("Wilson");
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "in(Jones,Smith)");
-
-        home.setLastName("Smith");
-        res = runOK(vb, home);
-    }
 
     @Test
     public void testMaxLen() {
