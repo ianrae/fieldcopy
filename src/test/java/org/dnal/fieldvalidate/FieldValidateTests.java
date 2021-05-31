@@ -190,19 +190,6 @@ public class FieldValidateTests extends BaseTest {
         home.setWeight(50.0);
         res = runOK(vb, home);
     }
-    @Test
-    public void testMinDoubleDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().min(50.0, 0.1);
-
-        Home home = new Home();
-        home.setWeight(49.1);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "min(50.0)");
-
-        home.setWeight(50.0);
-        res = runOK(vb, home);
-    }
 
     @Test
     public void testMax() {
@@ -224,28 +211,6 @@ public class FieldValidateTests extends BaseTest {
 
         Home home = new Home();
         home.setLastName("bob");
-        runFailWithException(vb, home, 1);
-    }
-    @Test
-    public void testMaxDoubleDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().max(50.0, 0.1);
-
-        Home home = new Home();
-        home.setWeight(50.11);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "max(50.0)");
-
-        home.setWeight(50.05);
-        res = runOK(vb, home);
-    }
-    @Test
-    public void testMaxIntDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().max(50, 1);
-
-        Home home = new Home();
-        home.setPoints(48);
         runFailWithException(vb, home, 1);
     }
 

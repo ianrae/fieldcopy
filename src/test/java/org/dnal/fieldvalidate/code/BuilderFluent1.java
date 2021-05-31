@@ -76,11 +76,6 @@ public class BuilderFluent1 {
         minObj = Double.valueOf(n);
         return this;
     }
-    public BuilderFluent1 min(double n, double delta) {
-        minObj = Double.valueOf(n);
-        deltaObj = Double.valueOf(delta);
-        return this;
-    }
 
     //max
     public BuilderFluent1 max(int n) {
@@ -95,11 +90,6 @@ public class BuilderFluent1 {
 
     public BuilderFluent1 max(double n) {
         maxObj = Double.valueOf(n);
-        return this;
-    }
-    public BuilderFluent1 max(double n, double delta) {
-        maxObj = Double.valueOf(n);
-        deltaObj = Double.valueOf(delta);
         return this;
     }
 
@@ -119,12 +109,6 @@ public class BuilderFluent1 {
     public BuilderFluent1 range(double min, long max) {
         minRangeObj = Double.valueOf(min);
         maxRangeObj = Double.valueOf(max);
-        return this;
-    }
-    public BuilderFluent1 range(double min, long max, double delta) {
-        minRangeObj = Double.valueOf(min);
-        maxRangeObj = Double.valueOf(max);
-        deltaObj = Double.valueOf(delta);
         return this;
     }
 

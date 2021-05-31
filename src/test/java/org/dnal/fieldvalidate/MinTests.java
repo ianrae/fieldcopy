@@ -14,9 +14,6 @@ import java.util.List;
 
 /**
  * TODO
- * DONE -custom error message. can set on per use basis
- * DONE -custom rule such as emailRule
- * DONE -enum (from string)
  */
 
 public class MinTests extends BaseTest {
@@ -60,19 +57,15 @@ public class MinTests extends BaseTest {
         home.setWeight(50.0);
         res = runOK(vb, home);
     }
+
     @Test
-    public void testMinDoubleDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().min(50.0, 0.1);
-
-        Home home = new Home();
-        home.setWeight(49.1);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "min(50.0)");
-
-        home.setWeight(50.0);
-        res = runOK(vb, home);
+    public void testMinBoundaries() {
+        chkMin(48, false);
+        chkMin(49, false);
+        chkMin(50, true);
+        chkMin(51, true);
     }
+
 
     @Test
     public void testMax() {
@@ -94,28 +87,6 @@ public class MinTests extends BaseTest {
 
         Home home = new Home();
         home.setLastName("bob");
-        runFailWithException(vb, home, 1);
-    }
-    @Test
-    public void testMaxDoubleDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("weight").notNull().max(50.0, 0.1);
-
-        Home home = new Home();
-        home.setWeight(50.11);
-        ValidationResults res = runFail(vb, home, 1);
-        chkValueErr(res, 0, "max(50.0)");
-
-        home.setWeight(50.05);
-        res = runOK(vb, home);
-    }
-    @Test
-    public void testMaxIntDelta() {
-        ValidateBuilder vb = new ValidateBuilder();
-        vb.field("points").notNull().max(50, 1);
-
-        Home home = new Home();
-        home.setPoints(48);
         runFailWithException(vb, home, 1);
     }
 
@@ -164,6 +135,20 @@ public class MinTests extends BaseTest {
         assertEquals(false, res.hasNoErrors());
         FieldError err = res.errL.get(index);
         assertEquals(true, err.errMsg.contains(expected));
+    }
+    private void chkMin(int k, boolean shouldPass) {
+        ValidateBuilder vb = new ValidateBuilder();
+        vb.field("points").notNull().min(50);
+
+        log(String.format("chk %d", k));
+        Home home = new Home();
+        home.setPoints(k);
+        if (shouldPass) {
+            this.runOK(vb, home);
+        } else {
+            ValidationResults res = runFail(vb, home, 1);
+            chkValueErr(res, 0, "min(50)");
+        }
     }
 
 }
