@@ -1,0 +1,29 @@
+FEATURE: custom-converter
+
+---
+title: test integer -> list<string>
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+    "additionalConverters": ["MyStringToStringListConverter"],
+  "fields": [
+   "firstName -> roles"
+  ]
+ }]
+}
+when(converter):
+{
+"firstName": "sally"
+}
+then(values):
+{
+"numPoints" : 0,
+"roles" : [ "sallyx" ]
+}
+

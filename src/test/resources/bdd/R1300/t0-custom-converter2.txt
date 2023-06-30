@@ -1,0 +1,31 @@
+FEATURE: custom-converter
+
+---
+title: test list<string> to integer
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> TestClass1",
+    "additionalConverters": [
+      "MyStringListConverter"
+    ],
+  "fields": [
+   "roles -> nval"
+  ]
+ }]
+}
+when(converter):
+{
+"roles" : [ "33", "44" ]
+}
+then(values):
+{
+ "n1" : 0,
+  "nval" : 77
+}
+

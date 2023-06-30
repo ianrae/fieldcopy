@@ -1,0 +1,53 @@
+#
+FEATURE: optional<list> support
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> OptionalSrc1",
+  "fields": [
+   "profiles -> profiles"
+  ]
+ }]
+}
+
+---
+title: test1
+useConverterFromTest:0
+when(converter):
+{
+  "profiles" : ["abc", "def"]
+}
+then(values):
+{
+ "numPoints" : 0,
+  "profiles" : [ "abc", "def" ]
+}
+
+---
+title: test2-missing
+useConverterFromTest:0
+when(converter):
+{
+  "profiles" : []
+}
+then(values):
+{
+ "numPoints" : 0,
+  "profiles" : [ ]
+}
+
+---
+title: test3 null
+useConverterFromTest:0
+when(converter):
+{
+}
+then(values):
+{
+   "numPoints" : 0
+}

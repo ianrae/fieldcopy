@@ -1,0 +1,46 @@
+FEATURE: two converters
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+  "fields": [
+   "firstName -> firstName",
+   "addr -> addr"
+  ]
+ },
+ {
+   "types": "Address -> Address",
+   "fields": [
+    "street1 -> street1",
+    "city -> city"
+   ]
+  }
+ ]
+}
+when(converter):
+{
+"firstName" : "sally",
+"addr" : {
+  "city" : "Kingston",
+  "street1" : "PRINCESS"
+}
+}
+then(values):
+{
+  "firstName" : "sally",
+  "numPoints" : 0,
+  "addr" : {
+    "street1" : "PRINCESS",
+    "city" : "Kingston",
+    "flag1" : false
+  }
+}
+

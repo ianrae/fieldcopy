@@ -1,0 +1,36 @@
+# addr.city tests
+
+FEATURE: sub-objs
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+  "fields": [
+   "date -> date",
+   "time -> time",
+   "date -> firstName"
+  ]
+ }]
+}
+when(converter):
+{
+"date" : "2022-02-28",
+"time" : "18:30:55"
+}
+}
+then(values):
+{
+ "firstName" : "2022-02-28",
+ "numPoints" : 0,
+ "date" : "2022-02-28",
+  "time" : "18:30:55"
+}
+

@@ -1,0 +1,49 @@
+# default
+
+FEATURE: default
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> Dest1",
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2",
+   "col1 -> col1 default(BLUE)"
+  ]
+ }]
+}
+
+---
+title: test-missing
+when(converter):
+{
+  "n1" : 44,
+  "s2" : "apple"
+}
+then(values):
+{
+ "n1" : 44,
+  "s2" : "apple",
+  "col1" : "BLUE"
+}
+
+---
+title: test-when-value
+useConverterFromTest:0
+when(converter):
+{
+  "n1" : 44,
+  "s2" : "apple",
+  "col1" : "RED"
+}
+then(values):
+{
+ "n1" : 44,
+  "s2" : "apple",
+  "col1" : "RED"
+}

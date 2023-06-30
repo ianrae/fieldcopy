@@ -1,0 +1,91 @@
+#
+FEATURE: sample1
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> Dest1",
+  "additionalConverters": [
+  ],
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2"
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> Dest1",
+  "additionalConverters": [
+  ],
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2"
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+---
+title: test2
+useConverterFromTest:1
+given(nothing):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> Dest1",
+  "additionalConverters": [
+  ],
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2"
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : -334,
+  "s2" : "abc"
+}
+then(values):
+{
+  "n1" : -334,
+  "s2" : "abc"
+}

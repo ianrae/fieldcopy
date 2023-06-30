@@ -1,0 +1,59 @@
+# Note the values section assumes we're in EST (+5) from UTC. 2022-02-28T05:00:00.000+00:00
+
+FEATURE: field->field
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+  "fields": [
+   "roles -> roles",
+   "points -> points"
+  ]
+ }]
+}
+
+---
+title: test1
+useConverterFromTest:0
+when(converter):
+{
+  "roles" : ["abc", "def"],
+  "points" : [11, -12]
+}
+then(values):
+{
+ "numPoints" : 0,
+  "roles" : [ "abc", "def" ],
+  "points" : [ 11, -12 ]
+}
+
+---
+title: test2-missing
+useConverterFromTest:0
+when(converter):
+{
+  "roles" : [],
+  "points" : []
+}
+then(values):
+{
+ "numPoints" : 0,
+  "roles" : [ ],
+  "points" : [ ]
+}
+
+---
+title: test3 null
+useConverterFromTest:0
+when(converter):
+{
+}
+then(values):
+{
+   "numPoints" : 0
+}

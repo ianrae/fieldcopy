@@ -5,7 +5,7 @@
 	<groupId>org.dnal-lang</groupId>
 	<artifactId>fieldcopy</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2.1</version>
+	<version>0.5.0</version>
 
 	<name>fieldcopy</name>
 	<url>http://dnal-lang.org</url>
@@ -70,18 +70,32 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.5</version>
 		</dependency>
-
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
-			<scope>test</scope>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>[2.7.9.1,)</version>
 		</dependency>
 		<dependency>
-			<groupId>ma.glasnost.orika</groupId>
-			<artifactId>orika-core</artifactId>
-			<version>1.5.2</version>
-			<scope>test</scope>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>[2.7.9.1,)</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jdk8</artifactId>
+			<version>[2.7.9.1,)</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.junit.jupiter</groupId>
+		  <artifactId>junit-jupiter-api</artifactId>
+			<version>5.9.3</version>
+		  <scope>test</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.junit.jupiter</groupId>
+		  <artifactId>junit-jupiter-engine</artifactId>
+			<version>5.9.3</version>
+		  <scope>test</scope>
 		</dependency>
 	</dependencies>
 

@@ -1,0 +1,62 @@
+# Note the values section assumes we're in EST (+5) from UTC. 2022-02-28T05:00:00.000+00:00
+# how to use a single converter for all tests in this file:
+#  -define converter in background(codegen)
+#    it will uses T0 in the converter class name R100T0_TestClass1ToTestClass1Converter.java
+#  -tests should only have when() and then() parts
+#  -tests should have useConverterFromTest:0
+
+FEATURE: value->field
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "TestClass1 -> TestClass1",
+  "fields": [
+   "56 -> n1",
+   "-57 -> nval",
+   "'abc' -> s2",
+   "'RED' -> col1",
+   "'2022-02-28' -> utilDate",
+   "'2023-02-28T18:30:55' -> ldt"
+  ]
+ }]
+}
+
+---
+title: test1
+useConverterFromTest:0
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+   "n1" : 56,
+   "nval" : -57,
+   "s2" : "abc",
+   "col1" : "RED",
+   "utilDate" : "2022-02-28T05:00:00.000+00:00",
+   "ldt" : "2023-02-28T18:30:55"
+}
+---
+title: test2
+useConverterFromTest:0
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+   "n1" : 56,
+   "nval" : -57,
+   "s2" : "abc",
+   "col1" : "RED",
+   "utilDate" : "2022-02-28T05:00:00.000+00:00",
+   "ldt" : "2023-02-28T18:30:55"
+}

@@ -1,0 +1,40 @@
+# addr.city tests
+
+FEATURE: sub-objs
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass",
+    "localDateFormat": "dd LLLL yyyy",
+    "localTimeFormat": "HH-mm-ss",
+    "utilDateFormat": "dd.MM.yyyy HH:mm:ss"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+  "fields": [
+   "'28 February 2022' -> date",
+   "'18-30-55' -> time",
+   "'31.08.1982 06:20:56' -> utilDate"
+  ]
+ }]
+}
+#note these bdd tests use json to load an actual Customer obj, so it just uses ISO format
+#util date uses yyyy-MM-dd'T'HH:mm:ss.SSS
+#TODO util date does some wierd timezone thing so 10am becomes 6am
+when(converter):
+{
+}
+}
+then(values):
+{
+  "numPoints" : 0,
+  "date" : "2022-02-28",
+  "time" : "18:30:55",
+  "utilDate" : "1982-08-31T10:20:56.000+00:00"
+}
+

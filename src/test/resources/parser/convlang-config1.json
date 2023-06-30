@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.service",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.other"
+  },
+  "converters": [{
+    "types": "org.dnal.fieldcopy.dataclass.Inner1 -> org.dnal.fieldcopy.dataclass.Inner1DTO",
+    "name": "bob",
+    "fields": [
+      "n1 -> n1",
+      "s2 -> s2"
+    ]
+  }]
+}

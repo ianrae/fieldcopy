@@ -1,0 +1,115 @@
+# field -> field tests
+
+FEATURE: field to field
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "AllScalars1 -> AllScalars1",
+  "fields": [
+   "auto"
+  ]
+ }]
+}
+when(converter):
+{
+"_int" : 441,
+"_byte" : 126,
+"_short" : 442,
+"_long" : 443,
+"_float" : 44.5,
+"_double" : 44.56,
+"_boolean" : true,
+"_char" : "a"
+}
+then(values):
+{
+"_int" : 441,
+"_byte" : 126,
+"_short" : 442,
+"_long" : 443,
+"_float" : 44.5,
+"_double" : 44.56,
+"_boolean" : true,
+"_char" : "a"
+}
+
+---
+title: test2
+useConverterFromTest:0
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "AllScalars1 -> AllScalars1",
+  "fields": [
+   "auto"
+  ]
+ }]
+}
+when(converter):
+{
+"_int" : -441,
+"_byte" : -126,
+"_short" : -442,
+"_long" : -443,
+"_float" : -44.5,
+"_double" : -44.56,
+"_boolean" : true,
+"_char" : "\t"
+}
+then(values):
+{
+"_int" : -441,
+"_byte" : -126,
+"_short" : -442,
+"_long" : -443,
+"_float" : -44.5,
+"_double" : -44.56,
+"_boolean" : true,
+"_char" : "\t"
+}
+
+---
+title: test3 null
+useConverterFromTest:0
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "AllScalars1 -> AllScalars1",
+  "fields": [
+   "auto"
+  ]
+ }]
+}
+when(converter):
+{
+"_int" : null,
+"_byte" : null,
+"_short" : null,
+"_long" : -443,
+"_float" : null,
+"_double" : null,
+"_boolean" : null,
+"_char" : null
+}
+then(values):
+{
+"_long" : -443
+}

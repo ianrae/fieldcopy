@@ -1,0 +1,55 @@
+# default
+
+FEATURE: default
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "AllScalars1 -> AllScalars1",
+  "fields": [
+    "_int -> _int default(-45)",
+    "_long -> _long default(9223372036854775807)",
+    "_float -> _float default(-45.76)",
+    "_boolean -> _boolean default(true)",
+    "_char -> _char default('Z')",
+    "_string -> _string default('abc')"
+  ]
+ }]
+}
+
+---
+title: test-missing
+when(converter):
+{
+}
+then(values):
+{
+  "_int" : -45,
+  "_long" : 9223372036854775807,
+  "_float" : -45.76,
+  "_boolean" : true,
+  "_char" : "Z",
+  "_string" : "abc"
+}
+
+---
+title: test-when-value
+useConverterFromTest:0
+when(converter):
+{
+  "_int" : 44,
+  "_string" : "apple"
+}
+then(values):
+{
+  "_int" : 44,
+  "_long" : 9223372036854775807,
+  "_float" : -45.76,
+  "_boolean" : true,
+  "_char" : "Z",
+  "_string" : "apple"
+}
