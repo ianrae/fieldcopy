@@ -1,0 +1,33 @@
+package org.dnal.fieldcopy.bdd.gen;
+
+import org.dnal.fieldcopy.Converter;
+import org.dnal.fieldcopy.ConverterGroup;
+import org.dnal.fieldcopy.runtime.ObjectConverter;
+import org.dnal.fieldcopy.runtime.ConverterContext;
+import org.dnal.fieldcopy.types.FieldTypeInformation;
+import org.dnal.fieldcopy.types.FieldTypeInformationImpl;
+import java.util.Optional;
+import java.util.List;
+import java.util.ArrayList;
+import org.dnal.fieldcopy.dataclass.Src1;
+import org.dnal.fieldcopy.dataclass.Dest1;
+
+public class R200sub201T0_Src1ToDest1Converter implements ObjectConverter<Src1, Dest1> {
+
+  @Override
+  public FieldTypeInformation getSourceFieldTypeInfo() {
+      return new FieldTypeInformationImpl(Src1.class);
+  }
+
+  @Override
+  public FieldTypeInformation getDestinationFieldTypeInfo() {
+    return new FieldTypeInformationImpl(Dest1.class);
+  }
+
+  @Override
+  public Dest1 convert(Src1 src, Dest1 dest, ConverterContext ctx) {
+    ctx.throwIfInfiniteLoop(src);
+
+    return dest;
+  }
+}

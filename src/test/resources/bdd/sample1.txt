@@ -1,0 +1,81 @@
+# test sql background.
+
+FEATURE: sample1
+background(codegen):
+CREATE TABLE public.Person
+(
+    id      INTEGER PRIMARY KEY,
+    ns      smallint,
+    nm      integer
+);
+
+---
+title: test1
+given(codegen):
+{
+	"seede-version": "1.0",
+	"actions": [{
+		"action": "insert",
+		"table": "Person",
+		"data": [{
+				"id": 7,
+				"ns": -1,
+				"nm": -1
+			},
+			{
+				"id": 8,
+				"ns": 0,
+				"nm": 0
+			}
+		]
+	}]
+}
+when(converter):
+ let x = Person[true].orderBy('id')
+then(values):
+value:a:Person {
+vid:7
+vns:-1
+vnm:-1
+}
+value:a:Person {
+vid:8
+vns:0
+vnm:0
+}
+
+---
+title: test2
+given(codegen):
+{
+	"seede-version": "1.0",
+	"actions": [{
+		"action": "insert",
+		"table": "Person",
+		"data": [
+			{
+                "id": 9,
+              	"ns": 82,
+              	"nm": 88
+            }
+		]
+	}]
+}
+when(converter):
+ let x = Person[true].orderBy('id')
+then(values):
+value:a:Person {
+vid:7
+vns:-1
+vnm:-1
+}
+value:a:Person {
+vid:8
+vns:0
+vnm:0
+}
+value:a:Person {
+vid:9
+vns:82
+vnm:88
+}

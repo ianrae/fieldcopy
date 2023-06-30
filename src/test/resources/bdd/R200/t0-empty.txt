@@ -1,0 +1,29 @@
+#
+FEATURE: empty (no fields)
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Src1 -> Dest1",
+  "additionalConverters": [
+  ],
+  "fields": [
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+  "n1" : 0
+}

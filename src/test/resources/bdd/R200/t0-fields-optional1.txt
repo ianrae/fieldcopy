@@ -1,0 +1,71 @@
+# Note the values section assumes we're in EST (+5) from UTC. 2022-02-28T05:00:00.000+00:00
+
+FEATURE: optional<field>->field
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "OptionalTestClass1 -> TestClass1",
+  "fields": [
+   "nval -> nval",
+   "s2 -> s2",
+   "col1 -> col1",
+   "utilDate -> utilDate",
+   "ldt -> ldt"
+  ]
+ }]
+}
+
+---
+title: test1
+useConverterFromTest:0
+when(converter):
+{
+   "nval" : -57,
+   "s2" : "abc",
+   "col1" : "RED",
+   "utilDate" : "2022-02-28T05:00:00.000+00:00",
+   "ldt" : "2023-02-28T18:30:55"
+}
+then(values):
+{
+   "n1" : 0,
+   "nval" : -57,
+   "s2" : "abc",
+   "col1" : "RED",
+   "utilDate" : "2022-02-28T05:00:00.000+00:00",
+   "ldt" : "2023-02-28T18:30:55"
+}
+
+---
+title: test2-missing
+useConverterFromTest:0
+when(converter):
+{
+  "s2" : "abc"
+}
+then(values):
+{
+   "n1" : 0,
+   "s2" : "abc"
+}
+
+---
+title: test3 null
+useConverterFromTest:0
+when(converter):
+{
+   "nval" : null,
+   "s2" : null,
+   "col1" : null,
+   "utilDate" : null,
+   "ldt" : null
+}
+then(values):
+{
+   "n1" : 0
+}

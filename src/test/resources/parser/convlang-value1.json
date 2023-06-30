@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+  },
+  "converters": [{
+    "types": "AllPrims1 -> AllPrims1",
+    "package": "org.dnal.fieldcopy.dataclass",
+    "fields": [
+      "44 -> _int"
+    ]
+  }]
+}

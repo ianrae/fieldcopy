@@ -1,0 +1,33 @@
+FEATURE: customer converter
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "additionalNamedConverters": {
+    "conv1" : "MyStringToIntegerConverter"
+ },
+ "converters": [{
+  "types": "OptionalSrc1 -> OptionalSrc1",
+  "fields": [
+   "s2 -> n1 using(conv1)",
+   "col1 -> col1"
+  ]
+ }]
+}
+when(converter):
+{
+"s2" : "345",
+"col1" : "RED"
+}
+then(values):
+{
+  "n1" : 345,
+  "col1" : "RED"
+}
+

@@ -1,80 +1,95 @@
 package org.dnal.fieldcopy;
 
-import org.dnal.fieldcopy.core.CopierFactoryImpl;
-import org.dnal.fieldcopy.core.FieldCopyService;
-import org.dnal.fieldcopy.core.ServiceFactory;
-import org.dnal.fieldcopy.log.SimpleConsoleLogger;
-import org.dnal.fieldcopy.log.SimpleLogger;
-import org.dnal.fieldcopy.service.beanutils.BUServiceFactory;
+import org.dnal.fieldcopy.codegen.FieldCopyException;
+import org.dnal.fieldcopy.converter.FCRegistry;
+import org.dnal.fieldcopy.fluent.FCFluent1;
+import org.dnal.fieldcopy.runtime.ConverterContext;
+import org.dnal.fieldcopy.runtime.ObjectConverter;
+import org.dnal.fieldcopy.runtime.RuntimeOptions;
+import org.dnal.fieldcopy.types.FieldTypeInformation;
 
+import static java.util.Objects.isNull;
+
+/**
+ * The main client class.
+ * Use this to configure and create converters.
+ */
 public class FieldCopy {
-	private static FieldCopy theSingleton;
-	private static SimpleLogger theLogger = new SimpleConsoleLogger();
-	
-	private ServiceFactory svcFactory;
-	
-	public FieldCopy(ServiceFactory factory) {
-		this.svcFactory = factory;
-	}
-	
-	/**
-	 * Optional method. Use this to set a custom factory.  setSingleton must
-	 * be called before the first call to createFactory.
-	 * 
-	 * @param factory factory to use.
-	 */
-	public static synchronized void setSingleton(FieldCopy factory) {
-		theSingleton = factory;
-	}
-	
-	/**
-	 * Set the logger to be used.
-	 * @param logger a logger.
-	 */
-	public static synchronized void setLogger(SimpleLogger logger) {
-		theLogger = logger;
-	}
-	public static SimpleLogger getLogger() {
-		return theLogger;
-	}
-	
-	/**
-	 * Create a copier.
-	 * This method is thread-safe.
-	 * 
-	 * @return new instance of a copier
-	 */
-	public static synchronized FieldCopier createCopier() {
-		if (theSingleton == null) {
-			theSingleton = new FieldCopy(new BUServiceFactory());
-		}
-		return theSingleton.createCopierFactory().createCopier();
-	}
-	
-	
-	/**
-	 * Create a copier factory.  The factory can be used to 
-	 * create a series of FieldCopier objects that all share
-	 * the same service (and caching).
-	 * 
-	 * This method is thread-safe.
-	 * 
-	 * @return new instance of a copier factory
-	 */
-	public static synchronized CopierFactory createFactory() {
-		if (theSingleton == null) {
-			theSingleton = new FieldCopy(new BUServiceFactory());
-		}
-		return theSingleton.createCopierFactory();
-	}
 
-	/**
-	 * Create a new instance of a copier factory, which contains
-	 * a new instance of a field copy service.
-	 */
-	private CopierFactory createCopierFactory() {
-		FieldCopyService copySvc = svcFactory.createService(theLogger);
-		CopierFactoryImpl dcf = new CopierFactoryImpl(copySvc);
-		return dcf;
-	}
+    private final ConverterGroup converterGroup;
+    private final FCRegistry registry;
+    private final RuntimeOptions options;
+
+    public FieldCopy(ConverterGroup converterGroup) {
+        this(converterGroup, new RuntimeOptions(), null);
+    }
+
+    public FieldCopy(ConverterGroup converterGroup, RuntimeOptions options, FCRegistry namedConverters) {
+        this.registry = new FCRegistry();
+        this.registry.addAll(converterGroup.getConverters());
+        if (namedConverters != null) {
+            registry.addNamedFromOtherRegistry(namedConverters);
+        }
+        this.converterGroup = converterGroup;
+        this.options = options;
+    }
+
+    public <S, T> Converter getConverter(Class<S> srcClass, Class<T> destClass) {
+        ObjectConverter conv = registry.find(srcClass, destClass);
+        if (isNull(conv)) {
+            //TODO fix msg. won't be good for lists
+            String msg = String.format("No converter for %s -> %s", srcClass.getName(), destClass.getName());
+            throw new FieldCopyException(msg);
+        }
+        ConverterContext ctx = new ConverterContext(registry, options);
+        Converter converter = new Converter(conv, ctx);
+
+        return converter;
+    }
+    public <S, T> Converter getConverter(Class<S> srcClass, Class<T> destClass, String converterName) {
+        ObjectConverter conv = registry.find(srcClass, destClass, converterName);
+        if (isNull(conv)) {
+            String msg = String.format("No converter with name '%s'", converterName);
+            throw new FieldCopyException(msg);
+        }
+        ConverterContext ctx = new ConverterContext(registry, options);
+        Converter converter = new Converter(conv, ctx);
+
+        return converter;
+    }
+
+    public <S, T> Converter getConverter(FieldTypeInformation srcFti, FieldTypeInformation destFti) {
+        ObjectConverter conv = registry.find(srcFti, destFti);
+        if (isNull(conv)) {
+            //TODO fix msg. won't be good for lists
+            String msg = String.format("No converter for %s -> %s", srcFti.getEffectiveType().getName(), destFti.getEffectiveType().getName());
+            throw new FieldCopyException(msg);
+        }
+        ConverterContext ctx = new ConverterContext(registry, options);
+        Converter converter = new Converter(conv, ctx);
+
+        return converter;
+    }
+
+    public static FCFluent1 with(Class<? extends ConverterGroup> groupClass) {
+        FCFluent1 fluent1 = new FCFluent1(groupClass, new RuntimeOptions());
+        return fluent1;
+    }
+
+    public static FCFluent1 with(Class<? extends ConverterGroup> groupClass, RuntimeOptions options) {
+        FCFluent1 fluent1 = new FCFluent1(groupClass, options);
+        return fluent1;
+    } //RuntimeOptions options
+
+    public ConverterGroup getConverterGroup() {
+        return converterGroup;
+    }
+
+    public FCRegistry getRegistry() {
+        return registry;
+    }
+
+    public RuntimeOptions getOptions() {
+        return options;
+    }
 }

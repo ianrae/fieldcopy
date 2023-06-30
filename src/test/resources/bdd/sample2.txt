@@ -1,0 +1,70 @@
+# test sql background.
+
+FEATURE: sample1
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+
+ },
+ "converters": [{
+  "types": "org.dnal.fieldcopy.dataclass.Inner1 -> org.dnal.fieldcopy.dataclass.Inner1DTO",
+  "name": "bob",
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2"
+  ]
+ }]
+}
+when(converter):
+ anything here
+then(values):
+value:a:Person {
+vid:7
+vns:-1
+vnm:-1
+}
+value:a:Person {
+vid:8
+vns:0
+vnm:0
+}
+
+---
+title: test2
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+
+ },
+ "converters": [{
+  "types": "org.dnal.fieldcopy.dataclass.Inner1 -> org.dnal.fieldcopy.dataclass.Inner1DTO",
+  "name": "bob",
+  "fields": [
+   "n1 -> n1",
+   "s2 -> s2"
+  ]
+ }]
+}
+when(converter):
+ anything here
+then(values):
+value:a:Person {
+vid:7
+vns:-1
+vnm:-1
+}
+value:a:Person {
+vid:8
+vns:0
+vnm:0
+}
+value:a:Person {
+vid:9
+vns:82
+vnm:88
+}

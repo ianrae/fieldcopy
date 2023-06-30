@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+  },
+  "converters": [{
+    "types": "Customer -> Customer",
+    "name": "BobCustomerConverter",
+    "fields": [
+      "firstName -> firstName",
+      "numPoints -> lastName"
+    ]
+  },{
+    "types": "Address -> org.dnal.fieldcopy.dataclass.Address",
+    "name": "BobAddressConverter",
+    "fields": [
+      "street1 -> street1",
+      "city -> city"
+    ]
+  }]
+}

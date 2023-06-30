@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "config": {
+
+  },
+  "converters": [{
+    "types": "Inner1 -> org.dnal.fieldcopy.dataclass.Inner1DTO",
+    "package": "org.dnal.fieldcopy.dataclass",
+    "name": "bob",
+    "fields": [
+      "s3 -> s3"
+    ]
+  }]
+}

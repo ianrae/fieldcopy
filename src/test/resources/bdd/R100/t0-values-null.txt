@@ -1,0 +1,33 @@
+# test
+
+FEATURE: sample1
+background(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "TestClass1 -> TestClass1",
+  "fields": [
+   "null -> nval",
+   "null -> s2",
+   "null -> col1",
+   "null -> utilDate",
+   "null -> ldt"
+  ]
+ }]
+}
+
+---
+title: test1
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+   "n1" : 0
+}

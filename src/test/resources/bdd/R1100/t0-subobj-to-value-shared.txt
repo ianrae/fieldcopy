@@ -1,0 +1,35 @@
+# if two lines auto-create same sub-obj, only do create once
+FEATURE: sub-objs
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+ },
+ "converters": [{
+  "types": "Customer -> Customer",
+  "fields": [
+   "addr.street1-> firstName",
+   "addr.city -> lastName"
+  ]
+ }]
+}
+when(converter):
+{
+"firstName" : "sally",
+"addr" : {
+  "street1": "MainSt",
+  "city" : "Kingston"
+}
+}
+then(values):
+{
+  "firstName" : "MainSt",
+  "lastName" : "Kingston",
+  "numPoints" : 0
+}
+

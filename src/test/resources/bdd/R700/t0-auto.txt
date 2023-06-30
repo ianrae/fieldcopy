@@ -1,0 +1,57 @@
+# test sql background.
+
+FEATURE: auto
+
+---
+title: test1
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+
+ },
+ "converters": [{
+  "types": "org.dnal.fieldcopy.dataclass.Src1 -> org.dnal.fieldcopy.dataclass.Dest1",
+  "fields": [
+   "auto"
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+then(values):
+{
+  "n1" : 33,
+  "s2" : "abc"
+}
+---
+title: test2
+given(codegen):
+{
+ "version": "1.0",
+ "config": {
+
+ },
+ "converters": [{
+  "types": "org.dnal.fieldcopy.dataclass.Src1 -> org.dnal.fieldcopy.dataclass.Dest1",
+  "additionalConverters": [
+  ],
+  "fields": [
+   "auto",
+   "s2 -> col1"
+  ]
+ }]
+}
+when(converter):
+{
+  "n1" : 33,
+  "s2" : "RED"
+}
+then(values):
+{
+  "n1" : 33,
+  "col1" : "RED"
+}
