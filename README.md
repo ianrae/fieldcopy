@@ -46,19 +46,19 @@ FieldCopy has many features to help with conversion:
 * converts basic types such as conversion between int and Integer, Long, Double, and other Number types. See [Built-In Conversions](#built-in-conversions)
 
 
-* handles Optional fields, adding or removing Optional as needed. See [Optional](~optional)
+* handles Optional fields, adding or removing Optional as needed. See [Optional](#optional)
 
-* default values can be defined that are used when a field is null. See [default](~default)
+* default values can be defined that are used when a field is null. See [default](#default)
 
-* handles copying of nested objects (also called sub-objects) using converters. See [Sub-Objects](~sub-objects)
+* handles copying of nested objects (also called sub-objects) using converters. See [Sub-Objects](#sub-objects)
 
-* fields within sub-objects can be copied, such as "address.city -> city". See [Sub-Object Fields](~sub-object-fields)
+* fields within sub-objects can be copied, such as "address.city -> city". See [Sub-Object Fields](#sub-object-fields)
 
-* "auto" can be used to automatically copy all fields of the source object. See [auto](~auto)
+* "auto" can be used to automatically copy all fields of the source object. See [auto](#auto)
 
-* "custom" can be used when you want to write the conversion code for a field. See [custom](~custom)
+* "custom" can be used when you want to write the conversion code for a field. See [custom](#custom)
 
-* You can write your own converts and use them from a FieldCopy-created converter, and vice versa. See [Additional Converters](~additional_conveters)
+* You can write your own converts and use them from a FieldCopy-created converter, and vice versa. See [Additional Converters](#additional_conveters)
 
 ### Usage
 
@@ -144,12 +144,12 @@ The follow configuration values can be used:
 | ----- | ------ | ------------- |
 | defaultSourcePackage  | Yes | Java package to use in 'types' for the source class if none is specified  |
 | defaultDestinationPackage  |  Yes | Java package to use in 'types' for the source class if none is specified  |
-| defaultDestinationPackage  |  Yes | Can be used to enable validating date & time values at code generation time. See [Date and Time Format](~date-and-time-format)  |
-| localDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| localTimeFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| localDateTimeFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| zonedDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| utilDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
+| defaultDestinationPackage  |  Yes | Can be used to enable validating date & time values at code generation time. See [Date and Time Format](#date-and-time-format)  |
+| localDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| localTimeFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| localDateTimeFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| zonedDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| utilDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
 
 #### *additionalConverters* and *additionalNamedConverters*
 If you write any converters yourself, they are registered here.
