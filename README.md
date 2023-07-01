@@ -43,9 +43,8 @@ public class CustomerEntityToCustomerDTOConverter<CustomerEntity, CustomerDTO> {
 
 FieldCopy has many features to help with conversion:
 
-* converts basic types such as conversion between int and Integer, Long, Double, and other Number types. See [Built-In Conversions](~built-in-conversions)
+* converts basic types such as conversion between int and Integer, Long, Double, and other Number types. See [Built-In Conversions](#built-in-conversions)
 
-* converts Java date and time objects, such as LocalDate to ZonedDateTime. See [Date and Time Format](~date_and_time_format)
 
 * handles Optional fields, adding or removing Optional as needed. See [Optional](~optional)
 
