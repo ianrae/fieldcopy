@@ -1,6 +1,6 @@
 # FIELDCOPY
 
-FieldCopy is library for creating Java Bean mappers.  It uses code generation to create converter classes. Each converter converts a source Java Bean object to an destination object of a different class.
+FieldCopy is a library for creating Java Bean mappers.  It uses code generation to create *converter* classes. Each *converter* converts a source Java Bean object to an destination object of a different class.
 
 Converters are defined in JSON files using a simple syntax. Here is a converter from CustomerEntity to CustomerDTO:
 
@@ -58,7 +58,7 @@ FieldCopy has many features to help with conversion:
 
 * "custom" can be used when you want to write the conversion code for a field. See [custom](#custom)
 
-* You can write your own converts and use them from a FieldCopy-created converter, and vice versa. See [Additional Converters](#additional_conveters)
+* You can write your own converters and use them from a FieldCopy-created converter, and vice versa. See [Additional Converters](#additional_conveters)
 
 ### Usage
 
