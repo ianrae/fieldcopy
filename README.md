@@ -607,13 +607,16 @@ The config section in the JSON files can be used to define the formats that you 
 | ----- |  ------------- |
 | localDateFormat  |  A LocalDate format such as "2022-02-28"  |
 | localTimeFormat  |  A LocalDate format such as "18:30:55"  |
-| localDateTimeFormat  A LocalDate format such as "2022-02-28T18:30:55"  |
+| localDateTimeFormat | A LocalDate format such as "2022-02-28T18:30:55"  |
 | zonedDateFormat  |   A LocalDate format such as "2022-02-28T18:30:55-05:00[America/New_York]"  |
 | utilDateFormat  |   A java.util.Date format such as "2022-02-28". Note. If this config value is not set, the default is to use the same format as localDateTimeFormat  |
 
 Be aware that no date and time parsing or formatting is done during code generation.
 
+| Name  | Description |
+| ----- |  ------------- |
 | validateDateAndTimeValues  |  If *true* then date & time string values are validated at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
+
 
 #### Runtime
 There are two ways to configure date & time formats at runtime.
