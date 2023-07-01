@@ -199,7 +199,9 @@ Example:
 The first string can also be a value to be copied to the destination field name. This is used
 to populate the destination object with specific values
 
-Here we assign an enum value of Color.RED to the destination field *favoriteColor*.
+Here we assign an enum value of Color.RED to the destination field *favoriteColor*. Note the use of single quotes as a string delimiter. 
+You can use single or double quotes for string value, but single quotes are simpler within JSON.
+
 ```json
 "fields": [
    "'RED' -> favoriteColor",
@@ -340,7 +342,7 @@ When the destination field is *byte* (or *Byte*), the following built-in convers
 | *short*  | direct | *Short*  | x.byteValue() |
 | *int*  | direct | *Integer*  | x.byteValue() |
 | *long*  | direct | *Long*  | x.byteValue() |
-| *float*  | cast  | *Float*  | cx.byteValue() |
+| *float*  | cast  | *Float*  | x.byteValue() |
 | *double*  | cast  | *Double*  | x.byteValue() |
 | *String*  | Byte.parseByte(x) | *Character* | Byte.valueOf(x.charValue()) |
 
@@ -458,6 +460,10 @@ String tmp1 = src.getName();
 dest.setName(Optional.ofNullable(tmp1);
 ```
 
+## Lists
+FieldCopy supports java.util.List fields and will do a shallow copy of their contents to a new ArrayList.
+
+
 ## Sub-Objects
 FieldCopy considers a field that is a Java bean to be a "sub-object".  It looks for a registered converter
 and uses it if available.
@@ -522,7 +528,8 @@ Then you mention your additional converter in the JSON file, either as a named o
 Additional Converters can be defined at the root level, or within a "converter" section to be private to that converter.
 
 ### Named Converters
-A named converter is configured in *additionalNamedConverters* and given a unique name.
+A named converter is configured in *additionalNamedConverters* and given a unique name.  Named converters allow you
+to have multiple converters for the same source and destination classes, and select which one to use with the *using* modifier.
 
 ```json
 "additionalNamedConverters": { 
@@ -565,7 +572,16 @@ Date and Time fields use ISO format by default.
 | ZonedDateTime | yyyy-MM-dd'T'HH:mm:ssXXX |
 | java.util.Date | yyyy-MM-dd'T'HH:mm:ss |
 
-#### Code Generation
+The formats can be changed in the JSON file *config* section to any format String supported by DateTimeFormatter.
+
+| Name  | Optional | Description |
+| ----- | ------ | ------------- |
+| localDateFormat  |  Yes |  any format string supported for LocalDate  |
+| localTimeFormat  |  Yes |  any format string supported for LocalTime  |
+| localDateTimeFormat  |  Yes |  any format string supported for LocalDateTime  |
+| zonedDateFormat  |  Yes |  any format string supported for ZonedDateTime  |
+| utilDateFormat  |  Yes |  any format string supported for SimpleDateFormat  |
+
 These can be changed to any other valid DateTimeFormatter format, or SimpleDateFormat for java.util.Date.
 The config section in the JSON files can be used to define the formats that you wish to use.
 
@@ -579,7 +595,7 @@ The config section in the JSON files can be used to define the formats that you 
 
 Be aware that no date and time parsing or formatting is done during code generation.
 
-| defaultDestinationPackage  |  Can be used to enable validating date & time values at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
+| validateDateAndTimeValues  |  If *true* then date & time string values are validated at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
 
 #### Runtime
 There are two ways to configure date & time formats at runtime.
@@ -605,35 +621,6 @@ initialOptions.localDateFormatter = DateTimeFormatter.ofPattern("yyyy/mm/dd");
 
 FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
 ```
-
-
-# END
-
-----------------------end ------------------------
-JSON
--options
--converters
--name
--fields
-- a -> b required/default/using/custom/skipNull
-
-Code Generation
--currently this must be done manually
--in future an extension for maven, gradle will be done
--dest directory
--group file
--custom files .. base and derived...
-
-Runtime
--options
--fc object. can be one per app or as many as you needed (see thread safety)
--find converter: by name or classes
--invoke converter
--null handling...
--thread-safety
--shallow vs deep copying
-
-
 
 
 
