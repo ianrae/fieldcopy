@@ -78,7 +78,8 @@ FieldCopy is used in two phases.
 Write the JSON file to define the converters. Then used FieldCopy to generation converter classes.  
 This is normally done at build time.  
 
-In addition to the converter classes, a *group class* (shown below as MyGroup.class) that is a registry of converters.
+In addition to the converter classes, a *group class* (shown below as MyGroup.class) created, It is a registry of the
+converters.
 
 #### Phase 2: Use The Converters
 Use the converters in your application. FieldCopy has a fluent API that is initialized using the *group class*. 
@@ -90,7 +91,7 @@ FieldCopy fc = FieldCopy.using(MyGroup.class).build();
 ```
 
 Use the FieldCopy instance to get a converter for a given source and destination class, and then use it.
-The converter returns the converted object.
+The converter method *convert* returns the converted object.
 
 ```java
 Converter<CustomerEntity, CustomerDTO> converter = fc.getConverter(CustomerEntity.class, CustomerDTO.class);
@@ -152,7 +153,7 @@ The follow configuration values can be used:
 | utilDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
 
 #### *additionalConverters* and *additionalNamedConverters*
-If you write any converters yourself, they are registered here.
+If you write any converters yourself, they are registered here.  See [Additional Converters](#additional_conveters)
 
 #### *converters*
 An array of converter definitions. Each definition consists of:
@@ -226,15 +227,31 @@ See [Field Modifiers](#field-modifiers) for more information.
 ## Field Modifiers
 
 ### *auto*
-This causes all source fields that have a matching destination field to be copied.
-The source and destination fields must have the same name (case-sensitive) to be matched.
+The *auto* command finds all matching source and destination fields and generates field definitions.  The source and destination fields must have the same name (case-sensitive) to be matched.
 
-The *auto* modifier appears alone in the field string. It's useful when source and destination classes have the same field name and you want them to be copied without having to update the FieldCopy JSON.
-
-Here we assign an enum value of Color.RED to the destination field *favoriteColor*.
 ```json
 "fields": [
    "auto",
+   ...
+]
+```
+
+It is equivalent to listing all the matching fields. For example, if three fields ("firstName", "lastName", and "birthDate") exist in 
+source and destination classes, then *auto* is equivalent to.
+
+```json
+  "firstName -> firstName",
+  "lastName -> lastName",
+  "bithDate -> birthDate"
+```
+
+You can use *auto* for matchhing fields and then list the other fields explicitly.   
+
+```json
+"fields": [
+   "auto",
+   "points -> loyaltyPoints",
+   "payStat -> paymentStatus"
    ...
 ]
 ```
@@ -249,7 +266,7 @@ Specifies that converter class will be an abstract base class with an abstract m
 ]
 ```
 
-This would generate an abstract method in the converter class. The converter method is given the src field's value, and the overall source and destination objects.
+This would generate an abstract method in the converter class. The abstract method is given the src field's value, and the overall source and destination objects.
 
 ```java
 protected abstract LocalDate convertBithDate(LocalDate srcValue, Customer src, Customer dest, ConverterContext ctx);
@@ -308,7 +325,7 @@ The *using* modifier lets a field specify a converter by name, and can be useful
 
 ```json
 "fields": [
-   "originalCustomer -> customer using(MySpecialCustomerConverter)",
+   "originalCustomer -> customer using(SpecialCustomerConverter)",
    ...
 ]
 ```
@@ -446,7 +463,8 @@ When the destination field is *String*, the following built-in conversions are s
 | *String*  | direct | *Character* | direct |
 
 ## Optional
-FieldCopy automatically converts fields that use java.util.Optional as needed for example. If the source field is of type Optional<String> and the destination is String, the generated code will orElse(null) to extract the value.
+FieldCopy automatically converts fields that use java.util.Optional as needed for example. If the source field is of 
+type Optional<String> and the destination is non-Optional, the generated code will orElse(null) to extract the value.
 
 ```java
 Optional<String> tmp1 = src.getName();
