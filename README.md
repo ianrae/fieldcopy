@@ -158,6 +158,17 @@ If you write any converters yourself, they are registered here.  See [Additional
 #### *converters*
 An array of converter definitions. Each definition consists of:
 
+##### **package**
+A string that contains the package name to use for source and destination classes.
+*package* is otpional. You can define the package directly in *types*, or in
+*defaultSourcePackage*, *defaultDestinationPackage*.
+
+Example:
+
+```json
+"package" : "com.company.entities"
+```
+
 ##### **types**
 A string that contains a source class name + "->" + a destination class name.  If either class name does not contain a package then defaultSourcePackage or defaultDestinationPackage are used.
 

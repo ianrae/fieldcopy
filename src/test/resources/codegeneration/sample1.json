@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "config": {
+    "defaultSourcePackage":"org.dnal.fieldcopy.dataclass",
+    "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
+  },
+  "converters": [{
+    "types": "Address -> Address",
+    "package": "org.dnal.fieldcopy.dataclass",
+    "fields": [
+      "auto",
+      "exclude backRef"
+    ]
+  }]
+}
