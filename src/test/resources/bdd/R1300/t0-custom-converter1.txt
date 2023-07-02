@@ -14,7 +14,7 @@ given(codegen):
  "converters": [{
   "types": "OptionalSrc1 -> OptionalSrc1",
     "additionalConverters": [
-      "MyStringToIntegerConverter"
+      "org.dnal.fieldcopy.bdd.customconverter.MyStringToIntegerConverter"
     ],
   "fields": [
    "s2 -> n1",

@@ -12,7 +12,7 @@ given(codegen):
     "defaultDestinationPackage":"org.dnal.fieldcopy.dataclass"
  },
  "additionalConverters": [
-   "MyStringToIntegerConverter"
+   "org.dnal.fieldcopy.bdd.customconverter.MyStringToIntegerConverter"
  ],
  "converters": [{
   "types": "OptionalSrc1 -> OptionalSrc1",

@@ -51,7 +51,7 @@ public class ConvLangSnippetRunner implements SnippetRunner {
             GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
             String outputPath = "src/test/java/org/dnal/fieldcopy/bdd/gen";
             groupCodeGenerator.setPackageName(GEN_PACKAGE);
-            groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
+//            groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
             groupCodeGenerator.setOutDir(outputPath);
             groupCodeGenerator.setOptions(parseRes.options);
             res.ok = groupCodeGenerator.generateJavaFiles(parseRes);

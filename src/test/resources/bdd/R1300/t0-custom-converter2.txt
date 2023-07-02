@@ -12,7 +12,7 @@ given(codegen):
  "converters": [{
   "types": "Customer -> TestClass1",
     "additionalConverters": [
-      "MyStringListConverter"
+      "org.dnal.fieldcopy.bdd.customconverter.MyStringListConverter"
     ],
   "fields": [
    "roles -> nval"

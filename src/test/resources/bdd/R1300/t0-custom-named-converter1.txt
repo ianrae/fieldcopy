@@ -12,7 +12,7 @@ given(codegen):
  "converters": [{
   "types": "OptionalSrc1 -> OptionalSrc1",
     "additionalNamedConverters": {
-      "conv1" : "MyStringToIntegerConverter"
+      "conv1" : "org.dnal.fieldcopy.bdd.customconverter.MyStringToIntegerConverter"
     },
   "fields": [
    "s2 -> n1 using(conv1)",

@@ -169,7 +169,7 @@ public class ConverterRuntimeSnippetRunner implements SnippetRunner {
                 for (ObjectConverterSpec converterSpec : action.additionalConverters) {
                     String converterClassName = converterSpec.converterClassName;
 
-                    ObjectConverterFinder finder = new ObjectConverterFinder(ConvLangSnippetRunner.ADDITIONAL_CONVERTER_PACKAGE);
+                    ObjectConverterFinder finder = new ObjectConverterFinder(); //ConvLangSnippetRunner.ADDITIONAL_CONVERTER_PACKAGE);
                     String fullName = finder.buildFullName(converterClassName);
                     Class<?> clazz = helper.getClassFromName(fullName);
                     if (isNull(clazz)) {

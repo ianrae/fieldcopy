@@ -20,31 +20,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeGenerationTests {
 
-    public static class AdditionalConverterBuilder {
-        private List<ObjectConverterSpec> list = new ArrayList<>();
-
-        public AdditionalConverterBuilder addNamedConverter(String converterName, String converterClassName) {
-            ObjectConverterSpec converterSpec = new ObjectConverterSpec(converterName, converterClassName);
-            list.add(converterSpec);
-            return this;
-        }
-        public AdditionalConverterBuilder addNamedConverter(String converterName, Class<?> converterClass) {
-            ObjectConverterSpec converterSpec = new ObjectConverterSpec(converterName, converterClass.getName());
-            list.add(converterSpec);
-            return this;
-        }
-
-        public AdditionalConverterBuilder addConverter(String converterClassName) {
-            ObjectConverterSpec converterSpec = new ObjectConverterSpec(null, converterClassName);
-            list.add(converterSpec);
-            return this;
-        }
-        public AdditionalConverterBuilder addConverter(Class<?> converterClass) {
-            ObjectConverterSpec converterSpec = new ObjectConverterSpec(null, converterClass.getName());
-            list.add(converterSpec);
-            return this;
-        }
-    }
+//    public static class AdditionalConverterBuilder {
+//        private List<ObjectConverterSpec> list = new ArrayList<>();
+//
+//        public AdditionalConverterBuilder addNamedConverter(String converterName, String converterClassName) {
+//            ObjectConverterSpec converterSpec = new ObjectConverterSpec(converterName, converterClassName);
+//            list.add(converterSpec);
+//            return this;
+//        }
+//
+//        public AdditionalConverterBuilder addNamedConverter(String converterName, Class<?> converterClass) {
+//            ObjectConverterSpec converterSpec = new ObjectConverterSpec(converterName, converterClass.getName());
+//            list.add(converterSpec);
+//            return this;
+//        }
+//
+//        public AdditionalConverterBuilder addConverter(String converterClassName) {
+//            ObjectConverterSpec converterSpec = new ObjectConverterSpec(null, converterClassName);
+//            list.add(converterSpec);
+//            return this;
+//        }
+//
+//        public AdditionalConverterBuilder addConverter(Class<?> converterClass) {
+//            ObjectConverterSpec converterSpec = new ObjectConverterSpec(null, converterClass.getName());
+//            list.add(converterSpec);
+//            return this;
+//        }
+//
+//        public List<ObjectConverterSpec> build() {
+//            return list;
+//        }
+//    }
 
     public static class CodeGenerationBuilder1 {
         private String json;
@@ -52,7 +58,7 @@ public class CodeGenerationTests {
         private String converterPackageName;
         private String outputDir;
         private boolean dryRunFlag;
-        private AdditionalConverterBuilder additionalConverterBuilder;
+//        private AdditionalConverterBuilder additionalConverterBuilder;
 
         public CodeGenerationBuilder1(String json) {
             this.json = json;
@@ -62,32 +68,62 @@ public class CodeGenerationTests {
             this.options = options;
             return this;
         }
+
         public CodeGenerationBuilder1 converterPackageName(String converterPackageName) {
             this.converterPackageName = converterPackageName;
             return this;
         }
+
         public CodeGenerationBuilder1 outputDir(String outputDir) {
             this.outputDir = outputDir;
             return this;
         }
+
         public CodeGenerationBuilder1 dryRunFlag(boolean dryRunFlag) {
             this.dryRunFlag = dryRunFlag;
             return this;
         }
-        public CodeGenerationBuilder1 additionalConverters(AdditionalConverterBuilder additionalConverterBuilder) {
-            this.additionalConverterBuilder = additionalConverterBuilder;
-            return this;
-        }
+
+//        public CodeGenerationBuilder1 additionalConverters(AdditionalConverterBuilder additionalConverterBuilder) {
+//            this.additionalConverterBuilder = additionalConverterBuilder;
+//            return this;
+//        }
 
         public FieldCopyCodeGenerator build() {
-
+            return new FieldCopyCodeGenerator(json, options, converterPackageName, outputDir, dryRunFlag);
         }
     }
 
     public static class FieldCopyCodeGenerator {
+        private String json;
+        private FieldCopyOptions options;
+        private String converterPackageName;
+        private String outputDir;
+        private boolean dryRunFlag;
+
+        public FieldCopyCodeGenerator(String json, FieldCopyOptions options, String converterPackageName, String outputDir,
+                                      boolean dryRunFlag) {
+            this.json = json;
+            this.options = options;
+            this.converterPackageName = converterPackageName;
+            this.outputDir = outputDir;
+            this.dryRunFlag = dryRunFlag;
+        }
 
         public boolean generateSourceFiles() {
-            return false;
+            FieldCopyLog log = new SimpleLog();
+            FieldCopyJsonParser parser = new FieldCopyJsonParser(log);
+
+            ParserResults parseRes = parser.parse(json, options);
+
+            GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+            groupCodeGenerator.setPackageName(converterPackageName);
+//        groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
+            groupCodeGenerator.setOutDir(outputDir);
+            groupCodeGenerator.setOptions(parseRes.options);
+            groupCodeGenerator.setDryRunFlag(dryRunFlag);
+            boolean ok = groupCodeGenerator.generateJavaFiles(parseRes);
+            return ok;
         }
     }
 
