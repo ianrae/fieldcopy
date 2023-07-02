@@ -6,6 +6,7 @@ import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.dataclass.OptionalSrc1;
 import org.dnal.fieldcopy.dataclass.Src1;
 import org.dnal.fieldcopy.fieldspec.CopySpec;
+import org.dnal.fieldcopy.fluent.FieldCopyBuilder;
 import org.dnal.fieldcopy.runtime.ConverterContext;
 import org.dnal.fieldcopy.runtime.ObjectConverter;
 import org.dnal.fieldcopy.runtime.ObjectConverterBase;
@@ -116,7 +117,7 @@ public class R1300CustomConverterTests extends RTestBase {
     @Test
     public void testRuntime() {
         MyCustConverter3 conv3 = new MyCustConverter3();
-        FieldCopy fc = FieldCopy.with(MyGroup3.class).build();
+        FieldCopy fc = FieldCopyBuilder.with(MyGroup3.class).build();
         Converter<String, Integer> converter = fc.getConverter(conv3.getSourceFieldTypeInfo(), conv3.getDestinationFieldTypeInfo());
 
         String src = "446";
