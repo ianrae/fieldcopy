@@ -58,7 +58,6 @@ public class CodeGenerationTests {
         private String converterPackageName;
         private String outputDir;
         private boolean dryRunFlag;
-//        private AdditionalConverterBuilder additionalConverterBuilder;
 
         public CodeGenerationBuilder1(String json) {
             this.json = json;
@@ -83,11 +82,6 @@ public class CodeGenerationTests {
             this.dryRunFlag = dryRunFlag;
             return this;
         }
-
-//        public CodeGenerationBuilder1 additionalConverters(AdditionalConverterBuilder additionalConverterBuilder) {
-//            this.additionalConverterBuilder = additionalConverterBuilder;
-//            return this;
-//        }
 
         public FieldCopyCodeGenerator build() {
             return new FieldCopyCodeGenerator(json, options, converterPackageName, outputDir, dryRunFlag);
@@ -118,7 +112,6 @@ public class CodeGenerationTests {
 
             GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
             groupCodeGenerator.setPackageName(converterPackageName);
-//        groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
             groupCodeGenerator.setOutDir(outputDir);
             groupCodeGenerator.setOptions(parseRes.options);
             groupCodeGenerator.setDryRunFlag(dryRunFlag);
@@ -154,7 +147,6 @@ public class CodeGenerationTests {
         GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
 //        String outputPath = "src/main/java/org/delia/gip/slugs/bigcommerce/gen";
         groupCodeGenerator.setPackageName("org.delia.gip.slugs.bigcommerce.gen");
-//        groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
         groupCodeGenerator.setOutDir(outDir);
         groupCodeGenerator.setOptions(parseRes.options);
 //        groupCodeGenerator.setDryRunFlag(true);
@@ -170,12 +162,10 @@ public class CodeGenerationTests {
         String json = readJsonFile("codegeneration/sample1.json");
         FieldCopyOptions options = new FieldCopyOptions();
         String outDir = "C:/tmp/fieldcopy2/gen";
-
         FieldCopyCodeGenerator gen = CodeGenerationBuilder.json(json).dryRunFlag(false).options(options).outputDir(outDir)
                 .converterPackageName("org.delia.gip.slugs.bigcommerce.gen").build();
 
         boolean ok = gen.generateSourceFiles();
-
         assertEquals(true, ok);
     }
 

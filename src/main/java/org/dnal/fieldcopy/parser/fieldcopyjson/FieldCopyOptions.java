@@ -17,4 +17,5 @@ public class FieldCopyOptions {
 
     public boolean outputFieldCommentFlag = true;
     public boolean createNewListWhenCopying = true;
+    public boolean outputGeneratedByCommentFlag = true;
 }

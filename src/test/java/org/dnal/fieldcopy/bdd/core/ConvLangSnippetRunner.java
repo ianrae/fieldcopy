@@ -15,7 +15,6 @@ import static java.util.Objects.isNull;
 
 public class ConvLangSnippetRunner implements SnippetRunner {
     public static final String GEN_PACKAGE = "org.dnal.fieldcopy.bdd.gen";
-    public static final String ADDITIONAL_CONVERTER_PACKAGE = "org.dnal.fieldcopy.bdd.customconverter";
 
     protected final FieldCopyLog log;
 
@@ -51,7 +50,6 @@ public class ConvLangSnippetRunner implements SnippetRunner {
             GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
             String outputPath = "src/test/java/org/dnal/fieldcopy/bdd/gen";
             groupCodeGenerator.setPackageName(GEN_PACKAGE);
-//            groupCodeGenerator.setAdditionalConverterPackageName(ADDITIONAL_CONVERTER_PACKAGE);
             groupCodeGenerator.setOutDir(outputPath);
             groupCodeGenerator.setOptions(parseRes.options);
             res.ok = groupCodeGenerator.generateJavaFiles(parseRes);
