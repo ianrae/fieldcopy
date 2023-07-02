@@ -60,7 +60,7 @@ public class FieldCopyJsonParser {
         }
 
         String version = getStringValue(map, "version");
-        log.log("v: %s", version);
+        //log.log("v: %s", version);
         res.parsedItems = (List<Map<String, Object>>) map.get("converters");
         res.options = parseConfig(map, currentOptions, res);
         List<ObjectConverterSpec> globalConverters = parseGlobalConverters(map, res);

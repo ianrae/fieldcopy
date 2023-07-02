@@ -81,6 +81,8 @@ This is normally done at build time.
 In addition to the converter classes, a *group class* (shown below as MyGroup.class) created, It is a registry of the
 converters.
 
+See [Code Generation](#code_generation)
+
 #### Phase 2: Use The Converters
 Use the converters in your application. FieldCopy has a fluent API that is initialized using the *group class*. 
 
@@ -628,8 +630,20 @@ Be aware that no date and time parsing or formatting is done during code generat
 | ----- |  ------------- |
 | validateDateAndTimeValues  |  If *true* then date & time string values are validated at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
 
+## Code Generation
+Once you have written the JSON, use FieldCopy to generate the converter source files.
 
-#### Runtime
+```java
+String json = //...read the json file into a string....
+FieldCopyOptions options = new FieldCopyOptions();
+String outDir = "C:/projects\app1/src/main/java/com/company/converters/gen";
+FieldCopyCodeGenerator generator = CodeGenerationBuilder.json(json).dryRunFlag(false).options(options).outputDir(outDir)
+        .converterPackageName("comp.company.comverters.gen").build();
+boolean ok = gen.generateSourceFiles();
+```
+In the current version you must do this manually.  Future versions will add a maven plug-in for do it at build time.
+
+## Runtime
 There are two ways to configure date & time formats at runtime.
 
 The first is to load the formats from the JSON using *ConfigJsonParser* class
