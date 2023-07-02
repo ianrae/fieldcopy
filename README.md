@@ -640,7 +640,7 @@ ConfigJsonParser configParser = new ConfigJsonParser();
 FieldCopyOptions configOptions = configParser.parseConfig(json);
 
 //create FieldCopy using configOptions
-FieldCopy fc = FieldCopy.with(MyGroup.class).loadOptionsFromConfig(configOptions).build();
+FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).loadOptionsFromConfig(configOptions).build();
 ```
 
 The *RuntimeOptions* will now use date & time formats that were defined in the JSON file.
@@ -651,7 +651,7 @@ The second way is to configure *RuntimeOptions* directly
 RuntimeOptions initialOptions = new RuntimeOptions();
 initialOptions.localDateFormatter = DateTimeFormatter.ofPattern("yyyy/mm/dd");
 
-FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
+FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
 ```
 
 
