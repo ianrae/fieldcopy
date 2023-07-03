@@ -46,6 +46,7 @@ public class ASTToSpecBuilder {
         boolean isValue = convertAST instanceof ValueAST;
 
         nspec.isRequired = convertAST.isRequired;
+        nspec.skipNull = convertAST.skipNull;
         if (!isValue && isListField(spec.srcClass, s1)) {
             nspec.elementDefaultVal = convertAST.defaultVal; //so default means element default
         } else {

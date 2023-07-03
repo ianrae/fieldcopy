@@ -22,6 +22,7 @@ public class NormalFieldSpec implements FieldSpec {
     public String customReturnType; //set during gen
     public String customMethodName; //set during gen
     public String convLangSrc;
+    public boolean skipNull;
 
     public NormalFieldSpec(Class<?> srcClass, Class<?> destClass, String srcText, String destText) {
         this.srcClass = srcClass;

@@ -177,6 +177,11 @@ public class ConvLangParser {
                     destPieces = destPieces.subList(0, pos);
                 }
 
+                if (destPieces.contains("skipNull")) {
+                    ast.skipNull = true;
+                    destPieces.remove("skipNull");
+                }
+
                 ast.srcPieces = srcPieces;
                 ast.destPieces = destPieces;
 

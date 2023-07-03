@@ -91,7 +91,6 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
 
         if (!codeVarL.isEmpty()) {
             StrListCreator sc = javaCreator.getStrCreator();
-            ;
             CodeVar lastVar = codeVarL.get(codeVarL.size() - 1);
             if (lastVar.needToAddClosingBrace) {
                 sc.addStr("}");
