@@ -233,6 +233,7 @@ Each field can also have some modifiers.
 | *default* | Yes | A default value that will be used if the source object field is null. |
 | *exclude*  |  Yes | When *auto* is used, *exclude* can be used to list fields that should not be copied by *auto*. |
 | *required* | Yes | Indicates that the source value must not be null. The converter will throw an exception if it is. |
+| *skipNull*  |  Yes | Only copies value to dest if src value is not null.  |
 | *using* | Yes | Specifies a specific converter by name to use when converting this field. |
 
 See [Field Modifiers](#field-modifiers) for more information.
@@ -331,6 +332,31 @@ Here is an example where firstName is optional but lastName is required.
    ...
 ]
 ```
+
+### *skipNull*
+If *skipNull* is present, then if the src value is null, then nothing is done.
+That is, conversion is not done, and setting the destination field is also not done.
+
+This is useful when src is a sub-object field such as "addr.city". If either "addr" or "city" are null then
+nothing is done.  skipNull can prevent NullPointerExceptions when a src field is null.
+
+Here is an example where firstName is optional but lastName is required.
+
+```json
+"fields": [
+   "addr.city -> city skipNull"
+   ...
+]
+```
+will generate an *if* statement around "dest.setS2"
+
+```java
+String tmp1 = src.getS2();
+if (tmp1 != null) {
+  dest.setS2(tmp1);
+}
+```
+
 
 ### *using*
 Specifies a specific converter by name to use when converting this field.
