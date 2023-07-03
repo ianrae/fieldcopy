@@ -79,12 +79,14 @@ public class JavaCreatorImpl implements JavaCreator {
     public void generateIfNullBlock(String varName) {
         String s = generateIfNullExpr(varName);
         sc.o("%s {", s);
+        indent += 2;
     }
 
     @Override
     public void generateIfNotNullBlock(String varName) {
         String s = String.format("if (%s != null)", varName);
         sc.o("%s {", s);
+        indent += 2;
     }
 
     @Override
@@ -239,7 +241,7 @@ public class JavaCreatorImpl implements JavaCreator {
         //for(String tmp3: tmp1) {
         VarExpr elExpr = new VarExpr(ctx, "el");
         sc.o("for(%s %s: %s) {", srcExpr.varType, elExpr.varName, srcExpr.varName);
-        indent = 2;
+        indent += 2;
         return elExpr;
     }
 
@@ -384,5 +386,15 @@ public class JavaCreatorImpl implements JavaCreator {
 
         }
         return null;
+    }
+
+    @Override
+    public void indent() {
+        indent += 2;
+    }
+
+    @Override
+    public void unIndent() {
+        indent = indent - 2;
     }
 }

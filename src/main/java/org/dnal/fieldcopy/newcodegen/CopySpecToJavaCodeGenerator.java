@@ -92,9 +92,11 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
 
         if (!codeVarL.isEmpty()) {
             StrListCreator sc = javaCreator.getStrCreator();
-            CodeVar lastVar = codeVarL.get(codeVarL.size() - 1);
-            if (lastVar.needToAddClosingBrace) {
-                sc.addStr("}");
+            for(CodeVar codeVar: codeVarL) {
+                if (codeVar.needToAddClosingBrace) {
+                    sc.addStr("}");
+                    javaCreator.unIndent();
+                }
             }
         }
     }
@@ -153,6 +155,10 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
         if (nspec.skipNull) {
             if (ClassTypeHelper.isPrimitive(fld.fieldTypeInfo.getFieldType())) {
                 //do nothing
+            } else if (fld.fieldTypeInfo.isOptional()) {
+                javaCreator.getStrCreator().o("if (ctx.isNullOrEmpty(%s)) {", javaVar.varName);
+                javaCreator.indent();
+                javaVar.needToAddClosingBrace = true;
             } else {
                 javaCreator.generateIfNotNullBlock(javaVar.varName);
                 javaVar.needToAddClosingBrace = true;

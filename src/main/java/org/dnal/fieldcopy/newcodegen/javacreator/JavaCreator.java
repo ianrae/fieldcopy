@@ -68,4 +68,7 @@ public interface JavaCreator {
 
     CodeVar genAutoCreate(String srcVarName, FieldTypeInformation srcFieldInfo, boolean srcIsOptional, JavaField jfield,
                           boolean isFinalSubObj, String destVarName);
+
+    void indent();
+    void unIndent();
 }

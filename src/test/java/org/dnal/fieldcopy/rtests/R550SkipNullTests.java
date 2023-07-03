@@ -14,22 +14,21 @@ import org.dnal.fieldcopy.types.JavaPrimitive;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Objects.isNull;
 
 public class R550SkipNullTests extends RTestBase {
 
     /**
-     R550 skipNull
-     -means we use defaultVal if src value is null
-     -defaultVal can be null
-     -value -> field
-     -field -> field
-     -prim
-     -scalar
-     -list,date,enum
-     -NonO->O,O->NonO,O->O
+     * R550 skipNull
+     * -means we use defaultVal if src value is null
+     * -defaultVal can be null
+     * -value -> field
+     * -field -> field
+     * -prim
+     * -scalar
+     * -list,date,enum
+     * -NonO->O,O->NonO,O->O
      */
 
     @Test
@@ -45,6 +44,7 @@ public class R550SkipNullTests extends RTestBase {
         chkLines(lines, ar);
         chkNoImports(currentSrcSpec);
     }
+
     @Test
     public void testPrim() {
         CopySpec spec = buildWithField(Src1.class, Dest1.class, "n1", "n1");
@@ -53,7 +53,7 @@ public class R550SkipNullTests extends RTestBase {
         String[] ar = {
                 "int tmp1 = src.getN1();",
                 "dest.setN1(tmp1);",
-                };
+        };
         chkLines(lines, ar);
         chkNoImports(currentSrcSpec);
     }
@@ -66,10 +66,14 @@ public class R550SkipNullTests extends RTestBase {
 
         String[] ar = {
                 "Address tmp1 = src.getAddr();",
+                "if (tmp1 != null) {",
                 "String tmp2 = tmp1.getCity();",
+                "if (tmp2 != null) {",
                 "Address tmp3 = (dest.getAddr() == null) ? new Address() : dest.getAddr();",
                 "dest.setAddr(tmp3);",
-                "tmp3.setCity(tmp2);",};
+                "tmp3.setCity(tmp2);",
+                "}",
+                "}"};
         chkLines(lines, ar);
         chkImports(currentSrcSpec, "org.dnal.fieldcopy.dataclass.Address");
     }
@@ -79,91 +83,35 @@ public class R550SkipNullTests extends RTestBase {
     @Test
     public void testEnum() {
         CopySpec spec = buildWithField(Src1.class, Dest1.class, "col1", "col1");
+        setSkipNull(spec);
         List<String> lines = doGen(spec);
 
         String[] ar = {
                 "Color tmp1 = src.getCol1();",
-                "dest.setCol1(tmp1);"};
+                "if (tmp1 != null) {",
+                "dest.setCol1(tmp1);",
+                "}"};
         chkLines(lines, ar);
         chkImports(currentSrcSpec, "org.dnal.fieldcopy.dataclass.Color");
     }
 
-//    //--- dates ---
-//    @Test
-//    public void testR100LocalDate() {
-//        List<String> lines = buildAndGenForDate("date", "date");
-//        String[] ar = {
-//                "LocalDate tmp1 = src.getDate();",
-//                "dest.setDate(tmp1);"};
-//        chkLines(lines, ar);
-//        chkImports(currentSrcSpec, "java.time.LocalDate");
-//    }
-//    @Test
-//    public void testR100UtilDate() {
-//        List<String> lines = buildAndGenForDate("utilDate", "utilDate");
-//        String[] ar = {
-//                "Date tmp1 = src.getUtilDate();",
-//                "dest.setUtilDate(tmp1);"};
-//        chkLines(lines, ar);
-//        chkImports(currentSrcSpec, "java.util.Date");
-//    }
-//
-//    //--- optional
-//    @Test
-//    public void testR240OptToNonOpt() {
-//        CopySpec spec = buildWithField(OptionalSrc1.class, Dest1.class, "s2", "s2");
-//        List<String> lines = doGen(spec);
-//
-//        Optional<String> opt = Optional.of("sdf");
-//        String ss = opt.orElse(null);
-//
-////        String[] ar = {
-////                "Optional<String> tmp1 = src.s2;",
-////                "dest.setS2((tmp1 == null) ? null : tmp1.orElse(null));"};
-//        String[] ar = {
-//                "Optional<String> tmp1 = src.s2;",
-//                "dest.setS2((ctx.isNullOrEmpty(tmp1)) ? null : tmp1.orElse(null));"};
-//        chkLines(lines, ar);
-//        chkNoImports(currentSrcSpec);
-//    }
-//
-//    @Test
-//    public void testR240NotOptToOpt() {
-//        CopySpec spec = buildWithField(Dest1.class, OptionalSrc1.class, "s2", "s2");
-//        List<String> lines = doGen(spec);
-//
-//        String[] ar = {
-//                "String tmp1 = src.getS2();",
-//                "dest.s2 = Optional.ofNullable(tmp1);"};
-//        chkLines(lines, ar);
-//        chkNoImports(currentSrcSpec);
-//    }
-//
-//    @Test
-//    public void testR240OptToOpt() {
-//        CopySpec spec = buildWithField(OptionalSrc1.class, OptionalSrc1.class, "s2", "s2");
-//        List<String> lines = doGen(spec);
-//
-//        String[] ar = {
-//                "Optional<String> tmp1 = src.s2;",
-//                "dest.s2 = tmp1;"};
-//        chkLines(lines, ar);
-//        chkNoImports(currentSrcSpec);
-//    }
-//
-//    //TOOD
-////    @Test
-////    public void testR240OptOfList() {
-////        CopySpec spec = buildWithField(OptionalSrc1.class, OptionalSrc1.class, "profiles", "profiles");
-////        List<String> lines = doGen(spec);
-////
-////        String[] ar = {
-////                "Optional<String> tmp1 = src.s2;",
-////                "dest.s2 = tmp1.get();"};
-////        chkLines(lines, ar);
-////        chkImports(currentSrcSpec, "java.util.Optional");
-////    }
-//
+
+    //--- optional
+    @Test
+    public void testOptToNonOpt() {
+        CopySpec spec = buildWithField(OptionalSrc1.class, Dest1.class, "s2", "s2");
+        setSkipNull(spec);
+        List<String> lines = doGen(spec);
+
+        String[] ar = {
+                "Optional<String> tmp1 = src.s2;",
+                "if (ctx.isNullOrEmpty(tmp1)) {",
+                "dest.setS2((ctx.isNullOrEmpty(tmp1)) ? null : tmp1.orElse(null));",
+                "}"};
+        chkLines(lines, ar);
+        chkNoImports(currentSrcSpec);
+    }
+
 //    //--- lists
 //    @Test
 //    public void testR230() {
@@ -202,6 +150,7 @@ public class R550SkipNullTests extends RTestBase {
         NormalFieldSpec nspec = (NormalFieldSpec) spec.fields.get(0);
         nspec.skipNull = true;
     }
+
     private void testPrimValue(JavaPrimitive prim) {
         CopySpec spec = primsBuilder.buildSpec(prim);
         List<String> lines = doGen(spec);
