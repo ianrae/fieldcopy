@@ -11,7 +11,7 @@ import java.util.Map;
  * If size is 0 then type is simple type (no generics)
  * Otherwise size is divisible by 2 where first of each pair is raw type (java.util.list)
  * and second of pair is actual type (java.lang.String)
- * If size > 2 then is something like Optional<List<String>/>
+ * If size greater than 2 then is something like {@code Optional<List<String>/>}
  */
 public class TypeTree {
     private List<Type> list = new ArrayList<>();

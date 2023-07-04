@@ -16,8 +16,8 @@ public class TextFileWriter {
 
     /**
      *
-     * @param path
-     * @param linesL
+     * @param path path to output file
+     * @param linesL contents of file to write
      * @return success
      */
     @SuppressWarnings("PMD.AvoidPrintStackTrace")
@@ -32,8 +32,8 @@ public class TextFileWriter {
 
     /**
      *
-     * @param path
-     * @param linesL
+     * @param path path to output file
+     * @param linesL contents of file to write
      * @return success
      * @throws Exception
      */

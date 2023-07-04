@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * int -> Integer. eg Integer x = n;
+ * {@code int -> Integer. eg Integer x = n;}
  * src: int
  * dest: Integer
  */

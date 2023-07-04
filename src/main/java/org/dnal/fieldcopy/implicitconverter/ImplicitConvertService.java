@@ -20,9 +20,10 @@ public class ImplicitConvertService {
      * ImplicityConvRegistry doesn't know about Optional, so we need to strip out any optional-ness in src and dest
      * before checking if conversion is supported.
      *
-     * @param implicitConvRegistry
-     * @param srcFld
-     * @param destFld
+     * @param implicitConvRegistry registry
+     * @param srcFld source field
+     * @param destFld destination field
+     * @param convL list of converters
      * @return true if conversion is supported
      */
     public boolean isConversionSupported(ImplicitConvRegistry implicitConvRegistry, SingleFld srcFld, SingleFld destFld, List<ImplicitConverter> convL) {
@@ -42,6 +43,9 @@ public class ImplicitConvertService {
     /**
      * Are these the same types (ignoring whether they are optional)
      *
+     * @param ftiSrc source field info
+     * @param ftiDest destination field ino
+     * @param convL converter list
      * @return true if are same underlying type
      */
     public boolean areSameTypes(FieldTypeInformation ftiSrc, FieldTypeInformation ftiDest, List<ImplicitConverter> convL) {
@@ -72,6 +76,4 @@ public class ImplicitConvertService {
         ImplicitConverter iconv = row.map.get(srcKey);
         return iconv;
     }
-
-
 }

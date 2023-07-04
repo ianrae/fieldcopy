@@ -14,7 +14,6 @@ public class StrListCreator {
     /**
      * can't use o() if args contains % chars, so use this method
      * @param s string to output
-     * @return the input string s
      */
     public void addStr(String s) {
 //        s += "\n";
@@ -30,8 +29,8 @@ public class StrListCreator {
     }
     /**
      * can't use o() if args contains % chars, so use this method
+     * @param indent size of indent
      * @param s string to output
-     * @return the input string s
      */
     public void addStrIndented(int indent, String s) {
         if (indent > 0) {
