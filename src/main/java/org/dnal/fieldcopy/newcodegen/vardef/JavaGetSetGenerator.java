@@ -200,7 +200,7 @@ public class JavaGetSetGenerator {
     }
 
     private void log(String s) {
-        System.out.println(s);
+        //System.out.println(s);
     }
 
     private QVarDefine createQVarDefine(String ss, String destVarName, QField qfield) {

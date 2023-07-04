@@ -37,7 +37,7 @@ public class ConverterHandler extends ExtractGenBase {
         Optional<GenResult> convVarName = Optional.empty();
         if (!nspec.isCustomField(srcFld)) {
             ConversionContext ctx = new ConversionContext(varNameGenerator);
-            convVarName = doConversionIfNeeded(srcFld, destFld, ctx, srcSpec, nspec, srcCodeVar);
+            convVarName = doConversionIfNeeded(srcFld, destFld, ctx, srcSpec, nspec, srcCodeVar, srcCodeVar.needToAddClosingBrace);
         }
 
         String varName = null;
@@ -67,7 +67,7 @@ public class ConverterHandler extends ExtractGenBase {
 
     protected Optional<GenResult> doConversionIfNeeded(SingleFld srcFld, SingleFld destFld,
                                                        ConversionContext ctx, JavaSrcSpec srcSpec, NormalFieldSpec nspec,
-                                                       VarExpr srcCodeVar) {
+                                                       VarExpr srcCodeVar, boolean alreadyInsideIf) {
         if (isNull(registry)) {
             return Optional.empty();
         }
@@ -100,13 +100,14 @@ public class ConverterHandler extends ExtractGenBase {
             VarExpr tmpExpr;
             tmpExpr = new VarExpr(srcCodeVar.varName);
 
-            boolean needToAddClosingBrace;
-            if (ClassTypeHelper.isPrimitive(srcFld.fieldTypeInfo.getFieldType())) {
-                //do nothing
-                needToAddClosingBrace = false;
-            } else {
-                javaCreator.generateIfNotNullBlock(tmpExpr.varName);
-                needToAddClosingBrace = true;
+            boolean needToAddClosingBrace = alreadyInsideIf;
+            if (!alreadyInsideIf) {
+                if (ClassTypeHelper.isPrimitive(srcFld.fieldTypeInfo.getFieldType())) {
+                    //do nothing
+                } else {
+                    javaCreator.generateIfNotNullBlock(tmpExpr.varName);
+                    needToAddClosingBrace = true;
+                }
             }
             VarExpr convExpr = new VarExpr(ctx, "conv");
             javaCreator.locateConverter(srcFld, destFld, convExpr, nspec.usingConverterName);
@@ -263,7 +264,7 @@ public class ConverterHandler extends ExtractGenBase {
         ctx.doListCopy = true;
         ctx.listVar = srcCodeVar.varName;
 
-        Optional<GenResult> result = doConversionIfNeeded(srcFld, destFld, ctx, srcSpec, nspec, srcCodeVar);
+        Optional<GenResult> result = doConversionIfNeeded(srcFld, destFld, ctx, srcSpec, nspec, srcCodeVar, false);
         return result;
     }
 

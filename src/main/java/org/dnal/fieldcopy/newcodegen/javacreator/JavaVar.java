@@ -8,6 +8,7 @@ public class JavaVar {
     public String varName;
     public String varType;
     public Optional<JavaField> jfield;
+    public boolean needToAddClosingBrace;
 
     public JavaVar(String varName, String varType, Optional<JavaField> jfield) {
         this.varName = varName;

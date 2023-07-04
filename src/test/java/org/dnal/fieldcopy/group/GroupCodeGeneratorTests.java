@@ -4,6 +4,7 @@ import org.dnal.fieldcopy.Converter;
 import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.dataclass.Address;
 import org.dnal.fieldcopy.dataclass.Customer;
+import org.dnal.fieldcopy.fluent.FieldCopyBuilder;
 import org.dnal.fieldcopy.group.gen.DefaultConverterGroup;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FileLoader;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
@@ -44,7 +45,7 @@ public class GroupCodeGeneratorTests extends ICRTestBase {
         Customer src = createSrc();
         Customer dest = new Customer();
 
-        FieldCopy fc = FieldCopy.with(DefaultConverterGroup.class).build();
+        FieldCopy fc = FieldCopyBuilder.with(DefaultConverterGroup.class).build();
         Converter<Customer, Customer> converter = fc.getConverter(Customer.class, Customer.class);
 
         Customer dest2 = converter.convert(src, dest);

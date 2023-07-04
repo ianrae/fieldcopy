@@ -7,6 +7,7 @@ import org.dnal.fieldcopy.codegen.FieldCopyException;
 import org.dnal.fieldcopy.codegen.gen.CustomerToCustomerConverter;
 import org.dnal.fieldcopy.dataclass.Address;
 import org.dnal.fieldcopy.dataclass.Customer;
+import org.dnal.fieldcopy.fluent.FieldCopyBuilder;
 import org.dnal.fieldcopy.group.gen.BobCustomerConverter;
 import org.dnal.fieldcopy.registry.ICRTestBase;
 import org.junit.jupiter.api.Assertions;
@@ -36,7 +37,7 @@ public class FieldCopyTests extends ICRTestBase {
         Customer src = createSrc();
         Customer dest = new Customer();
 
-        FieldCopy fc = FieldCopy.with(MyGroup.class).build();
+        FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).build();
         Converter<Customer, Customer> converter = fc.getConverter(Customer.class, Customer.class);
 
         Customer dest2 = converter.convert(src, dest);
@@ -53,7 +54,7 @@ public class FieldCopyTests extends ICRTestBase {
     public void test2() {
         Customer src = createSrc();
 
-        FieldCopy fc = FieldCopy.with(MyGroup.class).build();
+        FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).build();
         Converter<Customer, Customer> converter = fc.getConverter(Customer.class, Customer.class);
 
         Customer dest = converter.convert(src, Customer.class);
@@ -69,7 +70,7 @@ public class FieldCopyTests extends ICRTestBase {
     public void testUsing() {
         Customer src = createSrc();
         ObjectConverter namedConverter = new BobCustomerConverter();
-        FieldCopy fc = FieldCopy.with(MyGroup.class).usingNamedConverter("MyConv2", namedConverter).build();
+        FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).usingNamedConverter("MyConv2", namedConverter).build();
         Converter<Customer, Customer> converter = fc.getConverter(Customer.class, Customer.class, "MyConv2");
 
         Customer dest = converter.convert(src, Customer.class);
@@ -82,7 +83,7 @@ public class FieldCopyTests extends ICRTestBase {
     @Test
     public void testUsingFail() {
         ObjectConverter namedConverter = new BobCustomerConverter();
-        FieldCopy fc = FieldCopy.with(MyGroup.class).usingNamedConverter("MyConv2", namedConverter).build();
+        FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).usingNamedConverter("MyConv2", namedConverter).build();
 
         FieldCopyException thrown = Assertions.assertThrows(FieldCopyException.class, () -> {
             Converter<Customer, Customer> converter = fc.getConverter(Customer.class, Customer.class, "UnknownConv");

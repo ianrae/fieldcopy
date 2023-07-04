@@ -11,7 +11,7 @@ given(codegen):
  },
  "converters": [{
   "types": "Customer -> Customer",
-    "additionalConverters": [ "MyStringListToIntegerListConverter" ],
+    "additionalConverters": [ "org.dnal.fieldcopy.bdd.customconverter.MyStringListToIntegerListConverter" ],
   "fields": [
    "roles -> points"
   ]

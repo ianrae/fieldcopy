@@ -13,6 +13,9 @@ import static java.util.Objects.isNull;
 public class ObjectConverterFinder {
     private String packageToUse;
 
+    public ObjectConverterFinder() {
+    }
+
     public ObjectConverterFinder(String packageToUse) {
         this.packageToUse = packageToUse;
     }

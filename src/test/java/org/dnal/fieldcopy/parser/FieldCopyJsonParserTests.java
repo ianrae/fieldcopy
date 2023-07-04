@@ -181,6 +181,20 @@ public class FieldCopyJsonParserTests extends ParserTestBase {
         chkException(thrown, "syntax error");
     }
 
+    @Test
+    public void testSkipNull() {
+        ParserResults res = loadFile("parser/convlang-skipnull1.json");
+        dumpObj("actions:", res.converters);
+        chkNoErrors(res);
+
+        assertEquals(1, res.converters.size());
+        ParsedConverterSpec action = res.converters.get(0);
+        assertEquals("org.dnal.fieldcopy.dataclass.Customer", action.srcClass);
+        assertEquals("org.dnal.fieldcopy.dataclass.Customer", action.destClass);
+        assertEquals(1, action.fieldStrings.size());
+        assertEquals("addr.city -> firstName skipNull", action.fieldStrings.get(0));
+    }
+
     //============
 
 }

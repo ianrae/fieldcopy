@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.codegen;
 
 import org.dnal.fieldcopy.fieldspec.CopySpec;
+import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class MyCodeGenerator {
     }
 
     public boolean gen(CopySpec spec, List<String> bodyLines, JavaSrcSpec srcSpec) {
-        JavaConverterCodeGenerator codeGenerator = new JavaConverterCodeGenerator(outDir);
+        JavaConverterCodeGenerator codeGenerator = new JavaConverterCodeGenerator(new FieldCopyOptions(), outDir);
 
         List<String> imports = new ArrayList<>();
         imports.addAll(Arrays.asList("org.dnal.fieldcopy.Converter",

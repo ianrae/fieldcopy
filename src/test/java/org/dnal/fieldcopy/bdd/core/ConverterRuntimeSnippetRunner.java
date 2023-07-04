@@ -97,7 +97,7 @@ public class ConverterRuntimeSnippetRunner implements SnippetRunner {
         ReflectionUtil helper = new ReflectionUtil();
 
         //use copySpecs from previousRes
-        for(CopySpec spec: previousRes.specs) {
+        for (CopySpec spec : previousRes.specs) {
             //R200T1_Src1ToDest1Converter.java
             String converterClassName = spec.converterName.get(); //buildConverterClassName(suffix, spec.srcClass, spec.destClass);
 
@@ -126,41 +126,6 @@ public class ConverterRuntimeSnippetRunner implements SnippetRunner {
         return clazz;
     }
 
-//    private String buildConverterClassName(String suffix, Class<?> srcClass, Class<?> destClass) {
-//        String converterClassName = String.format("%s_%sTo%sConverter", suffix,
-//                srcClass.getSimpleName(), destClass.getSimpleName());
-//        return converterClassName;
-//    }
-//
-//    private void addOtherParsedConverters(FCRegistry registry, BDDSnippetResult res, BDDSnippetResult previousRes, String suffix) {
-//        ReflectionUtil helper = new ReflectionUtil();
-//        int index = 0;
-//        for (ParsedConverterSpec action : previousRes.parseRes.converters) {
-//            if (index == 0) {
-//                index++;
-//                continue; //we already did this one
-//            }
-//            Class<?> srcClass = previousRes.specs.get(index).srcClass;
-//            Class<?> destClass = previousRes.specs.get(index).destClass;
-//            String converterClassName = buildConverterClassName(suffix, srcClass, destClass);
-//
-//            ObjectConverterFinder finder = new ObjectConverterFinder(ConvLangSnippetRunner.GEN_PACKAGE);
-//            String fullName = finder.buildFullName(converterClassName);
-//            Class<?> clazz = helper.getClassFromName(fullName);
-//            if (isNull(clazz)) {
-//                String msg = String.format("can't find additional converter '%s'", converterClassName);
-//                addError(res, "additional.converter.not.found", msg);
-//            } else {
-//                ObjectConverter conv = (ObjectConverter) helper.createObj(clazz);
-//                if (isNull(conv)) {
-//                    throw new FieldCopyException("failed to create: " + clazz.getName());
-//                }
-//                registry.add(conv);
-//            }
-//            index++;
-//        }
-//    }
-
     private FCRegistry addAdditionalConverters(FCRegistry registry, BDDSnippetResult res, BDDSnippetResult previousRes) {
         ReflectionUtil helper = new ReflectionUtil();
 
@@ -169,7 +134,7 @@ public class ConverterRuntimeSnippetRunner implements SnippetRunner {
                 for (ObjectConverterSpec converterSpec : action.additionalConverters) {
                     String converterClassName = converterSpec.converterClassName;
 
-                    ObjectConverterFinder finder = new ObjectConverterFinder(ConvLangSnippetRunner.ADDITIONAL_CONVERTER_PACKAGE);
+                    ObjectConverterFinder finder = new ObjectConverterFinder();
                     String fullName = finder.buildFullName(converterClassName);
                     Class<?> clazz = helper.getClassFromName(fullName);
                     if (isNull(clazz)) {

@@ -100,6 +100,12 @@ public class MLexerTests extends ICRTestBase {
     }
 
     @Test
+    public void testSkipNull() {
+        chkParse("x -> y skipNull", 2, 25, 2, 2);
+    }
+
+
+    @Test
     public void testDebug() {
 //        chkParse("x -> y", 2, 25, 2);
 //        chkParse("x -> y required", 2, 25, 2, 2);
@@ -119,10 +125,19 @@ public class MLexerTests extends ICRTestBase {
         for(Integer tokType : tokTypes) {
             Token tok = toks.get(i++);
 //            log(tok.toString());
+            if (tokType.intValue() != tok.tokType) {
+                dumpTokens(toks);
+            }
             assertEquals(tokType, tok.tokType);
         }
         assertEquals(tokTypes.length, toks.size());
         return toks;
+    }
+
+    private void dumpTokens(List<Token> toks) {
+        for(Token tok: toks) {
+            this.log(String.format("%d", tok.tokType));
+        }
     }
 
     private void chkConvert(List<AST> list, int i, String expectedSrc, String expectedDest) {

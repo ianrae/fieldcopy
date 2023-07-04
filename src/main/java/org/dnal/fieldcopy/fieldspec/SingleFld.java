@@ -11,7 +11,6 @@ public class SingleFld {
 
     //need methods isPrimitive, isScalar
     public Optional<Object> key; //for list or map
-    public boolean isRequired;
     public Object defaultValue;
     public boolean isField; //if false then use getter
     public boolean useIsGetter; //true if name of getter starts with "is"
@@ -33,7 +32,6 @@ public class SingleFld {
         this.fieldTypeInfo = fld.fieldTypeInfo;
 
         this.key = fld.key;
-        this.isRequired = fld.isRequired;
         this.defaultValue = fld.defaultValue;
         this.isField = fld.isField;
     }

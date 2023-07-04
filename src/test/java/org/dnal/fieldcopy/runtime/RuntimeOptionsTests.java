@@ -1,6 +1,7 @@
 package org.dnal.fieldcopy.runtime;
 
 import org.dnal.fieldcopy.FieldCopy;
+import org.dnal.fieldcopy.fluent.FieldCopyBuilder;
 import org.dnal.fieldcopy.parser.ParserTestBase;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ConfigJsonParser;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
@@ -18,7 +19,7 @@ public class RuntimeOptionsTests extends ParserTestBase {
 
     @Test
     public void test() {
-        FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).build();
+        FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).build();
         RuntimeOptions options = fc.getOptions();
         assertEquals(null, options.localDateFormatter);
     }
@@ -28,7 +29,7 @@ public class RuntimeOptionsTests extends ParserTestBase {
         RuntimeOptions initialOptions = new RuntimeOptions();
         initialOptions.localDateFormatter = DateTimeFormatter.ofPattern("yyyy/mm/dd");
 
-        FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
+        FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
         RuntimeOptions options = fc.getOptions();
         assertEquals(true, options.localDateFormatter != null);
     }
@@ -42,7 +43,7 @@ public class RuntimeOptionsTests extends ParserTestBase {
         ConfigJsonParser configParser = new ConfigJsonParser();
         FieldCopyOptions configOptions = configParser.parseConfig(json);
 
-        FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).loadOptionsFromConfig(configOptions).build();
+        FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).loadOptionsFromConfig(configOptions).build();
         RuntimeOptions options = fc.getOptions();
         assertEquals(true, options.localDateFormatter != null);
     }

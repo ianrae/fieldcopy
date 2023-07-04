@@ -8,6 +8,7 @@ import org.dnal.fieldcopy.newcodegen.javacreator.JavaField;
 import org.dnal.fieldcopy.newcodegen.javacreator.JavaVar;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.registry.ConverterRegistry;
+import org.dnal.fieldcopy.types.ClassTypeHelper;
 import org.dnal.fieldcopy.types.FieldTypeInformation;
 import org.dnal.fieldcopy.util.ReflectionUtil;
 import org.dnal.fieldcopy.util.StrListCreator;
@@ -91,10 +92,11 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
 
         if (!codeVarL.isEmpty()) {
             StrListCreator sc = javaCreator.getStrCreator();
-            ;
-            CodeVar lastVar = codeVarL.get(codeVarL.size() - 1);
-            if (lastVar.needToAddClosingBrace) {
-                sc.addStr("}");
+            for(CodeVar codeVar: codeVarL) {
+                if (codeVar.needToAddClosingBrace) {
+                    sc.addStr("}");
+                    javaCreator.unIndent();
+                }
             }
         }
     }
@@ -138,6 +140,7 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
             }
 
             addNullCheckIfRequired(nspec, varName, fld);
+            addSkipNullIfNeeded(nspec, javaVar, fld);
             addToCodeVarL(codeVarL, javaVar, fld);
 
             srcVarName = varName;
@@ -148,9 +151,26 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
         return codeVarL;
     }
 
+    private void addSkipNullIfNeeded(NormalFieldSpec nspec, JavaVar javaVar, SingleFld fld) {
+        if (nspec.skipNull) {
+            if (ClassTypeHelper.isPrimitive(fld.fieldTypeInfo.getFieldType())) {
+                //do nothing
+            } else if (fld.fieldTypeInfo.isOptional()) {
+                javaCreator.getStrCreator().o("if (ctx.isNullOrEmpty(%s)) {", javaVar.varName);
+                javaCreator.indent();
+                javaVar.needToAddClosingBrace = true;
+            } else {
+                javaCreator.generateIfNotNullBlock(javaVar.varName);
+                javaVar.needToAddClosingBrace = true;
+            }
+        }
+
+    }
+
     //TODO remove later
     private void addToCodeVarL(List<CodeVar> codeVarL, JavaVar javaVar, SingleFld fld) {
         CodeVar codeVar = new CodeVar(javaVar.varName, javaVar.varType, fld);
+        codeVar.needToAddClosingBrace = javaVar.needToAddClosingBrace;
         codeVarL.add(codeVar);
     }
 

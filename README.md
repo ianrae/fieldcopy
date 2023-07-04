@@ -1,6 +1,6 @@
 # FIELDCOPY
 
-FieldCopy is code generation library for creating converters in Java. Each converter converts a source object to an destination object of a different class.
+FieldCopy is a library for creating Java Bean mappers.  It uses code generation to create *converter* classes. Each *converter* converts a source Java Bean object to an destination object of a different class.
 
 Converters are defined in JSON files using a simple syntax. Here is a converter from CustomerEntity to CustomerDTO:
 
@@ -43,24 +43,22 @@ public class CustomerEntityToCustomerDTOConverter<CustomerEntity, CustomerDTO> {
 
 FieldCopy has many features to help with conversion:
 
-* converts basic types such as conversion between int and Integer, Long, Double, and other Number types.
+* converts basic types such as conversion between int and Integer, Long, Double, and other Number types. See [Built-In Conversions](#built-in-conversions)
 
-* converts Java date and time objects, such as LocalDate to ZonedDateTime
 
-* handles Optional fields, adding or removing Optional as needed.
+* handles Optional fields, adding or removing Optional as needed. See [Optional](#optional)
 
-* default values can be defined that are used when a field is null.
+* default values can be defined that are used when a field is null. See [default](#default)
 
-* handles copying of sub-ojects, if a converter has been defined. For example, in the above example, if a converter
-  between AddressEntity and AddressDTO was defined in the JSON, then it would be used for CustomerEntity.address -> CustomerDTO.address.
+* handles copying of nested objects (also called sub-objects) using converters. See [Sub-Objects](#sub-objects)
 
-* fields within sub-objects can be copied, such as "address.city -> city"
+* fields within sub-objects can be copied, such as "address.city -> city". See [Sub-Object Fields](#sub-object-fields)
 
-* "auto" can be used to automatically copy all fields of the source object.
+* "auto" can be used to automatically copy all fields of the source object. See [auto](#auto)
 
-* "custom" can be used when you want to write the conversion code for a field.
+* "custom" can be used when you want to write the conversion code for a field. See [custom](#custom)
 
-* You can write your own converts and use them from a FieldCopy-created converter, and vice versa.
+* You can write your own converters and use them from a FieldCopy-created converter, and vice versa. See [Additional Converters](#additional_conveters)
 
 ### Usage
 
@@ -70,27 +68,39 @@ Add FieldCopy to your project
 <dependency>
    <groupId>org.dnal-lang</groupId>
    <artifactId>fieldcopy</artifactId>
-   <version>0.4.0</version>
+   <version>0.5.0</version>
 </dependency>
 ```
 
+FieldCopy is used in two phases.
 
+#### Phase 1: Code Generation
+Write the JSON file to define the converters. Then used FieldCopy to generation converter classes.  
+This is normally done at build time.  
 
-FieldCopy is used in two phases.  First, code generation is done to create the converter classes.  This is normally done at build time.  In addition to the converter classes, a *group class* (shown below as MyGroup.class) that is a registry of converters.
+In addition to the converter classes, a *group class* (shown below as MyGroup.class) created, It is a registry of the
+converters.
 
-Then you can use the converters in your application. FieldCopy has a fluent API.  
-Here we create a FieldCopy instance which is used to find the appropriate converter.
-=======
-FieldCopy has a fluent API. 
-This site was built using [GitHub Pages](https://pages.github.com/).
-Here is a local ref [Examples]{#Examples}
+See [Code Generation](#code_generation)
 
+#### Phase 2: Use The Converters
+Use the converters in your application. FieldCopy has a fluent API that is initialized using the *group class*. 
+
+Use the Fluuent API to FieldCopy instance.  It is thread-safe and can be used throughout your application.
+   
 ```java
 FieldCopy fc = FieldCopy.using(MyGroup.class).build();
+```
+
+Use the FieldCopy instance to get a converter for a given source and destination class, and then use it.
+The converter method *convert* returns the converted object.
+
+```java
 Converter<CustomerEntity, CustomerDTO> converter = fc.getConverter(CustomerEntity.class, CustomerDTO.class);
 
-CustomerDTO dest = converter.convert(src, new CustomerDTO()); //convert src into dest!
+CustomerDTO dest = converter.convert(src, new CustomerDTO()); 
 ```
+
 
 ## JSON File Syntax
 Here is a complete Fieldcopy JSON file. It defines two converters.
@@ -137,18 +147,29 @@ The follow configuration values can be used:
 | ----- | ------ | ------------- |
 | defaultSourcePackage  | Yes | Java package to use in 'types' for the source class if none is specified  |
 | defaultDestinationPackage  |  Yes | Java package to use in 'types' for the source class if none is specified  |
-| defaultDestinationPackage  |  Yes | Can be used to enable validating date & time values at code generation time. See [Date and Time Format](~date-and-time-format)  |
-| localDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| localTimeFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| localDateTimeFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| zonedDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
-| utilDateFormat  |  Yes |  See [Date and Time Format](~date-and-time-format)  |
+| defaultDestinationPackage  |  Yes | Can be used to enable validating date & time values at code generation time. See [Date and Time Format](#date-and-time-format)  |
+| localDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| localTimeFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| localDateTimeFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| zonedDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
+| utilDateFormat  |  Yes |  See [Date and Time Format](#date-and-time-format)  |
 
 #### *additionalConverters* and *additionalNamedConverters*
-If you write any converters yourself, they are registered here.
+If you write any converters yourself, they are registered here.  See [Additional Converters](#additional_conveters)
 
 #### *converters*
 An array of converter definitions. Each definition consists of:
+
+##### **package**
+A string that contains the package name to use for source and destination classes.
+*package* is otpional. You can define the package directly in *types*, or in
+*defaultSourcePackage*, *defaultDestinationPackage*.
+
+Example:
+
+```json
+"package" : "com.company.entities"
+```
 
 ##### **types**
 A string that contains a source class name + "->" + a destination class name.  If either class name does not contain a package then defaultSourcePackage or defaultDestinationPackage are used.
@@ -192,7 +213,9 @@ Example:
 The first string can also be a value to be copied to the destination field name. This is used
 to populate the destination object with specific values
 
-Here we assign an enum value of Color.RED to the destination field *favoriteColor*.
+Here we assign an enum value of Color.RED to the destination field *favoriteColor*. Note the use of single quotes as a string delimiter. 
+You can use single or double quotes for string value, but single quotes are simpler within JSON.
+
 ```json
 "fields": [
    "'RED' -> favoriteColor",
@@ -210,6 +233,7 @@ Each field can also have some modifiers.
 | *default* | Yes | A default value that will be used if the source object field is null. |
 | *exclude*  |  Yes | When *auto* is used, *exclude* can be used to list fields that should not be copied by *auto*. |
 | *required* | Yes | Indicates that the source value must not be null. The converter will throw an exception if it is. |
+| *skipNull*  |  Yes | Only copies value to dest if src value is not null.  |
 | *using* | Yes | Specifies a specific converter by name to use when converting this field. |
 
 See [Field Modifiers](#field-modifiers) for more information.
@@ -217,15 +241,31 @@ See [Field Modifiers](#field-modifiers) for more information.
 ## Field Modifiers
 
 ### *auto*
-This causes all source fields that have a matching destination field to be copied.
-The source and destination fields must have the same name (case-sensitive) to be matched.
+The *auto* command finds all matching source and destination fields and generates field definitions.  The source and destination fields must have the same name (case-sensitive) to be matched.
 
-The *auto* modifier appears alone in the field string. It's useful when source and destination classes have the same field name and you want them to be copied without having to update the FieldCopy JSON.
-
-Here we assign an enum value of Color.RED to the destination field *favoriteColor*.
 ```json
 "fields": [
    "auto",
+   ...
+]
+```
+
+It is equivalent to listing all the matching fields. For example, if three fields ("firstName", "lastName", and "birthDate") exist in 
+source and destination classes, then *auto* is equivalent to.
+
+```json
+  "firstName -> firstName",
+  "lastName -> lastName",
+  "bithDate -> birthDate"
+```
+
+You can use *auto* for matchhing fields and then list the other fields explicitly.   
+
+```json
+"fields": [
+   "auto",
+   "points -> loyaltyPoints",
+   "payStat -> paymentStatus"
    ...
 ]
 ```
@@ -240,7 +280,7 @@ Specifies that converter class will be an abstract base class with an abstract m
 ]
 ```
 
-This would generate an abstract method in the converter class. The converter method is given the src field's value, and the overall source and destination objects.
+This would generate an abstract method in the converter class. The abstract method is given the src field's value, and the overall source and destination objects.
 
 ```java
 protected abstract LocalDate convertBithDate(LocalDate srcValue, Customer src, Customer dest, ConverterContext ctx);
@@ -293,13 +333,38 @@ Here is an example where firstName is optional but lastName is required.
 ]
 ```
 
+### *skipNull*
+If *skipNull* is present, then if the src value is null, then nothing is done.
+That is, conversion is not done, and setting the destination field is also not done.
+
+This is useful when src is a sub-object field such as "addr.city". If either "addr" or "city" are null then
+nothing is done.  skipNull can prevent NullPointerExceptions when a src field is null.
+
+Here is an example where firstName is optional but lastName is required.
+
+```json
+"fields": [
+   "addr.city -> city skipNull"
+   ...
+]
+```
+will generate an *if* statement around "dest.setS2"
+
+```java
+String tmp1 = src.getS2();
+if (tmp1 != null) {
+  dest.setS2(tmp1);
+}
+```
+
+
 ### *using*
 Specifies a specific converter by name to use when converting this field.
 The *using* modifier lets a field specify a converter by name, and can be useful if there are several converters for the same source and destintion classes.
 
 ```json
 "fields": [
-   "originalCustomer -> customer using(MySpecialCustomerConverter)",
+   "originalCustomer -> customer using(SpecialCustomerConverter)",
    ...
 ]
 ```
@@ -333,7 +398,7 @@ When the destination field is *byte* (or *Byte*), the following built-in convers
 | *short*  | direct | *Short*  | x.byteValue() |
 | *int*  | direct | *Integer*  | x.byteValue() |
 | *long*  | direct | *Long*  | x.byteValue() |
-| *float*  | cast  | *Float*  | cx.byteValue() |
+| *float*  | cast  | *Float*  | x.byteValue() |
 | *double*  | cast  | *Double*  | x.byteValue() |
 | *String*  | Byte.parseByte(x) | *Character* | Byte.valueOf(x.charValue()) |
 
@@ -437,7 +502,8 @@ When the destination field is *String*, the following built-in conversions are s
 | *String*  | direct | *Character* | direct |
 
 ## Optional
-FieldCopy automatically converts fields that use java.util.Optional as needed for example. If the source field is of type Optional<String> and the destination is String, the generated code will orElse(null) to extract the value.
+FieldCopy automatically converts fields that use java.util.Optional as needed for example. If the source field is of 
+type Optional<String> and the destination is non-Optional, the generated code will orElse(null) to extract the value.
 
 ```java
 Optional<String> tmp1 = src.getName();
@@ -450,6 +516,10 @@ Conversion in the other direction (from non-Optional to Optional) uses Optional.
 String tmp1 = src.getName();
 dest.setName(Optional.ofNullable(tmp1);
 ```
+
+## Lists
+FieldCopy supports java.util.List fields and will do a shallow copy of their contents to a new ArrayList.
+
 
 ## Sub-Objects
 FieldCopy considers a field that is a Java bean to be a "sub-object".  It looks for a registered converter
@@ -515,7 +585,8 @@ Then you mention your additional converter in the JSON file, either as a named o
 Additional Converters can be defined at the root level, or within a "converter" section to be private to that converter.
 
 ### Named Converters
-A named converter is configured in *additionalNamedConverters* and given a unique name.
+A named converter is configured in *additionalNamedConverters* and given a unique name.  Named converters allow you
+to have multiple converters for the same source and destination classes, and select which one to use with the *using* modifier.
 
 ```json
 "additionalNamedConverters": { 
@@ -558,7 +629,16 @@ Date and Time fields use ISO format by default.
 | ZonedDateTime | yyyy-MM-dd'T'HH:mm:ssXXX |
 | java.util.Date | yyyy-MM-dd'T'HH:mm:ss |
 
-#### Code Generation
+The formats can be changed in the JSON file *config* section to any format String supported by DateTimeFormatter.
+
+| Name  | Optional | Description |
+| ----- | ------ | ------------- |
+| localDateFormat  |  Yes |  any format string supported for LocalDate  |
+| localTimeFormat  |  Yes |  any format string supported for LocalTime  |
+| localDateTimeFormat  |  Yes |  any format string supported for LocalDateTime  |
+| zonedDateFormat  |  Yes |  any format string supported for ZonedDateTime  |
+| utilDateFormat  |  Yes |  any format string supported for SimpleDateFormat  |
+
 These can be changed to any other valid DateTimeFormatter format, or SimpleDateFormat for java.util.Date.
 The config section in the JSON files can be used to define the formats that you wish to use.
 
@@ -566,15 +646,30 @@ The config section in the JSON files can be used to define the formats that you 
 | ----- |  ------------- |
 | localDateFormat  |  A LocalDate format such as "2022-02-28"  |
 | localTimeFormat  |  A LocalDate format such as "18:30:55"  |
-| localDateTimeFormat  A LocalDate format such as "2022-02-28T18:30:55"  |
+| localDateTimeFormat | A LocalDate format such as "2022-02-28T18:30:55"  |
 | zonedDateFormat  |   A LocalDate format such as "2022-02-28T18:30:55-05:00[America/New_York]"  |
 | utilDateFormat  |   A java.util.Date format such as "2022-02-28". Note. If this config value is not set, the default is to use the same format as localDateTimeFormat  |
 
 Be aware that no date and time parsing or formatting is done during code generation.
 
-| defaultDestinationPackage  |  Can be used to enable validating date & time values at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
+| Name  | Description |
+| ----- |  ------------- |
+| validateDateAndTimeValues  |  If *true* then date & time string values are validated at code generation time.  Any field whose left-side is a value, such as "2022-02-28" and right side is one of the supporte date and time fields, will be validated. An exception is thrown if the value string can't be parsed using the given format for that date or time class.  |
 
-#### Runtime
+## Code Generation
+Once you have written the JSON, use FieldCopy to generate the converter source files.
+
+```java
+String json = //...read the json file into a string....
+FieldCopyOptions options = new FieldCopyOptions();
+String outDir = "C:/projects\app1/src/main/java/com/company/converters/gen";
+FieldCopyCodeGenerator generator = CodeGenerationBuilder.json(json).dryRunFlag(false).options(options).outputDir(outDir)
+        .converterPackageName("comp.company.comverters.gen").build();
+boolean ok = gen.generateSourceFiles();
+```
+In the current version you must do this manually.  Future versions will add a maven plug-in for do it at build time.
+
+## Runtime
 There are two ways to configure date & time formats at runtime.
 
 The first is to load the formats from the JSON using *ConfigJsonParser* class
@@ -585,7 +680,7 @@ ConfigJsonParser configParser = new ConfigJsonParser();
 FieldCopyOptions configOptions = configParser.parseConfig(json);
 
 //create FieldCopy using configOptions
-FieldCopy fc = FieldCopy.with(MyGroup.class).loadOptionsFromConfig(configOptions).build();
+FieldCopy fc = FieldCopyBuilder.with(MyGroup.class).loadOptionsFromConfig(configOptions).build();
 ```
 
 The *RuntimeOptions* will now use date & time formats that were defined in the JSON file.
@@ -596,37 +691,8 @@ The second way is to configure *RuntimeOptions* directly
 RuntimeOptions initialOptions = new RuntimeOptions();
 initialOptions.localDateFormatter = DateTimeFormatter.ofPattern("yyyy/mm/dd");
 
-FieldCopy fc = FieldCopy.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
+FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).options(initialOptions).build();
 ```
-
-
-# END
-
-----------------------end ------------------------
-JSON
--options
--converters
--name
--fields
-- a -> b required/default/using/custom/skipNull
-
-Code Generation
--currently this must be done manually
--in future an extension for maven, gradle will be done
--dest directory
--group file
--custom files .. base and derived...
-
-Runtime
--options
--fc object. can be one per app or as many as you needed (see thread safety)
--find converter: by name or classes
--invoke converter
--null handling...
--thread-safety
--shallow vs deep copying
-
-
 
 
 
