@@ -2,8 +2,6 @@ package org.dnal.fieldcopy.parser;
 
 import org.dnal.fieldcopy.TestBase;
 import org.dnal.fieldcopy.error.FCError;
-import org.dnal.fieldcopy.log.FieldCopyLog;
-import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyJsonParser;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
@@ -36,7 +34,6 @@ public class ParserTestBase extends TestBase {
     }
 
     protected FieldCopyJsonParser createParser() {
-        FieldCopyLog log = new SimpleLog();
         FieldCopyJsonParser parser = new FieldCopyJsonParser(log);
         return parser;
     }

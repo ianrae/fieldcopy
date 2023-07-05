@@ -6,8 +6,6 @@ import org.dnal.fieldcopy.dataclass.Address;
 import org.dnal.fieldcopy.dataclass.Customer;
 import org.dnal.fieldcopy.fluent.FieldCopyBuilder;
 import org.dnal.fieldcopy.group.gen.DefaultConverterGroup;
-import org.dnal.fieldcopy.log.FieldCopyLog;
-import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FileLoader;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
 import org.dnal.fieldcopy.registry.ICRTestBase;
@@ -34,7 +32,6 @@ public class GroupCodeGeneratorTests extends ICRTestBase {
 
         String outputPath = "src/test/java/org/dnal/fieldcopy/group/gen";
 
-        FieldCopyLog log = new SimpleLog();
         GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
         groupCodeGenerator.setPackageName("org.dnal.fieldcopy.group.gen");
         groupCodeGenerator.setOutDir(outputPath);

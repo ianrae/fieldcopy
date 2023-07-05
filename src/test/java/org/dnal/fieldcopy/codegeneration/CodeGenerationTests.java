@@ -1,8 +1,7 @@
 package org.dnal.fieldcopy.codegeneration;
 
+import org.dnal.fieldcopy.TestBase;
 import org.dnal.fieldcopy.group.GroupCodeGenerator;
-import org.dnal.fieldcopy.log.FieldCopyLog;
-import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyJsonParser;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
@@ -11,13 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CodeGenerationTests {
+public class CodeGenerationTests extends TestBase {
 
     @Test
     public void testPlain() {
         String json = readJsonFile("codegeneration/sample1.json");
 
-        FieldCopyLog log = new SimpleLog();
         FieldCopyJsonParser parser = new FieldCopyJsonParser(log);
 
         FieldCopyOptions options = new FieldCopyOptions();

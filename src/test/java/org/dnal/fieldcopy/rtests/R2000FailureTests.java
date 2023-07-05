@@ -2,28 +2,25 @@ package org.dnal.fieldcopy.rtests;
 
 import org.dnal.fieldcopy.codegen.FieldCopyException;
 import org.dnal.fieldcopy.group.GroupCodeGenerator;
-import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FileLoader;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- R2000  failure tests
- -bad json
- -bad field -> field syntax
- -can't parse value
- -can't find class
- -can't find value
- -no converter for X
- -conversion not supported
- -path not found //codegen
- -null-not-allowed
- -not-impl-yet
+ * R2000  failure tests
+ * -bad json
+ * -bad field -> field syntax
+ * -can't parse value
+ * -can't find class
+ * -can't find value
+ * -no converter for X
+ * -conversion not supported
+ * -path not found //codegen
+ * -null-not-allowed
+ * -not-impl-yet
  */
 public class R2000FailureTests extends RTestBase {
 
@@ -70,9 +67,10 @@ public class R2000FailureTests extends RTestBase {
         assertEquals(true, res.ok);
         return res;
     }
+
     private GroupCodeGenerator createGroupCodeGenerator() {
         String outputPath = "src/test/java/org/dnal/fieldcopy/group/gen";
-        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(new SimpleLog());
+        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
         groupCodeGenerator.setPackageName("org.dnal.fieldcopy.group.gen");
         groupCodeGenerator.setOutDir(outputPath);
         return groupCodeGenerator;

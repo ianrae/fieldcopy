@@ -2,12 +2,17 @@ package org.dnal.fieldcopy.parser.fieldcopyjson;
 
 import org.dnal.fieldcopy.codegen.FieldCopyException;
 import org.dnal.fieldcopy.error.FCError;
+import org.dnal.fieldcopy.log.FieldCopyLog;
 import org.dnal.fieldcopy.log.SimpleLog;
 
 public class ConfigJsonParser {
+    private FieldCopyLog log;
+
+    public ConfigJsonParser(FieldCopyLog log) {
+        this.log = log;
+    }
 
     public FieldCopyOptions parseConfig(String json) {
-        SimpleLog log = new SimpleLog();
         FieldCopyJsonParser parser = new FieldCopyJsonParser(log);
         FieldCopyOptions options = new FieldCopyOptions();
 
