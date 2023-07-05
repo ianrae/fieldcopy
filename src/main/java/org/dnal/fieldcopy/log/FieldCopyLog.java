@@ -1,10 +1,12 @@
 package org.dnal.fieldcopy.log;
 
 /**
- * Delia log.  Delia comes with a SimpleLog that uses System.out.
- * Most applications will implement their own implementation of this class
- * to connect up to their logging system (log4j, etc)
- * 
+ * FieldCopy log.  FielCopy comes with two loggers:
+ *  -SimpleLog that uses System.out.
+ *  -StandardLog that uses sl4j. This will use whatever sl4j library your overall uses, such as logback or log4j.
+ *
+ * Note. FieldCopy includes logback but only for 'test' scope.
+ *
  * @author Ian Rae
  *
  */
