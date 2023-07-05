@@ -9,6 +9,7 @@ import org.dnal.fieldcopy.fieldspec.FieldSpec;
 import org.dnal.fieldcopy.fieldspec.NormalFieldSpec;
 import org.dnal.fieldcopy.implicitconverter.ImplicitConvRegistry;
 import org.dnal.fieldcopy.implicitconverter.ImplicitConverterRegistryBuilder;
+import org.dnal.fieldcopy.log.FieldCopyLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.registry.ConverterRegistry;
 import org.dnal.fieldcopy.registry.MultiSpecRegistry;
@@ -21,16 +22,19 @@ public class ConverterBodyGenerator {
     private final FieldCopyOptions options;
     private final List<ObjectConverterSpec> additionalConverters;
     private final FCRegistry namedConverters; //for using
+    private final FieldCopyLog log;
     protected FCRegistry finalReg;
 
 
-    public ConverterBodyGenerator(FieldCopyOptions options) {
+    public ConverterBodyGenerator(FieldCopyLog log, FieldCopyOptions options) {
         this.options = options;
         additionalConverters = new ArrayList<>();
         namedConverters = null;
+        this.log = log;
     }
 
-    public ConverterBodyGenerator(FieldCopyOptions options, List<ObjectConverterSpec> additionalConverters, FCRegistry namedConverters) {
+    public ConverterBodyGenerator(FieldCopyLog log, FieldCopyOptions options, List<ObjectConverterSpec> additionalConverters, FCRegistry namedConverters) {
+        this.log = log;
         this.options = options;
         this.additionalConverters = new ArrayList<>(additionalConverters);
         this.namedConverters = namedConverters;
@@ -99,7 +103,7 @@ public class ConverterBodyGenerator {
     }
 
     protected JavaSrcSpec generateCode(CopySpec spec, ImplicitConvRegistry implicitConvRegistry, ConverterRegistry registry) {
-        CodeGenerator codegen = new CodeGenerator(implicitConvRegistry, registry, options);
+        CodeGenerator codegen = new CodeGenerator(implicitConvRegistry, registry, options, log);
         JavaSrcSpec srcSpec = codegen.generate(spec);
         return srcSpec;
     }

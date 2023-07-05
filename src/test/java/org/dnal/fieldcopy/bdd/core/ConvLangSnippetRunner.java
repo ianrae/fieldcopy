@@ -47,7 +47,7 @@ public class ConvLangSnippetRunner implements SnippetRunner {
 
         //do codegen if BDDMode.CODEGEN
         if (BDDMode.isCodeGen(ctx.mode) && isNull(ctx.useConverterFromTest)) {
-            GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+            GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
             String outputPath = "src/test/java/org/dnal/fieldcopy/bdd/gen";
             groupCodeGenerator.setPackageName(GEN_PACKAGE);
             groupCodeGenerator.setOutDir(outputPath);

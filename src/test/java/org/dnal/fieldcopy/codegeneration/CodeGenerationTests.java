@@ -24,7 +24,7 @@ public class CodeGenerationTests {
         ParserResults parseRes = parser.parse(json, options);
         String outDir = "C:/tmp/fieldcopy2/gen";
 
-        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
         groupCodeGenerator.setPackageName("org.delia.gip.slugs.bigcommerce.gen");
         groupCodeGenerator.setOutDir(outDir);
         groupCodeGenerator.setOptions(parseRes.options);

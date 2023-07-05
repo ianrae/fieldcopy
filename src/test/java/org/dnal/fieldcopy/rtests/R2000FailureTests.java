@@ -2,6 +2,7 @@ package org.dnal.fieldcopy.rtests;
 
 import org.dnal.fieldcopy.codegen.FieldCopyException;
 import org.dnal.fieldcopy.group.GroupCodeGenerator;
+import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FileLoader;
 import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
 import org.junit.jupiter.api.Assertions;
@@ -71,7 +72,7 @@ public class R2000FailureTests extends RTestBase {
     }
     private GroupCodeGenerator createGroupCodeGenerator() {
         String outputPath = "src/test/java/org/dnal/fieldcopy/group/gen";
-        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(new SimpleLog());
         groupCodeGenerator.setPackageName("org.dnal.fieldcopy.group.gen");
         groupCodeGenerator.setOutDir(outputPath);
         return groupCodeGenerator;

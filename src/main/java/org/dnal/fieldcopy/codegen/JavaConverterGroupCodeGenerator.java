@@ -1,17 +1,20 @@
 package org.dnal.fieldcopy.codegen;
 
 import org.dnal.fieldcopy.fieldspec.CopySpec;
+import org.dnal.fieldcopy.log.FieldCopyLog;
 import org.dnal.fieldcopy.util.StrListCreator;
 import org.dnal.fieldcopy.util.TextFileWriter;
 
 import java.util.List;
 
 public class JavaConverterGroupCodeGenerator {
+    private final FieldCopyLog log;
     private String dir;
     public String outpath;
 
-    public JavaConverterGroupCodeGenerator(String dir) {
+    public JavaConverterGroupCodeGenerator(String dir, FieldCopyLog log) {
         this.dir = dir;
+        this.log = log;
     }
 
     public List<String> genStr(String packageName, String className, List<CopySpec> specs,

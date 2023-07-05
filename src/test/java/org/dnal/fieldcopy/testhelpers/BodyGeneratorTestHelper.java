@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.testhelpers;
 import org.dnal.fieldcopy.converter.FCRegistry;
 import org.dnal.fieldcopy.group.ConverterBodyGenerator;
 import org.dnal.fieldcopy.group.ObjectConverterSpec;
+import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.runtime.ObjectConverter;
 
@@ -19,10 +20,10 @@ public class BodyGeneratorTestHelper {
     public static ConverterBodyGenerator createBodyGenerator(ObjectConverter<?, ?> customConverter1, FieldCopyOptions options,
                                                              FCRegistry registry) {
         if (isNull(customConverter1)) {
-            return new ConverterBodyGenerator(options);
+            return new ConverterBodyGenerator(new SimpleLog(), options);
         } else {
             ObjectConverterSpec converterSpec = new ObjectConverterSpec(customConverter1);
-            ConverterBodyGenerator bodyGenerator = new ConverterBodyGenerator(options, Arrays.asList(converterSpec),
+            ConverterBodyGenerator bodyGenerator = new ConverterBodyGenerator(new SimpleLog(), options, Arrays.asList(converterSpec),
                     registry);
             return bodyGenerator;
         }

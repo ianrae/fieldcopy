@@ -3,6 +3,8 @@ package org.dnal.fieldcopy.fluent;
 import org.dnal.fieldcopy.ConverterGroup;
 import org.dnal.fieldcopy.FieldCopy;
 import org.dnal.fieldcopy.converter.FCRegistry;
+import org.dnal.fieldcopy.log.FieldCopyLog;
+import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.runtime.ObjectConverter;
 import org.dnal.fieldcopy.runtime.RuntimeOptions;
@@ -17,6 +19,7 @@ public class FCFluent1 {
     private final ConverterGroup converterGroup;
     private FCRegistry namedConverters;
     private final ReflectionUtil helper;
+    private FieldCopyLog log = new SimpleLog();
 
     public FCFluent1(Class<? extends ConverterGroup> groupClass, RuntimeOptions options) {
         this.groupClass = groupClass;
@@ -37,6 +40,11 @@ public class FCFluent1 {
         return this;
     }
 
+    public FCFluent1 log(FieldCopyLog log) {
+        this.log = log;
+        return this;
+    }
+
     public FCFluent1 options(RuntimeOptions options) {
         this.options = options;
         return this;
@@ -48,7 +56,7 @@ public class FCFluent1 {
     }
 
     public FieldCopy build() {
-        return new FieldCopy(converterGroup, options, namedConverters);
+        return new FieldCopy(log, converterGroup, options, namedConverters);
     }
 
 }

@@ -1,5 +1,7 @@
 package org.dnal.fieldcopy.codegeneration;
 
+import org.dnal.fieldcopy.log.FieldCopyLog;
+import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 
 /***
@@ -11,6 +13,7 @@ public class CodeGenerationBuilder1 {
     private String converterPackageName;
     private String outputDir;
     private boolean dryRunFlag;
+    private FieldCopyLog log = new SimpleLog();
 
     public CodeGenerationBuilder1(String json) {
         this.json = json;
@@ -18,6 +21,11 @@ public class CodeGenerationBuilder1 {
 
     public CodeGenerationBuilder1 options(FieldCopyOptions options) {
         this.options = options;
+        return this;
+    }
+
+    public CodeGenerationBuilder1 log(FieldCopyLog log) {
+        this.log = log;
         return this;
     }
 
@@ -37,6 +45,6 @@ public class CodeGenerationBuilder1 {
     }
 
     public FieldCopyCodeGenerator build() {
-        return new FieldCopyCodeGenerator(json, options, converterPackageName, outputDir, dryRunFlag);
+        return new FieldCopyCodeGenerator(json, options, converterPackageName, outputDir, dryRunFlag, log);
     }
 }

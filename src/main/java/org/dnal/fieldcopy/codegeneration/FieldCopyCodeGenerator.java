@@ -11,6 +11,7 @@ import org.dnal.fieldcopy.parser.fieldcopyjson.ParserResults;
  * Performs code generation.
  */
 public class FieldCopyCodeGenerator {
+    private final FieldCopyLog log;
     private String json;
     private FieldCopyOptions options;
     private String converterPackageName;
@@ -18,21 +19,21 @@ public class FieldCopyCodeGenerator {
     private boolean dryRunFlag;
 
     public FieldCopyCodeGenerator(String json, FieldCopyOptions options, String converterPackageName, String outputDir,
-                                  boolean dryRunFlag) {
+                                  boolean dryRunFlag, FieldCopyLog log) {
         this.json = json;
         this.options = options;
         this.converterPackageName = converterPackageName;
         this.outputDir = outputDir;
         this.dryRunFlag = dryRunFlag;
+        this.log = log;
     }
 
     public boolean generateSourceFiles() {
-        FieldCopyLog log = new SimpleLog();
         FieldCopyJsonParser parser = new FieldCopyJsonParser(log);
 
         ParserResults parseRes = parser.parse(json, options);
 
-        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
         groupCodeGenerator.setPackageName(converterPackageName);
         groupCodeGenerator.setOutDir(outputDir);
         groupCodeGenerator.setOptions(parseRes.options);
