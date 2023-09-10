@@ -36,7 +36,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/ianrae/delia-lang</url>
+			<url>https://maven.pkg.github.com/ianrae/fieldcopy</url>
 		</repository>
 	</distributionManagement>
 
