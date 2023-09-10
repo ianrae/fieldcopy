@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Integer -> int. eg int n = nCount.intValue();
+ * {@code Integer -> int}. eg int n = nCount.intValue();
  * src: Integer
  * dest: int
  * SUNDAY

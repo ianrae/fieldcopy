@@ -32,7 +32,7 @@ public class GroupCodeGeneratorTests extends ICRTestBase {
 
         String outputPath = "src/test/java/org/dnal/fieldcopy/group/gen";
 
-        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator();
+        GroupCodeGenerator groupCodeGenerator = new GroupCodeGenerator(log);
         groupCodeGenerator.setPackageName("org.dnal.fieldcopy.group.gen");
         groupCodeGenerator.setOutDir(outputPath);
 //        groupCodeGenerator.setDryRunFlag(true);

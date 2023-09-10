@@ -1,5 +1,6 @@
 package org.dnal.fieldcopy.bdd.core;
 
+import org.dnal.fieldcopy.TestBase;
 import org.dnal.fieldcopy.log.FieldCopyLog;
 import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.util.TextFileReader;
@@ -9,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class BDDCoreTests {
+public class BDDCoreTests extends TestBase  {
     public static class MockSnippetRunner implements SnippetRunner {
         @Override
         public BDDSnippetResult execute(BDDSnippet snippet, BDDSnippetResult previousRes, SnippetContext ctx) {
@@ -34,7 +35,6 @@ public class BDDCoreTests {
     public void testRun() {
         BDDFeature feature = readTest("sample1.txt");
 
-        FieldCopyLog log = new SimpleLog();
         BDDFeatureRunner runner = new BDDFeatureRunner(BDDMode.RUNTIME, log,  100, 100);
         runner.addRunner(SnippetType.CODEGEN, new MockSnippetRunner());
         runner.addRunner(SnippetType.VALUES, new MockSnippetRunner());
@@ -50,7 +50,6 @@ public class BDDCoreTests {
     public void testRun2() {
         BDDFeature feature = readTest("sample2.txt");
 
-        FieldCopyLog log = new SimpleLog();
         BDDFeatureRunner runner = new BDDFeatureRunner(BDDMode.RUNTIME, log,  100, 100);
         runner.addRunner(SnippetType.CODEGEN, new MockSnippetRunner());
         runner.addRunner(SnippetType.VALUES, new MockSnippetRunner());

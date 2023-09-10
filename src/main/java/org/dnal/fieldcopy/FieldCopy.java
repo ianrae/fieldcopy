@@ -2,6 +2,7 @@ package org.dnal.fieldcopy;
 
 import org.dnal.fieldcopy.codegen.FieldCopyException;
 import org.dnal.fieldcopy.converter.FCRegistry;
+import org.dnal.fieldcopy.log.FieldCopyLog;
 import org.dnal.fieldcopy.runtime.ConverterContext;
 import org.dnal.fieldcopy.runtime.ObjectConverter;
 import org.dnal.fieldcopy.runtime.RuntimeOptions;
@@ -15,15 +16,17 @@ import static java.util.Objects.isNull;
  */
 public class FieldCopy {
 
+    private final FieldCopyLog log;
     private final ConverterGroup converterGroup;
     private final FCRegistry registry;
     private final RuntimeOptions options;
 
-    public FieldCopy(ConverterGroup converterGroup) {
-        this(converterGroup, new RuntimeOptions(), null);
+    public FieldCopy(FieldCopyLog log, ConverterGroup converterGroup) {
+        this(log, converterGroup, new RuntimeOptions(), null);
     }
 
-    public FieldCopy(ConverterGroup converterGroup, RuntimeOptions options, FCRegistry namedConverters) {
+    public FieldCopy(FieldCopyLog log, ConverterGroup converterGroup, RuntimeOptions options, FCRegistry namedConverters) {
+        this.log = log;
         this.registry = new FCRegistry();
         this.registry.addAll(converterGroup.getConverters());
         if (namedConverters != null) {
@@ -81,4 +84,6 @@ public class FieldCopy {
     public RuntimeOptions getOptions() {
         return options;
     }
+
+    public FieldCopyLog getLog() { return log; }
 }

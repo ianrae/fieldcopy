@@ -1,6 +1,8 @@
 package org.dnal.fieldcopy;
 
 import org.dnal.fieldcopy.codegen.JavaSrcSpec;
+import org.dnal.fieldcopy.log.FieldCopyLog;
+import org.dnal.fieldcopy.log.SimpleLog;
 import org.dnal.fieldcopy.util.render.ObjectRendererImpl;
 
 import java.util.List;
@@ -8,6 +10,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestBase {
+    protected FieldCopyLog log = new SimpleLog();
+
 
     protected void dumpLines(List<String> lines) {
         for (String s : lines) {
@@ -16,7 +20,7 @@ public class TestBase {
     }
 
     protected void log(String s) {
-        System.out.println(s);
+        log.log(s);
     }
 
     protected void chkLines(List<String> lines, String... ar) {

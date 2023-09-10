@@ -40,7 +40,7 @@ public class RuntimeOptionsTests extends ParserTestBase {
         String path = buildPath("parser/convlang-fmt1.json");
         String json = r.readFileAsSingleString(path);
 
-        ConfigJsonParser configParser = new ConfigJsonParser();
+        ConfigJsonParser configParser = new ConfigJsonParser(log);
         FieldCopyOptions configOptions = configParser.parseConfig(json);
 
         FieldCopy fc = FieldCopyBuilder.with(FieldCopyTests.MyGroup.class).loadOptionsFromConfig(configOptions).build();

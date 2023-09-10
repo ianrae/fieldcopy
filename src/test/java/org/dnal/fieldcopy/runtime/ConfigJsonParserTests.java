@@ -16,7 +16,7 @@ public class ConfigJsonParserTests extends ParserTestBase {
         String path = buildPath("parser/convlang4b.json");
         String json = r.readFileAsSingleString(path);
 
-        ConfigJsonParser configParser = new ConfigJsonParser();
+        ConfigJsonParser configParser = new ConfigJsonParser(log);
         FieldCopyOptions options = configParser.parseConfig(json);
 
         assertEquals("org.dnal.fieldcopy.dataclass", options.defaultSourcePackage);

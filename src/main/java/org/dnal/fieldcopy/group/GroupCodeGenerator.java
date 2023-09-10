@@ -19,11 +19,16 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 public class GroupCodeGenerator {
+    private final FieldCopyLog log;
     private String packageName;
     private String additionalConverterPackageName;
     private String outDir;
     private boolean dryRunFlag;
     public FieldCopyOptions options = new FieldCopyOptions();
+
+    public GroupCodeGenerator(FieldCopyLog log) {
+        this.log = log;
+    }
 
     public boolean generateJavaFiles(ParserResults res) {
         List<List<ObjectConverterSpec>> allAdditionalConverters = new ArrayList<>(); //parallel list with specs
@@ -36,7 +41,7 @@ public class GroupCodeGenerator {
             List<ObjectConverterSpec> additionalConverters = allAdditionalConverters.get(index++);
             findAdditionalConverters(additionalConverters);
 
-            ConverterBodyGenerator bodyGenerator = new ConverterBodyGenerator(options, additionalConverters, null);
+            ConverterBodyGenerator bodyGenerator = new ConverterBodyGenerator(log, options, additionalConverters, null);
             JavaSrcSpec srcSpec = bodyGenerator.doGen(spec, specs);
             boolean b = genSingleConverterClassFile(spec, srcSpec.lines, srcSpec);
             if (!b) {
@@ -61,7 +66,7 @@ public class GroupCodeGenerator {
     }
 
     private void generateConverterGroupJavaFile(ParserResults res, List<CopySpec> specs) {
-        JavaConverterGroupCodeGenerator codeGen = new JavaConverterGroupCodeGenerator(outDir);
+        JavaConverterGroupCodeGenerator codeGen = new JavaConverterGroupCodeGenerator(outDir, log);
         String className = "DefaultConverterGroup"; //TODO fix
 
         List<String> imports = new ArrayList<>();

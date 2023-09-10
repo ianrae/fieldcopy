@@ -60,7 +60,7 @@ public class ICRTestBase extends ParserTestBase {
 
     protected List<String> generateCode(CopySpec spec, ImplicitConvRegistry implicitConvRegistry, ConverterRegistry registry) {
         options.outputFieldCommentFlag = false;
-        CodeGenerator codegen = new CodeGenerator(implicitConvRegistry, registry, options);
+        CodeGenerator codegen = new CodeGenerator(implicitConvRegistry, registry, options, log);
         JavaSrcSpec srcSpec = codegen.generate(spec);
         currentSrcSpec = srcSpec;
 

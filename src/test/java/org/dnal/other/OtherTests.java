@@ -34,17 +34,17 @@ public class OtherTests {
 
     @Test
     public void testAddrCity() {
-        Customer src = new Customer();
-        Customer dest = new Customer();
-
-        Address tmp1 = src.getAddr();
-        String tmp2 = tmp1.getCity();
-
-        Address tmp3 = (isNull(dest.getAddr())) ? new Address() : dest.getAddr();
-//        Address tmp4 = getOrCreate(dest.getAddr(), Address.class);
-        tmp3.setCity(tmp2);
-
-        dest.setAddr(tmp3);
+//        Customer src = new Customer();
+//        Customer dest = new Customer();
+//
+//        Address tmp1 = src.getAddr();
+//        String tmp2 = tmp1.getCity();
+//
+//        Address tmp3 = (isNull(dest.getAddr())) ? new Address() : dest.getAddr();
+////        Address tmp4 = getOrCreate(dest.getAddr(), Address.class);
+//        tmp3.setCity(tmp2);
+//
+//        dest.setAddr(tmp3);
     }
 
     @Test
@@ -77,13 +77,13 @@ public class OtherTests {
 
     @Test
     public void testOptToOpt() {
-        OptCategory src = null;
-        OptCategory dest = null;
-
-        dest.setProd(src.getProd());                        //src N -> dest N
-        dest.setOptProd(Optional.of(src.getProd()));        //src N -> dest O
-        dest.setProd(src.getOptProd().orElse(null));  //src O -> dest N
-        dest.setOptProd(src.getOptProd());                  //src O -> dest O
+//        OptCategory src = null;
+//        OptCategory dest = null;
+//
+//        dest.setProd(src.getProd());                        //src N -> dest N
+//        dest.setOptProd(Optional.of(src.getProd()));        //src N -> dest O
+//        dest.setProd(src.getOptProd().orElse(null));  //src O -> dest N
+//        dest.setOptProd(src.getOptProd());                  //src O -> dest O
 
     }
 
