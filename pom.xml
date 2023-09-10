@@ -5,7 +5,7 @@
 	<groupId>org.dnal-lang</groupId>
 	<artifactId>fieldcopy</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5.0</version>
+	<version>0.5.1</version>
 
 	<name>fieldcopy</name>
 	<url>http://dnal-lang.org</url>
@@ -32,12 +32,13 @@
   <url>https://github.com/ianrae/fieldcopy</url>
  </scm>
 
-<distributionManagement>
-	<snapshotRepository>
-		<id>ossrh</id>
-		<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-	</snapshotRepository>
-</distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/ianrae/delia-lang</url>
+		</repository>
+	</distributionManagement>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -107,6 +108,7 @@
 	</dependencies>
 
 	<profiles>
+		<!-- this is old stuff for maven central. not used by github packages -->
 		<profile>
 			<id>release</id>
 			<build>
