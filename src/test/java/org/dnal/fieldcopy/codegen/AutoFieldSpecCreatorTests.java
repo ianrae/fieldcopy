@@ -122,7 +122,7 @@ public class AutoFieldSpecCreatorTests extends ICRTestBase {
         CopySpec spec = new CopySpec(srcClass, destClass);
         spec.autoFlag = true;
 
-        AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator();
+        AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator(null);
         int n = autoFieldSpecCreator.createAutoFields(spec, spec.autoExcludeFields);
         assertEquals(expectedSize, n);
         return spec;
@@ -130,7 +130,7 @@ public class AutoFieldSpecCreatorTests extends ICRTestBase {
     private void chkAuto(CopySpec spec, int expectedSize) {
         spec.autoFlag = true;
 
-        AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator();
+        AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator(null);
         int n = autoFieldSpecCreator.createAutoFields(spec, spec.autoExcludeFields);
         assertEquals(expectedSize, n);
     }

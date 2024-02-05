@@ -86,6 +86,7 @@ public class FieldCopyJsonParser {
         options.localDateTimeFormat = helper.getString("localDateTimeFormat", currentOptions.localDateTimeFormat);
         options.zonedDateTimeFormat = helper.getString("zonedDateTimeFormat", currentOptions.zonedDateTimeFormat);
         options.utilDateFormat = helper.getString("utilDateFormat", currentOptions.utilDateFormat);
+        options.defaultSkipNull = helper.getBool("defaultSkipNull", currentOptions.defaultSkipNull);
 
         if (helper.attrParser.areUnParsedAttrs(optionsMap)) {
             List<String> unParsed = helper.attrParser.getUnParsedAttrs(optionsMap);

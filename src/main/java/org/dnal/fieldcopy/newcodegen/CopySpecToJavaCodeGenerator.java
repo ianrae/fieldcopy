@@ -40,7 +40,7 @@ public class CopySpecToJavaCodeGenerator extends ExtractGenBase {
         varNameGenerator = new VarNameGenerator();
 
         if (spec.autoFlag) {
-            AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator();
+            AutoFieldSpecCreator autoFieldSpecCreator = new AutoFieldSpecCreator(options);
             autoFieldSpecCreator.createAutoFields(spec, spec.autoExcludeFields);
         }
 

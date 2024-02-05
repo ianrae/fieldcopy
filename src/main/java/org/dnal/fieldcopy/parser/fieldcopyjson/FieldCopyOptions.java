@@ -18,4 +18,6 @@ public class FieldCopyOptions {
     public boolean outputFieldCommentFlag = true;
     public boolean createNewListWhenCopying = true;
     public boolean outputGeneratedByCommentFlag = true;
+
+    public boolean defaultSkipNull = false; //if true then auto-generated fields will treat each field as if it has skipNull set
 }

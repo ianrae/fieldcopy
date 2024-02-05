@@ -3,6 +3,7 @@ package org.dnal.fieldcopy.codegen;
 import org.dnal.fieldcopy.fieldspec.CopySpec;
 import org.dnal.fieldcopy.fieldspec.FieldSpec;
 import org.dnal.fieldcopy.fieldspec.NormalFieldSpec;
+import org.dnal.fieldcopy.parser.fieldcopyjson.FieldCopyOptions;
 import org.dnal.fieldcopy.util.ReflectionUtil;
 
 import java.util.ArrayList;
@@ -10,6 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AutoFieldSpecCreator {
+    private FieldCopyOptions options;
+
+    public AutoFieldSpecCreator(FieldCopyOptions options) {
+        this.options = options;
+    }
 
     public int createAutoFields(CopySpec spec, List<String> fieldsToExclude) {
         ReflectionUtil helper = new ReflectionUtil();
@@ -28,6 +34,9 @@ public class AutoFieldSpecCreator {
         for(String fieldName: finalList) {
             NormalFieldSpec nspec = new NormalFieldSpec(spec.srcClass, spec.destClass, fieldName, fieldName);
             nspec.convLangSrc = String.format("%s -> %s", fieldName, fieldName);
+            if (options != null && options.defaultSkipNull) {
+                nspec.skipNull = true;
+            }
             spec.fields.add(nspec);
         }
         return finalList.size();
