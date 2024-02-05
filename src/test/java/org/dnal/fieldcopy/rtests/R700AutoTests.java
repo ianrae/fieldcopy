@@ -82,4 +82,31 @@ public class R700AutoTests extends RTestBase {
         chkImports(currentSrcSpec, "org.dnal.fieldcopy.dataclass.Address", "org.dnal.fieldcopy.dataclass.ZoneAddress");
     }
 
+    @Test
+    public void testSkipIfNull() {
+        CopySpec spec = new CopySpec(Src1.class, Dest1.class);
+        spec.autoFlag = true;
+        options.defaultSkipNull = true; //new for Feb2024
+        List<String> lines = doGen(spec);
+
+        String[] ar = {
+                "Color tmp1 = src.getCol1();",
+                "if (tmp1 != null) {",
+                "dest.setCol1(tmp1);",
+                "}",
+                "Inner1 tmp2 = src.getInner1();",
+                "if (tmp2 != null) {",
+                "dest.setInner1(tmp2);",
+                "}",
+                "int tmp3 = src.getN1();",
+                "dest.setN1(tmp3);",
+                "String tmp4 = src.getS2();",
+                "if (tmp4 != null) {",
+                "dest.setS2(tmp4);",
+                "}",
+        };
+        chkLines(lines, ar);
+        chkImports(currentSrcSpec, "org.dnal.fieldcopy.dataclass.Color", "org.dnal.fieldcopy.dataclass.Inner1");
+    }
+
 }
