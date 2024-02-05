@@ -62,6 +62,7 @@ public class ConverterHandler extends ExtractGenBase {
             result = convVarName.get();
             result.suppressOptional = true; //we've handled src optional-ness
         }
+//        result.needToAddClosingBrace = srcCodeVar.needToAddClosingBrace;
         return result;
     }
 
@@ -179,11 +180,18 @@ public class ConverterHandler extends ExtractGenBase {
 //                sc.addStr("}");
 //            }
 
+            GenResult genResult = null;
             if (ctx.doListCopy) {
-                return Optional.of(new GenResult(listExpr.varName));
+                genResult = new GenResult(listExpr.varName);
             } else {
-                return Optional.of(new GenResult(expr2));
+                genResult = new GenResult(expr2);
             }
+            //add back closing brace flag
+            if (srcCodeVar instanceof CodeVar) {
+                CodeVar tmpcv = (CodeVar) srcCodeVar;
+                genResult.needToAddClosingBrace = tmpcv.needToAddClosingBrace;
+            }
+            return Optional.of(genResult);
         }
 
         //do nothing if src and dest are same type

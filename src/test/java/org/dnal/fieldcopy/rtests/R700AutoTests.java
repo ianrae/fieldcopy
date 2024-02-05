@@ -1,9 +1,6 @@
 package org.dnal.fieldcopy.rtests;
 
-import org.dnal.fieldcopy.dataclass.Customer;
-import org.dnal.fieldcopy.dataclass.Dest1;
-import org.dnal.fieldcopy.dataclass.ExtendedCustomer;
-import org.dnal.fieldcopy.dataclass.Src1;
+import org.dnal.fieldcopy.dataclass.*;
 import org.dnal.fieldcopy.fieldspec.CopySpec;
 import org.junit.jupiter.api.Test;
 
@@ -109,4 +106,47 @@ public class R700AutoTests extends RTestBase {
         chkImports(currentSrcSpec, "org.dnal.fieldcopy.dataclass.Color", "org.dnal.fieldcopy.dataclass.Inner1");
     }
 
+    @Test
+    public void testSkipIfNullDates() {
+        CopySpec spec = new CopySpec(CustomerMiniStr.class, CustomerMini.class);
+        spec.autoFlag = true;
+        options.defaultSkipNull = true; //new for Feb2024 v0.5.2
+        List<String> lines = doGen(spec);
+
+        String[] ar = {
+                "String tmp1 = src.getFirstName();",
+                "if (tmp1 != null) {",
+                "dest.setFirstName(tmp1);",
+                "}",
+                "String tmp2 = src.getNumPoints();",
+                "if (tmp2 != null) {",
+                "  int tmp3 = Integer.parseInt(tmp2);",
+                "dest.setNumPoints(tmp3);",
+                "}",
+                "String tmp4 = src.getZdt();",
+                "if (tmp4 != null) {",
+                "  ZonedDateTime tmp5 = ctx.toZonedDateTime(tmp4);",
+                "dest.setZdt(tmp5);",
+                "}"
+        };
+        chkLines(lines, ar);
+        chkImports(currentSrcSpec, "java.time.ZonedDateTime");
+    }
+
+//    private void foo(CustomerMiniStr src, CustomerMini dest) {
+//        String tmp1 = src.getFirstName();
+//        if (tmp1 != null) {
+//            dest.setFirstName(tmp1);
+//        }
+//        String tmp2 = src.getNumPoints();
+//        if (tmp2 != null) {
+//            int tmp3 = Integer.parseInt(tmp2);
+//            dest.setNumPoints(tmp3);
+//        }
+//        String tmp4 = src.getZdt();
+//        if (tmp4 != null) {
+//            ZonedDateTime tmp5 = ctx.toZonedDateTime(tmp4);
+//            dest.setZdt(tmp5);
+//        }
+//    }
 }
