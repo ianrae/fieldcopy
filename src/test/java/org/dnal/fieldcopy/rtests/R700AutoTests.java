@@ -86,7 +86,7 @@ public class R700AutoTests extends RTestBase {
     public void testSkipIfNull() {
         CopySpec spec = new CopySpec(Src1.class, Dest1.class);
         spec.autoFlag = true;
-        options.defaultSkipNull = true; //new for Feb2024
+        options.defaultSkipNull = true; //new for Feb2024 v0.5.2
         List<String> lines = doGen(spec);
 
         String[] ar = {
